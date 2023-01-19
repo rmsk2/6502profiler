@@ -19,5 +19,10 @@ func main() {
 	res := cpu.LoadAndRun(os.Args[1])
 	if res != nil {
 		fmt.Printf("A problem occurred: %v\n", res)
+		return
 	}
+
+	fmt.Printf("Program ran for %d clock cycles\n\n", cpu.NumCycles())
+	memory.Dump(cpu.Mem, 0x0800, 0x08ff)
+
 }

@@ -19,6 +19,8 @@ type CpuModel uint8
 const Model6502 CpuModel = 0x00
 const Model65C02 CpuModel = 0x01
 
+type execFunc func(c *CPU6502) (uint64, bool)
+
 type CPU6502 struct {
 	PC         uint16
 	SP         uint8
@@ -28,7 +30,8 @@ type CPU6502 struct {
 	Flags      uint8
 	model      CpuModel
 	cycleCount uint64
-	mem        memory.Memory
+	Mem        memory.Memory
+	opCodes    map[byte]execFunc
 }
 
 func New6502(m CpuModel) *CPU6502 {
@@ -41,16 +44,23 @@ func New6502(m CpuModel) *CPU6502 {
 		Flags:      0x00,
 		model:      m,
 		cycleCount: 0,
+		opCodes:    make(map[uint8]execFunc),
 	}
+
+	res.opCodes[0xA9] = (*CPU6502).ldaImmediate
+	res.opCodes[0xAD] = (*CPU6502).ldaAbsolute
+	res.opCodes[0x8D] = (*CPU6502).staAbsolute
+	res.opCodes[0x00] = (*CPU6502).brk
 
 	return res
 }
 
-//type InstructionFunc func(c *CPU6502, operAddr uint16, operand uint8) (uint64, bool)
-//type FetchOperFunc func(c *CPU6502) uint8
+func (c *CPU6502) NumCycles() uint64 {
+	return c.cycleCount
+}
 
 func (c *CPU6502) Init(m memory.Memory) {
-	c.mem = m
+	c.Mem = m
 	c.SP = 0xFF
 }
 
@@ -76,7 +86,7 @@ func (c *CPU6502) LoadAndRun(fileName string) (err error) {
 	}()
 
 	for _, j := range data[2:] {
-		c.mem.Store(loadAddress, j)
+		c.Mem.Store(loadAddress, j)
 		loadAddress++ // This can overflow
 	}
 
@@ -110,7 +120,65 @@ func (c *CPU6502) Run(startAddress uint16) (err error) {
 	return err
 }
 
+func (c *CPU6502) getAddrAbsolute() uint16 {
+	loByte := c.Mem.Load(c.PC)
+	c.PC++
+	var addr uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
+
+	return addr
+}
+
+func (c *CPU6502) ldaBase(value uint8) bool {
+	c.A = value
+
+	if c.A == 0 {
+		c.Flags |= Flag_Z
+	} else {
+		c.Flags &^= Flag_Z
+	}
+
+	if (c.A & 0x80) != 0 {
+		c.Flags |= Flag_N
+	} else {
+		c.Flags &^= Flag_N
+	}
+
+	return false
+}
+
+func (c *CPU6502) ldaImmediate() (uint64, bool) {
+	stop := c.ldaBase(c.Mem.Load(c.PC))
+	c.PC++
+
+	return 2, stop
+}
+
+func (c *CPU6502) ldaAbsolute() (uint64, bool) {
+	stop := c.ldaBase(c.Mem.Load(c.getAddrAbsolute()))
+	c.PC++
+
+	return 4, stop
+}
+
+func (c *CPU6502) staAbsolute() (uint64, bool) {
+	c.Mem.Store(c.getAddrAbsolute(), c.A)
+	c.PC++
+
+	return 4, false
+}
+
+func (c *CPU6502) brk() (uint64, bool) {
+	return 7, true
+}
+
 func (c *CPU6502) executeInstruction() (uint64, bool) {
-	//panic(fmt.Sprintf("Shit at %d", c.PC))
-	return 0, true
+	opCode := c.Mem.Load(c.PC)
+	instruction, ok := c.opCodes[opCode]
+	if !ok {
+		panic(fmt.Sprintf("Illegal opcode $%x at $%x", opCode, c.PC))
+	}
+
+	c.PC++
+
+	return instruction(c)
 }
