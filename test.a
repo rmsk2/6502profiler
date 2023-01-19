@@ -1,0 +1,9 @@
+!to "test.prg", cbm
+
+* = $0800
+
+lda DATA
+sta $0810
+brk
+DATA
+!byte $44
