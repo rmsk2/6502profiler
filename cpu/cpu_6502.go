@@ -131,7 +131,7 @@ func (c *CPU6502) Run(startAddress uint16) (err error) {
 	return err
 }
 
-// -------- Adressing modes --------
+// -------- Addressing modes --------
 
 func (c *CPU6502) getAddrAbsolute() uint16 {
 	loByte := c.Mem.Load(c.PC)
@@ -302,7 +302,7 @@ func (c *CPU6502) brk() (uint64, bool) {
 	return 7, true
 }
 
-// ----------------------
+// ---------------------
 
 func (c *CPU6502) executeInstruction() (uint64, bool) {
 	opCode := c.Mem.Load(c.PC)
