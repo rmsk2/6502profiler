@@ -2,8 +2,16 @@
 
 * = $0800
 
-lda DATA
-sta $0810
+TARGET_ADDR = $0820
+
+ldx #2
+lda DATA, x
+sta TARGET_ADDR
+ldy INDEX, x
+lda DATA, y
+sta TARGET_ADDR + 1
 brk
 DATA
-!byte $44
+!byte $44, $45, $46
+INDEX
+!byte 1, 0, 2
