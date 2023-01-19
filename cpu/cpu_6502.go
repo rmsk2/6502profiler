@@ -56,10 +56,9 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xAE] = (*CPU6502).ldxAbsolute
 
 	res.opCodes[0xB9] = (*CPU6502).ldaAbsoluteY
-	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
 	res.opCodes[0xBD] = (*CPU6502).ldaAbsoluteX
 	res.opCodes[0xBC] = (*CPU6502).ldyAbsoluteX
-
+	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
 	res.opCodes[0x8D] = (*CPU6502).staAbsolute
 
 	res.opCodes[0x00] = (*CPU6502).brk
@@ -297,9 +296,13 @@ func (c *CPU6502) staAbsolute() (uint64, bool) {
 	return 4, false
 }
 
+// -------- STA --------
+
 func (c *CPU6502) brk() (uint64, bool) {
 	return 7, true
 }
+
+// ----------------------
 
 func (c *CPU6502) executeInstruction() (uint64, bool) {
 	opCode := c.Mem.Load(c.PC)
