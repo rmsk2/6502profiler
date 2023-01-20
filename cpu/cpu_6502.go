@@ -47,6 +47,9 @@ func New6502(m CpuModel) *CPU6502 {
 		opCodes:    make(map[uint8]execFunc),
 	}
 
+	res.opCodes[0x10] = (*CPU6502).bpl
+	res.opCodes[0x88] = (*CPU6502).dey
+
 	res.opCodes[0xA9] = (*CPU6502).ldaImmediate
 	res.opCodes[0xA0] = (*CPU6502).ldyImmediate
 	res.opCodes[0xA2] = (*CPU6502).ldxImmediate
@@ -55,11 +58,16 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xAC] = (*CPU6502).ldyAbsolute
 	res.opCodes[0xAE] = (*CPU6502).ldxAbsolute
 
+	res.opCodes[0xB1] = (*CPU6502).ldaIndIdxY
+
 	res.opCodes[0xB9] = (*CPU6502).ldaAbsoluteY
 	res.opCodes[0xBD] = (*CPU6502).ldaAbsoluteX
 	res.opCodes[0xBC] = (*CPU6502).ldyAbsoluteX
 	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
+
 	res.opCodes[0x8D] = (*CPU6502).staAbsolute
+	res.opCodes[0x99] = (*CPU6502).staAbsoluteY
+	res.opCodes[0x85] = (*CPU6502).staZeroPage
 
 	res.opCodes[0x00] = (*CPU6502).brk
 

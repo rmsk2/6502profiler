@@ -104,3 +104,12 @@ func (c *CPU6502) ldaAbsoluteX() (uint64, bool) {
 
 	return 4 + additionalCycles, stop
 }
+
+func (c *CPU6502) ldaIndIdxY() (uint64, bool) {
+	operandAddress := c.getAddrIndirectIdxY()
+	stop := c.ldaBase(c.Mem.Load(operandAddress))
+	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
+	c.PC++
+
+	return 4 + additionalCycles, stop
+}
