@@ -86,24 +86,39 @@ func (c *CPU6502) LoadAndRun(fileName string) (err error) {
 	}
 
 	var loadAddress uint16 = uint16(data[1])*256 + uint16(data[0])
-	startAddress := loadAddress
 
+	return c.CopyAndRun(data[2:], loadAddress)
+}
+
+func (c *CPU6502) CopyProg(program []byte, startAddress uint16) (err error) {
 	// Recover from panic created by memory access
 	defer func() {
 		if res := recover(); res != nil {
 			// Use named return value to return a value after handling the panic
-			err = fmt.Errorf("error loading 6502 program: %v", res)
+			err = fmt.Errorf("error copying 6502 program: %v", res)
 		}
 	}()
 
-	for _, j := range data[2:] {
-		c.Mem.Store(loadAddress, j)
-		loadAddress++ // This can overflow
+	copyAddress := startAddress
+
+	for _, j := range program {
+		c.Mem.Store(copyAddress, j)
+		copyAddress++ // This can overflow
+	}
+
+	return err
+}
+
+func (c *CPU6502) CopyAndRun(program []byte, startAddress uint16) (err error) {
+	err = c.CopyProg(program, startAddress)
+	if err != nil {
+		return err
 	}
 
 	err = c.Run(startAddress)
 
 	return err
+
 }
 
 func (c *CPU6502) Run(startAddress uint16) (err error) {
@@ -131,32 +146,6 @@ func (c *CPU6502) Run(startAddress uint16) (err error) {
 	return err
 }
 
-// -------- Addressing modes --------
-
-func (c *CPU6502) getAddrAbsolute() uint16 {
-	loByte := c.Mem.Load(c.PC)
-	c.PC++
-	var addr uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
-
-	return addr
-}
-
-func (c *CPU6502) getAddrAbsoluteY() uint16 {
-	loByte := c.Mem.Load(c.PC)
-	c.PC++
-	var addr uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
-
-	return addr + uint16(c.Y)
-}
-
-func (c *CPU6502) getAddrAbsoluteX() uint16 {
-	loByte := c.Mem.Load(c.PC)
-	c.PC++
-	var addr uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
-
-	return addr + uint16(c.X)
-}
-
 // -------- Helpers --------
 
 func (c *CPU6502) pageCrossCycles(addr1, addr2 uint16) uint64 {
@@ -168,7 +157,7 @@ func (c *CPU6502) pageCrossCycles(addr1, addr2 uint16) uint64 {
 	return additionalCycles
 }
 
-func (c *CPU6502) ldFlags(v uint8) {
+func (c *CPU6502) nzFlags(v uint8) {
 	if v == 0 {
 		c.Flags |= Flag_Z
 	} else {
@@ -182,121 +171,7 @@ func (c *CPU6502) ldFlags(v uint8) {
 	}
 }
 
-// -------- LDX --------
-
-func (c *CPU6502) ldxBase(value uint8) bool {
-	c.X = value
-	c.ldFlags(c.X)
-
-	return false
-}
-
-func (c *CPU6502) ldxImmediate() (uint64, bool) {
-	stop := c.ldxBase(c.Mem.Load(c.PC))
-	c.PC++
-
-	return 2, stop
-}
-
-func (c *CPU6502) ldxAbsolute() (uint64, bool) {
-	stop := c.ldxBase(c.Mem.Load(c.getAddrAbsolute()))
-	c.PC++
-
-	return 4, stop
-}
-
-func (c *CPU6502) ldxAbsoluteY() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteY()
-	stop := c.ldxBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
-	c.PC++
-
-	return 4 + additionalCycles, stop
-}
-
-// -------- LDY --------
-
-func (c *CPU6502) ldyBase(value uint8) bool {
-	c.Y = value
-	c.ldFlags(c.Y)
-
-	return false
-}
-
-func (c *CPU6502) ldyImmediate() (uint64, bool) {
-	stop := c.ldyBase(c.Mem.Load(c.PC))
-	c.PC++
-
-	return 2, stop
-}
-
-func (c *CPU6502) ldyAbsolute() (uint64, bool) {
-	stop := c.ldyBase(c.Mem.Load(c.getAddrAbsolute()))
-	c.PC++
-
-	return 4, stop
-}
-
-func (c *CPU6502) ldyAbsoluteX() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteX()
-	stop := c.ldyBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
-	c.PC++
-
-	return 4 + additionalCycles, stop
-}
-
-// -------- LDA --------
-
-func (c *CPU6502) ldaBase(value uint8) bool {
-	c.A = value
-	c.ldFlags(c.A)
-
-	return false
-}
-
-func (c *CPU6502) ldaImmediate() (uint64, bool) {
-	stop := c.ldaBase(c.Mem.Load(c.PC))
-	c.PC++
-
-	return 2, stop
-}
-
-func (c *CPU6502) ldaAbsolute() (uint64, bool) {
-	stop := c.ldaBase(c.Mem.Load(c.getAddrAbsolute()))
-	c.PC++
-
-	return 4, stop
-}
-
-func (c *CPU6502) ldaAbsoluteY() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteY()
-	stop := c.ldaBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
-	c.PC++
-
-	return 4 + additionalCycles, stop
-}
-
-func (c *CPU6502) ldaAbsoluteX() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteX()
-	stop := c.ldaBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
-	c.PC++
-
-	return 4 + additionalCycles, stop
-}
-
-// -------- STA --------
-
-func (c *CPU6502) staAbsolute() (uint64, bool) {
-	c.Mem.Store(c.getAddrAbsolute(), c.A)
-	c.PC++
-
-	return 4, false
-}
-
-// -------- STA --------
+// -------- BRK --------
 
 func (c *CPU6502) brk() (uint64, bool) {
 	return 7, true
