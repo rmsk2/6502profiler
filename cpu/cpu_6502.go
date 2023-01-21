@@ -156,15 +156,6 @@ func (c *CPU6502) Run(startAddress uint16) (err error) {
 
 // -------- Helpers --------
 
-func (c *CPU6502) pageCrossCycles(addr1, addr2 uint16) uint64 {
-	var additionalCycles uint64 = 0
-	if (addr1 & 0xFF00) != (addr2 & 0xFF00) {
-		additionalCycles = 1
-	}
-
-	return additionalCycles
-}
-
 func (c *CPU6502) nzFlags(v uint8) {
 	if v == 0 {
 		c.Flags |= Flag_Z

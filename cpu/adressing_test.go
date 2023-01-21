@@ -57,7 +57,9 @@ func TestGetAddrAbsoluteY(t *testing.T) {
 	cpu.PC = 0x0000
 	cpu.Y = 0x08
 
-	if cpu.getAddrAbsoluteY() != 0x244A {
+	res, _ := cpu.getAddrAbsoluteY()
+
+	if res != 0x244A {
 		t.Fatal("Absolute Y addressing does not work")
 	}
 }
@@ -69,7 +71,9 @@ func TestGetAddrAbsoluteX(t *testing.T) {
 	cpu.PC = 0x0000
 	cpu.X = 0x08
 
-	if cpu.getAddrAbsoluteX() != 0x255A {
+	res, _ := cpu.getAddrAbsoluteX()
+
+	if res != 0x255A {
 		t.Fatal("Absolute X addressing does not work")
 	}
 }
@@ -115,7 +119,9 @@ func TestGetAddrRelativeNegative(t *testing.T) {
 	cpu.CopyProg([]byte{0xa9, 0x00, 0xf0, 0xfe}, 0x0000)
 	cpu.PC = 0x0003
 
-	if cpu.getAddrRelative() != 0x0002 {
+	res, _ := cpu.getAddrRelative()
+
+	if res != 0x0002 {
 		t.Fatal("Relative addressing for a negative offset does not work")
 	}
 }
@@ -126,7 +132,9 @@ func TestGetAddrRelativePositive(t *testing.T) {
 	cpu.CopyProg([]byte{0xa9, 0x00, 0xf0, 0x00, 0xea}, 0x0000)
 	cpu.PC = 0x0003
 
-	if cpu.getAddrRelative() != 0x0004 {
+	res, _ := cpu.getAddrRelative()
+
+	if res != 0x0004 {
 		t.Fatal("Relative addressing for a positive	offset does not work")
 	}
 }
@@ -140,7 +148,9 @@ func TestGetAddrIndirectIdxY(t *testing.T) {
 	cpu.Y = 2
 	cpu.PC = 0x0000
 
-	if cpu.getAddrIndirectIdxY() != 0x567A {
+	res, _ := cpu.getAddrIndirectIdxY()
+
+	if res != 0x567A {
 		t.Fatal("Indirect addressing with index Y does not work")
 	}
 }
@@ -156,7 +166,9 @@ func TestGetAddrIdxIndirectX(t *testing.T) {
 	cpu.X = 2
 	cpu.PC = 0x0000
 
-	if cpu.getAddrIdxIndirectX() != 0x9ABC {
+	res := cpu.getAddrIdxIndirectX()
+
+	if res != 0x9ABC {
 		t.Fatal("indexed with X indirect addressing does not work")
 	}
 }

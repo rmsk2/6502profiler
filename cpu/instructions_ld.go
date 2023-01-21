@@ -24,12 +24,11 @@ func (c *CPU6502) ldxAbsolute() (uint64, bool) {
 }
 
 func (c *CPU6502) ldxAbsoluteY() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteY()
+	operandAddress, additionalCycle := c.getAddrAbsoluteY()
 	stop := c.ldxBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
 	c.PC++
 
-	return 4 + additionalCycles, stop
+	return 4 + additionalCycle, stop
 }
 
 // -------- LDY --------
@@ -56,12 +55,11 @@ func (c *CPU6502) ldyAbsolute() (uint64, bool) {
 }
 
 func (c *CPU6502) ldyAbsoluteX() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteX()
+	operandAddress, additionalCycle := c.getAddrAbsoluteX()
 	stop := c.ldyBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
 	c.PC++
 
-	return 4 + additionalCycles, stop
+	return 4 + additionalCycle, stop
 }
 
 // -------- LDA --------
@@ -88,28 +86,25 @@ func (c *CPU6502) ldaAbsolute() (uint64, bool) {
 }
 
 func (c *CPU6502) ldaAbsoluteY() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteY()
+	operandAddress, additionalCycle := c.getAddrAbsoluteY()
 	stop := c.ldaBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
 	c.PC++
 
-	return 4 + additionalCycles, stop
+	return 4 + additionalCycle, stop
 }
 
 func (c *CPU6502) ldaAbsoluteX() (uint64, bool) {
-	operandAddress := c.getAddrAbsoluteX()
+	operandAddress, additionalCycle := c.getAddrAbsoluteX()
 	stop := c.ldaBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
 	c.PC++
 
-	return 4 + additionalCycles, stop
+	return 4 + additionalCycle, stop
 }
 
 func (c *CPU6502) ldaIndIdxY() (uint64, bool) {
-	operandAddress := c.getAddrIndirectIdxY()
+	operandAddress, additionalCycle := c.getAddrIndirectIdxY()
 	stop := c.ldaBase(c.Mem.Load(operandAddress))
-	additionalCycles := c.pageCrossCycles(operandAddress, c.PC)
 	c.PC++
 
-	return 4 + additionalCycles, stop
+	return 4 + additionalCycle, stop
 }

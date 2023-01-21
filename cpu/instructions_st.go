@@ -17,7 +17,8 @@ func (c *CPU6502) staZeroPage() (uint64, bool) {
 }
 
 func (c *CPU6502) staAbsoluteY() (uint64, bool) {
-	c.Mem.Store(c.getAddrAbsoluteY(), c.A)
+	addr, _ := c.getAddrAbsoluteY()
+	c.Mem.Store(addr, c.A)
 	c.PC++
 
 	return 5, false
