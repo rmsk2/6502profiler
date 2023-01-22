@@ -47,29 +47,38 @@ func New6502(m CpuModel) *CPU6502 {
 		opCodes:    make(map[uint8]execFunc),
 	}
 
+	// BPL
 	res.opCodes[0x10] = (*CPU6502).bpl
+
+	// DEY
 	res.opCodes[0x88] = (*CPU6502).dey
 
+	// LDA
 	res.opCodes[0xA9] = (*CPU6502).ldaImmediate
-	res.opCodes[0xA0] = (*CPU6502).ldyImmediate
-	res.opCodes[0xA2] = (*CPU6502).ldxImmediate
-
 	res.opCodes[0xAD] = (*CPU6502).ldaAbsolute
-	res.opCodes[0xAC] = (*CPU6502).ldyAbsolute
-	res.opCodes[0xAE] = (*CPU6502).ldxAbsolute
-
-	res.opCodes[0xB1] = (*CPU6502).ldaIndIdxY
-
 	res.opCodes[0xB9] = (*CPU6502).ldaAbsoluteY
 	res.opCodes[0xBD] = (*CPU6502).ldaAbsoluteX
-	res.opCodes[0xBC] = (*CPU6502).ldyAbsoluteX
-	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
+	res.opCodes[0xB1] = (*CPU6502).ldaIndIdxY
 
+	// LDX
+	res.opCodes[0xA2] = (*CPU6502).ldxImmediate
+	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
+	res.opCodes[0xAE] = (*CPU6502).ldxAbsolute
+
+	// LDY
+	res.opCodes[0xAC] = (*CPU6502).ldyAbsolute
+	res.opCodes[0xA0] = (*CPU6502).ldyImmediate
+	res.opCodes[0xBC] = (*CPU6502).ldyAbsoluteX
+
+	// STA
 	res.opCodes[0x8D] = (*CPU6502).staAbsolute
 	res.opCodes[0x99] = (*CPU6502).staAbsoluteY
 	res.opCodes[0x85] = (*CPU6502).staZeroPage
 
-	res.opCodes[0x00] = (*CPU6502).brk
+	// BRK
+	res.opCodes[0x00] = func(c *CPU6502) (uint64, bool) {
+		return 7, true
+	}
 
 	return res
 }
@@ -168,12 +177,6 @@ func (c *CPU6502) nzFlags(v uint8) {
 	} else {
 		c.Flags &^= Flag_N
 	}
-}
-
-// -------- BRK --------
-
-func (c *CPU6502) brk() (uint64, bool) {
-	return 7, true
 }
 
 // ---------------------

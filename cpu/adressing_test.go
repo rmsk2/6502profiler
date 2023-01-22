@@ -172,3 +172,34 @@ func TestGetAddrIdxIndirectX(t *testing.T) {
 		t.Fatal("indexed with X indirect addressing does not work")
 	}
 }
+
+func TestGetAddrIdxIndirect65C02(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyProg([]byte{0x57, 0x13}, 0x0000)
+	cpu.Mem.Store(0x1456, 0xCD)
+	cpu.Mem.Store(0x1457, 0xAB)
+	cpu.X = 0xFF
+	cpu.PC = 0x0000
+
+	res := cpu.getAddrIdxIndirect65C02()
+
+	if res != 0xABCD {
+		t.Fatal("Indexed indirect addressing (65C02) does not work")
+	}
+}
+
+func TestGetAddrZp65C02(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyProg([]byte{0x12}, 0x0000)
+	cpu.Mem.Store(0x0012, 0x78)
+	cpu.Mem.Store(0x0013, 0x56)
+	cpu.PC = 0x0000
+
+	res := cpu.getAddrZp65C02()
+
+	if res != 0x5678 {
+		t.Fatal("65C02 Zero-page addressing does not work")
+	}
+}

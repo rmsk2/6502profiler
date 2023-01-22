@@ -91,3 +91,22 @@ func (c *CPU6502) getAddrIdxIndirectX() uint16 {
 
 	return uint16(c.Mem.Load(uint16(zpAddrHi)))*256 + uint16(c.Mem.Load(uint16(zpAddrLo)))
 }
+
+func (c *CPU6502) getAddrZp65C02() uint16 {
+	zpAddrLo := c.Mem.Load(c.PC)
+	zpAddrHi := zpAddrLo + 1 // Overflow is allowed
+
+	var addr uint16 = uint16(c.Mem.Load(uint16(zpAddrHi)))*256 + uint16(c.Mem.Load(uint16(zpAddrLo)))
+
+	return addr
+}
+
+func (c *CPU6502) getAddrIdxIndirect65C02() uint16 {
+	baseAddrLo := c.Mem.Load(c.PC)
+	c.PC++
+
+	baseAddr := uint16(c.Mem.Load(c.PC))*256 + uint16(baseAddrLo)
+	baseAddr += uint16(c.X)
+
+	return uint16(c.Mem.Load(baseAddr+1))*256 + uint16(c.Mem.Load(baseAddr))
+}
