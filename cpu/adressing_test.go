@@ -113,6 +113,21 @@ func TestGetAddrIndirect(t *testing.T) {
 	}
 }
 
+func TestGetAddrJmIndirect65C02(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyProg([]byte{0xFF, 0x30}, 0x0000)
+	cpu.Mem.Store(0x30FF, 0x80)
+	cpu.Mem.Store(0x3000, 0x40)
+	cpu.Mem.Store(0x3100, 0x50)
+
+	addr := cpu.getAddrIndirect()
+
+	if addr != 0x5080 {
+		t.Fatal("Indirect JMP does not work")
+	}
+}
+
 func TestGetAddrRelativeNegative(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
@@ -170,6 +185,36 @@ func TestGetAddrIdxIndirectX(t *testing.T) {
 
 	if res != 0x9ABC {
 		t.Fatal("indexed with X indirect addressing does not work")
+	}
+}
+
+// This test verifies compatibility to a bug present in the original 6502
+func TestGetAddrJmIndirectJmp6502(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyProg([]byte{0xFF, 0x30}, 0x0000)
+	cpu.Mem.Store(0x30FF, 0x80)
+	cpu.Mem.Store(0x3000, 0x40)
+	cpu.Mem.Store(0x3100, 0x50)
+
+	addr := cpu.getAddrIndirectJmp6502()
+
+	if addr != 0x4080 {
+		t.Fatal("indirect JMP works too well for an original 6502")
+	}
+}
+
+func TestGetAddrJmIndirectJmp6502Correct(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyProg([]byte{0xFE, 0x30}, 0x0000)
+	cpu.Mem.Store(0x30FE, 0x80)
+	cpu.Mem.Store(0x30FF, 0x50)
+
+	addr := cpu.getAddrIndirectJmp6502()
+
+	if addr != 0x5080 {
+		t.Fatal("indirect JMP does not work")
 	}
 }
 

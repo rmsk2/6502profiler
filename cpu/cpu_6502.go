@@ -80,6 +80,24 @@ func New6502(m CpuModel) *CPU6502 {
 		return 7, true
 	}
 
+	// NOP
+	res.opCodes[0xEA] = func(c *CPU6502) (uint64, bool) {
+		return 2, false
+	}
+
+	// PHA
+	res.opCodes[0x48] = func(c *CPU6502) (uint64, bool) {
+		c.push(c.A)
+		return 3, false
+	}
+
+	// PLA
+	res.opCodes[0x68] = func(c *CPU6502) (uint64, bool) {
+		c.A = c.pop()
+		c.nzFlags(c.A)
+		return 4, false
+	}
+
 	return res
 }
 
@@ -177,6 +195,18 @@ func (c *CPU6502) nzFlags(v uint8) {
 	} else {
 		c.Flags &^= Flag_N
 	}
+}
+
+// Stack functions. Stack is always in the area 0x100 - 0x1FF. The first address is
+// 0x1FF. The stack grows downwards.
+func (c *CPU6502) push(val uint8) {
+	c.Mem.Store(0x100+uint16(c.SP), val)
+	c.SP--
+}
+
+func (c *CPU6502) pop() uint8 {
+	c.SP++
+	return c.Mem.Load(0x100 + uint16(c.SP))
 }
 
 // ---------------------

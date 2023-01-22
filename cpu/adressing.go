@@ -65,6 +65,19 @@ func (c *CPU6502) getAddrIndirect() uint16 {
 	return uint16(c.Mem.Load(addr+1))*256 + uint16(c.Mem.Load(addr))
 }
 
+// This was a bug of the original 6502 JMP(addr) implementation. When the address of an
+// indirect JMP is the last byte on a page, i.e. 0xXYFF then the second byte is taken
+// from 0xXY00.
+func (c *CPU6502) getAddrIndirectJmp6502() uint16 {
+	loByte := c.Mem.Load(c.PC)
+	c.PC++
+	var addr uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
+	loByte++
+	var addr2 uint16 = uint16(c.Mem.Load(c.PC))*256 + uint16(loByte)
+
+	return uint16(c.Mem.Load(addr2))*256 + uint16(c.Mem.Load(addr))
+}
+
 func (c *CPU6502) getAddrRelative() (uint16, uint64) {
 	offset := int16(int8(c.Mem.Load(c.PC)))
 
