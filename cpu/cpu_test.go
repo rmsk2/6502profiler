@@ -11,6 +11,7 @@ type VerifyFunc func(c *CPU6502) bool
 // A PrepareFunc prepares the machine for a unit test
 type PrepareFunc func(c *CPU6502)
 
+// Start address for all unit testing programs
 const UnitProgStart = 0x0800
 
 func TestStackOperations(t *testing.T) {

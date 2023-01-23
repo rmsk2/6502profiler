@@ -108,3 +108,40 @@ func TestDEY0(t *testing.T) {
 }
 
 // -------- INY --------
+
+// Don't test setting of zero and negative flag. INY uses the same
+// code (nzFlags()) as the other instructions which have already been
+// tested.
+func TestINY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Y = 0x43
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.Y != 0x44 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// iny
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xC8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEY",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
