@@ -8,6 +8,11 @@ import (
 // A VerifyFunc returns true if the test is OK
 type VerifyFunc func(c *CPU6502) bool
 
+// A PrepareFunc prepares the machine for a unit test
+type PrepareFunc func(c *CPU6502)
+
+const UnitProgStart = 0x0800
+
 func TestStackOperations(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(3072))
@@ -35,7 +40,7 @@ func TestStackOperations(t *testing.T) {
 	}
 }
 
-func testSingleInstruction(model CpuModel, testProg []byte, verifier VerifyFunc) (bool, error) {
+func testSingleInstructionWithArrange(model CpuModel, testProg []byte, arranger PrepareFunc, verifier VerifyFunc) (bool, error) {
 	cpu := New6502(model)
 	cpu.Init(memory.NewLinearMemory(8192))
 
@@ -44,7 +49,13 @@ func testSingleInstruction(model CpuModel, testProg []byte, verifier VerifyFunc)
 		return false, err
 	}
 
-	err = cpu.Run(0x800)
+	cpu.PC = UnitProgStart
+
+	if arranger != nil {
+		arranger(cpu)
+	}
+
+	err = cpu.Run(cpu.PC)
 	if err != nil {
 		return false, err
 	}
@@ -52,4 +63,23 @@ func testSingleInstruction(model CpuModel, testProg []byte, verifier VerifyFunc)
 	res := verifier(cpu)
 
 	return res, err
+}
+
+type InstructionTestCase struct {
+	model           CpuModel
+	testProg        []byte
+	arranger        PrepareFunc
+	verifier        VerifyFunc
+	instructionName string
+}
+
+func testSingleInstructionWithCase(t *testing.T, c InstructionTestCase) {
+	res, err := testSingleInstructionWithArrange(c.model, c.testProg, c.arranger, c.verifier)
+
+	if res == false {
+		t.Fatalf("%s could not be verified", c.instructionName)
+	}
+	if err != nil {
+		t.Fatalf("%s does not work: %v", c.instructionName, err)
+	}
 }

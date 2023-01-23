@@ -2,11 +2,10 @@ package cpu
 
 import "testing"
 
-// lda #$42
-// brk
+// -------- LDA --------
+
 func TestLDAImmediate(t *testing.T) {
-	prog := []byte{0xA9, 0x42, 0x00}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
+	verifier := func(c *CPU6502) bool {
 		if c.A != 0x42 {
 			return false
 		}
@@ -20,21 +19,23 @@ func TestLDAImmediate(t *testing.T) {
 		}
 
 		return true
-	})
+	}
 
-	if res == false {
-		t.Fatal("LDA immediate does not work")
+	// lda #$42
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA9, 0x42, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDA immediate",
 	}
-	if err != nil {
-		t.Fatalf("LDA immediate does not work: %v", err)
-	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// lda #00
-// brk
 func TestLDAImmediate0(t *testing.T) {
-	prog := []byte{0xA9, 0x00, 0x00}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
+	verifier := func(c *CPU6502) bool {
 		if c.A != 0x00 {
 			return false
 		}
@@ -48,21 +49,23 @@ func TestLDAImmediate0(t *testing.T) {
 		}
 
 		return true
-	})
+	}
 
-	if res == false {
-		t.Fatal("LDA immediate does not work")
+	// lda #00
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA9, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDA immediate",
 	}
-	if err != nil {
-		t.Fatalf("LDA immediate does not work: %v", err)
-	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// lda #$81
-// brk
 func TestLDAImmediateNeg(t *testing.T) {
-	prog := []byte{0xA9, 0x81, 0x00}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
+	verifier := func(c *CPU6502) bool {
 		if c.A != 0x81 {
 			return false
 		}
@@ -76,94 +79,389 @@ func TestLDAImmediateNeg(t *testing.T) {
 		}
 
 		return true
-	})
+	}
 
-	if res == false {
-		t.Fatal("LDA immediate does not work")
+	// lda #$81
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA9, 0x81, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDA immediate",
 	}
-	if err != nil {
-		t.Fatalf("LDA immediate does not work: %v", err)
-	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// lda $0804
-// brk
-// !byte 0x72
 // Code to set N and Z flags is the same in all LDA implementations
 // => no extra test
 func TestLDAAbsolute(t *testing.T) {
-	prog := []byte{0xAD, 0x04, 0x08, 0x00, 0x72}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
+	verifier := func(c *CPU6502) bool {
 		return c.A == 0x72
-	})
+	}
 
-	if res == false {
-		t.Fatal("LDA absolute does not work")
+	// lda $0804
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xAD, 0x04, 0x08, 0x00, 0x72},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDA absolute",
 	}
-	if err != nil {
-		t.Fatalf("LDA absolute does not work: %v", err)
-	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// ldx #6
-// lda $0800, x
-// brk
-// !byte 0x72
 // Code to set N and Z flags is the same in all LDA implementations
 // => no extra test
 func TestLDAAbsoluteX(t *testing.T) {
-	prog := []byte{0xA2, 0x06, 0xBD, 0x00, 0x08, 0x00, 0x72}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
-		return c.A == 0x72
-	})
+	arranger := func(c *CPU6502) {
+		c.X = 4
+	}
 
-	if res == false {
-		t.Fatal("LDA absolute X does not work")
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x72
 	}
-	if err != nil {
-		t.Fatalf("LDA absolute X does not work: %v", err)
+
+	// lda $0800, x
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xBD, 0x00, 0x08, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDA absolute with X index",
 	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// ldy #6
-// lda $0800, y
-// brk
-// !byte 0x72
 // Code to set N and Z flags is the same in all LDA implementations
 // => no extra test
 func TestLDAAbsoluteY(t *testing.T) {
-	prog := []byte{0xA0, 0x06, 0xB9, 0x00, 0x08, 0x00, 0x72}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
-		return c.A == 0x72
-	})
+	arranger := func(c *CPU6502) {
+		c.Y = 4
+	}
 
-	if res == false {
-		t.Fatal("LDA absolute Y does not work")
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x72
 	}
-	if err != nil {
-		t.Fatalf("LDA absolute Y does not work: %v", err)
+
+	// lda $0800, y
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xB9, 0x00, 0x08, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDA absolute with Y index",
 	}
+
+	testSingleInstructionWithCase(t, c)
 }
 
-// lda #<$0800
-// sta $12
-// lda #>$0800
-// sta $13
-// ldy #$0d
-// lda ($12),y
-// brk
-// DATA
-// !byte $72
 func TestLDAIndirectIdxY(t *testing.T) {
-	prog := []byte{0xa9, 0x00, 0x85, 0x12, 0xa9, 0x08, 0x85, 0x13, 0xa0, 0x0d, 0xb1, 0x12, 0x00, 0x72}
-	res, err := testSingleInstruction(Model6502, prog, func(c *CPU6502) bool {
-		return c.A == 0x72
-	})
+	arranger := func(c *CPU6502) {
+		c.Y = 3
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x08)
+	}
 
-	if res == false {
-		t.Fatal("LDA indirect index Y does not work")
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x72
 	}
-	if err != nil {
-		t.Fatalf("LDA indirect index Y does not work: %v", err)
+
+	// lda ($12),y
+	// brk
+	// !byte $72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xb1, 0x12, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDA indirect with Y index",
 	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- LDX --------
+
+func TestLDXImmediate(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.X != 0x42 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldx #$42
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA2, 0x42, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDX immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDXImmediate0(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.X != 0x00 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldx #00
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA2, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDX immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDXImmediateNeg(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.X != 0x81 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldx #$81
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA2, 0x81, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDX immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// Code to set N and Z flags is the same in all LDX implementations
+// => no extra test
+func TestLDXAbsolute(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x72
+	}
+
+	// ldx $0804
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xAE, 0x04, 0x08, 0x00, 0x72},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDX absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// Code to set N and Z flags is the same in all LDX implementations
+// => no extra test
+func TestLDXAbsoluteY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Y = 4
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x72
+	}
+
+	// ldx $0800, y
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xBE, 0x00, 0x08, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDX absolute with Y index",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- LDY --------
+
+func TestLDYImmediate(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.Y != 0x42 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldy #$42
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA0, 0x42, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDY immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDYImmediate0(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.Y != 0x00 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldy #00
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA0, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDY immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDYImmediateNeg(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		if c.Y != 0x81 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// ldy #$81
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA0, 0x81, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDY immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// Code to set N and Z flags is the same in all LDY implementations
+// => no extra test
+func TestLDYAbsolute(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return c.Y == 0x72
+	}
+
+	// ldy $0804
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xAC, 0x04, 0x08, 0x00, 0x72},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "LDY absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// Code to set N and Z flags is the same in all LDY implementations
+// => no extra test
+func TestLDYAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 4
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Y == 0x72
+	}
+
+	// ldy $0800, x
+	// brk
+	// !byte 0x72
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xBC, 0x00, 0x08, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDY absolute with X index",
+	}
+
+	testSingleInstructionWithCase(t, c)
 }

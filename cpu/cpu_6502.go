@@ -75,6 +75,11 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x99] = (*CPU6502).staAbsoluteY
 	res.opCodes[0x85] = (*CPU6502).staZeroPage
 
+	// PHA
+	res.opCodes[0x48] = (*CPU6502).pha
+	// PLA
+	res.opCodes[0x68] = (*CPU6502).pla
+
 	// BRK
 	res.opCodes[0x00] = func(c *CPU6502) (uint64, bool) {
 		return 7, true
@@ -83,19 +88,6 @@ func New6502(m CpuModel) *CPU6502 {
 	// NOP
 	res.opCodes[0xEA] = func(c *CPU6502) (uint64, bool) {
 		return 2, false
-	}
-
-	// PHA
-	res.opCodes[0x48] = func(c *CPU6502) (uint64, bool) {
-		c.push(c.A)
-		return 3, false
-	}
-
-	// PLA
-	res.opCodes[0x68] = func(c *CPU6502) (uint64, bool) {
-		c.A = c.pop()
-		c.nzFlags(c.A)
-		return 4, false
 	}
 
 	return res

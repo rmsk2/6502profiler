@@ -23,3 +23,16 @@ func (c *CPU6502) staAbsoluteY() (uint64, bool) {
 
 	return 5, false
 }
+
+// -------- PHA --------
+func (c *CPU6502) pha() (uint64, bool) {
+	c.push(c.A)
+	return 3, false
+}
+
+// -------- PLA --------
+func (c *CPU6502) pla() (uint64, bool) {
+	c.A = c.pop()
+	c.nzFlags(c.A)
+	return 4, false
+}
