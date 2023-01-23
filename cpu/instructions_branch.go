@@ -83,3 +83,31 @@ func (c *CPU6502) bcc() (uint64, bool) {
 
 	return 3 + additionalCycle, false
 }
+
+// -------- BVS--------
+
+func (c *CPU6502) bvs() (uint64, bool) {
+	if (c.Flags & Flag_V) == 0 {
+		c.PC++ // Skip when overflowflag is clear
+		return 2, false
+	}
+
+	branchAddress, additionalCycle := c.getAddrRelative()
+	c.PC = branchAddress
+
+	return 3 + additionalCycle, false
+}
+
+// -------- BVC --------
+
+func (c *CPU6502) bvc() (uint64, bool) {
+	if (c.Flags & Flag_V) != 0 {
+		c.PC++ // Skip when overflow flag is set
+		return 2, false
+	}
+
+	branchAddress, additionalCycle := c.getAddrRelative()
+	c.PC = branchAddress
+
+	return 3 + additionalCycle, false
+}

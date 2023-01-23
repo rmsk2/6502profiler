@@ -59,6 +59,10 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x90] = (*CPU6502).bcc
 	// BCS
 	res.opCodes[0xB0] = (*CPU6502).bcs
+	// BVC
+	res.opCodes[0x50] = (*CPU6502).bvc
+	// BVS
+	res.opCodes[0x70] = (*CPU6502).bvs
 
 	// CPY
 	res.opCodes[0xC0] = (*CPU6502).cpyImmediate
