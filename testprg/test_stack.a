@@ -2,11 +2,11 @@
 
 * = $0800
 
-lda #$42
-pha
-lda #$00
-pla
-sta .OUT
-brk
+    lda #$42
+    pha
+    lda #$00
+    pla
+    sta .OUT
+    brk
 .OUT
 !byte 99
