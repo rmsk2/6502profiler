@@ -85,6 +85,21 @@ func (c *CPU6502) ldaAbsolute() (uint64, bool) {
 	return 4, stop
 }
 
+func (c *CPU6502) ldaZeroPage() (uint64, bool) {
+	stop := c.ldaBase(c.Mem.Load(c.getAddrZeroPage()))
+	c.PC++
+
+	return 4, stop
+}
+
+func (c *CPU6502) ldaZeroPageIdxX() (uint64, bool) {
+	operandAddress := c.getAddrZeroPageX()
+	stop := c.ldaBase(c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4, stop
+}
+
 func (c *CPU6502) ldaAbsoluteY() (uint64, bool) {
 	operandAddress, additionalCycle := c.getAddrAbsoluteY()
 	stop := c.ldaBase(c.Mem.Load(operandAddress))
@@ -107,4 +122,12 @@ func (c *CPU6502) ldaIndIdxY() (uint64, bool) {
 	c.PC++
 
 	return 4 + additionalCycle, stop
+}
+
+func (c *CPU6502) ldaIdxIndirectX() (uint64, bool) {
+	operandAddress := c.getAddrIdxIndirectX()
+	stop := c.ldaBase(c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 6, stop
 }

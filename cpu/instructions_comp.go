@@ -34,3 +34,44 @@ func (c *CPU6502) cpyImmediate() (uint64, bool) {
 
 	return 2, false
 }
+
+func (c *CPU6502) cpyZeroPage() (uint64, bool) {
+	addr := c.getAddrZeroPage()
+	c.cmpBase(c.Y, c.Mem.Load(addr))
+	c.PC++
+
+	return 3, false
+}
+
+func (c *CPU6502) cpyAbsolute() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+	c.cmpBase(c.Y, c.Mem.Load(addr))
+	c.PC++
+
+	return 4, false
+}
+
+// -------- CPX --------
+
+func (c *CPU6502) cpxImmediate() (uint64, bool) {
+	c.cmpBase(c.X, c.Mem.Load(c.PC))
+	c.PC++
+
+	return 2, false
+}
+
+func (c *CPU6502) cpxZeroPage() (uint64, bool) {
+	addr := c.getAddrZeroPage()
+	c.cmpBase(c.X, c.Mem.Load(addr))
+	c.PC++
+
+	return 3, false
+}
+
+func (c *CPU6502) cpxAbsolute() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+	c.cmpBase(c.X, c.Mem.Load(addr))
+	c.PC++
+
+	return 4, false
+}

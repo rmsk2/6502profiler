@@ -17,3 +17,21 @@ func (c *CPU6502) iny() (uint64, bool) {
 
 	return 2, false
 }
+
+// -------- DEX --------
+
+func (c *CPU6502) dex() (uint64, bool) {
+	c.X--
+	c.nzFlags(c.X)
+
+	return 2, false
+}
+
+// -------- INX --------
+
+func (c *CPU6502) inx() (uint64, bool) {
+	c.X++
+	c.nzFlags(c.X)
+
+	return 2, false
+}
