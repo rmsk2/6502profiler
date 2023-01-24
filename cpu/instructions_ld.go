@@ -89,7 +89,7 @@ func (c *CPU6502) ldaZeroPage() (uint64, bool) {
 	stop := c.ldaBase(c.Mem.Load(c.getAddrZeroPage()))
 	c.PC++
 
-	return 4, stop
+	return 3, stop
 }
 
 func (c *CPU6502) ldaZeroPageIdxX() (uint64, bool) {
