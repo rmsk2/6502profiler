@@ -1,0 +1,21 @@
+!to "test.prg", cbm
+
+* = $0800
+
+    ldy #0
+    lda #<.DATA_IN
+    sta $12
+    lda #>.DATA_IN
+    sta $13
+.loop
+    lda ($12), y
+    sta .DATA_OUT,y
+    iny
+    cpy #4
+    bne .loop
+    brk
+
+.DATA_IN
+!byte 0x40,0x30,0x20,0x10
+.DATA_OUT
+!byte 0,0,0,0
