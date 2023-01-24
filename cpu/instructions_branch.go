@@ -14,7 +14,7 @@ func (c *CPU6502) branchOnFlagClear(flag uint8) (uint64, bool) {
 
 func (c *CPU6502) branchOnFlagSet(flag uint8) (uint64, bool) {
 	if (c.Flags & flag) == 0 {
-		c.PC++ // Skip when negative flag is clear
+		c.PC++ // Skip when flag is clear
 		return 2, false
 	}
 
@@ -36,22 +36,16 @@ func (c *CPU6502) bmi() (uint64, bool) {
 	return c.branchOnFlagSet(Flag_N)
 }
 
-// -------- BEQ --------
-
-func (c *CPU6502) beq() (uint64, bool) {
-	return c.branchOnFlagSet(Flag_Z)
-}
-
 // -------- BNE --------
 
 func (c *CPU6502) bne() (uint64, bool) {
 	return c.branchOnFlagClear(Flag_Z)
 }
 
-// -------- BCS--------
+// -------- BEQ --------
 
-func (c *CPU6502) bcs() (uint64, bool) {
-	return c.branchOnFlagSet(Flag_C)
+func (c *CPU6502) beq() (uint64, bool) {
+	return c.branchOnFlagSet(Flag_Z)
 }
 
 // -------- BCC --------
@@ -60,14 +54,20 @@ func (c *CPU6502) bcc() (uint64, bool) {
 	return c.branchOnFlagClear(Flag_C)
 }
 
-// -------- BVS--------
+// -------- BCS--------
 
-func (c *CPU6502) bvs() (uint64, bool) {
-	return c.branchOnFlagSet(Flag_V)
+func (c *CPU6502) bcs() (uint64, bool) {
+	return c.branchOnFlagSet(Flag_C)
 }
 
 // -------- BVC --------
 
 func (c *CPU6502) bvc() (uint64, bool) {
 	return c.branchOnFlagClear(Flag_V)
+}
+
+// -------- BVS--------
+
+func (c *CPU6502) bvs() (uint64, bool) {
+	return c.branchOnFlagSet(Flag_V)
 }
