@@ -49,27 +49,27 @@ func New6502(m CpuModel) *CPU6502 {
 
 	// BPL
 	res.opCodes[0x10] = (*CPU6502).bpl
-	// BMI *
+	// BMI
 	res.opCodes[0x30] = (*CPU6502).bmi
-	// BEQ *
+	// BEQ
 	res.opCodes[0xF0] = (*CPU6502).beq
-	// BNE *
+	// BNE
 	res.opCodes[0xD0] = (*CPU6502).bne
-	// BCC *
+	// BCC
 	res.opCodes[0x90] = (*CPU6502).bcc
-	// BCS *
+	// BCS
 	res.opCodes[0xB0] = (*CPU6502).bcs
-	// BVC *
+	// BVC
 	res.opCodes[0x50] = (*CPU6502).bvc
-	// BVS *
+	// BVS
 	res.opCodes[0x70] = (*CPU6502).bvs
 
-	// CPY *
+	// CPY
 	res.opCodes[0xC0] = (*CPU6502).cpyImmediate
 	res.opCodes[0xC4] = (*CPU6502).cpyZeroPage
 	res.opCodes[0xCC] = (*CPU6502).cpyAbsolute
 
-	// CPX *
+	// CPX
 	res.opCodes[0xE0] = (*CPU6502).cpxImmediate
 	res.opCodes[0xE4] = (*CPU6502).cpxZeroPage
 	res.opCodes[0xEC] = (*CPU6502).cpxAbsolute
@@ -79,9 +79,9 @@ func New6502(m CpuModel) *CPU6502 {
 	// INY
 	res.opCodes[0xC8] = (*CPU6502).iny
 
-	// DEX *
+	// DEX
 	res.opCodes[0xCA] = (*CPU6502).dex
-	// INX *
+	// INX
 	res.opCodes[0xE8] = (*CPU6502).inx
 
 	// LDA
@@ -90,8 +90,8 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xB9] = (*CPU6502).ldaAbsoluteY
 	res.opCodes[0xBD] = (*CPU6502).ldaAbsoluteX
 	res.opCodes[0xB1] = (*CPU6502).ldaIndIdxY
-	res.opCodes[0xA5] = (*CPU6502).ldaZeroPage     // *
-	res.opCodes[0xB5] = (*CPU6502).ldaZeroPageIdxX // *
+	res.opCodes[0xA5] = (*CPU6502).ldaZeroPage
+	res.opCodes[0xB5] = (*CPU6502).ldaZeroPageIdxX
 	res.opCodes[0xA1] = (*CPU6502).ldaIdxIndirectX // *
 
 	// LDX

@@ -140,7 +140,75 @@ func TestINY(t *testing.T) {
 		testProg:        []byte{0xC8, 0x00},
 		arranger:        arranger,
 		verifier:        verifier,
-		instructionName: "DEY",
+		instructionName: "INY",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestDEX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 0x43
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.X != 0x42 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// dex
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xCA, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEX",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestINX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 0x43
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.X != 0x44 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// inx
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xE8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INX",
 	}
 
 	testSingleInstructionWithCase(t, c)
