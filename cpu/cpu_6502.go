@@ -92,7 +92,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xB1] = (*CPU6502).ldaIndIdxY
 	res.opCodes[0xA5] = (*CPU6502).ldaZeroPage
 	res.opCodes[0xB5] = (*CPU6502).ldaZeroPageIdxX
-	res.opCodes[0xA1] = (*CPU6502).ldaIdxIndirectX // *
+	res.opCodes[0xA1] = (*CPU6502).ldaIdxIndirectX
 
 	// LDX
 	res.opCodes[0xA2] = (*CPU6502).ldxImmediate
