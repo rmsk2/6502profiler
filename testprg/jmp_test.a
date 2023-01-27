@@ -1,0 +1,10 @@
+!to "test.prg", cbm
+
+* = $0800
+
+    jmp testLocation
+    brk
+    brk
+    brk
+testLocation
+    brk

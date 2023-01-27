@@ -1,0 +1,11 @@
+!to "test.prg", cbm
+
+* = $0800
+
+    lda #5
+    jsr .overwrite
+    ldx #6
+    brk
+.overwrite
+    lda #0x42
+    rts

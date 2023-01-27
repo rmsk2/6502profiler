@@ -75,3 +75,68 @@ func (c *CPU6502) cpxAbsolute() (uint64, bool) {
 
 	return 4, false
 }
+
+// -------- CMP --------
+
+func (c *CPU6502) cmpImmediate() (uint64, bool) {
+	c.cmpBase(c.A, c.Mem.Load(c.PC))
+	c.PC++
+
+	return 2, false
+}
+
+func (c *CPU6502) cmpZeroPage() (uint64, bool) {
+	operandAddress := c.getAddrZeroPage()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 3, false
+}
+
+func (c *CPU6502) cmpZeroPageX() (uint64, bool) {
+	operandAddress := c.getAddrZeroPageX()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4, false
+}
+
+func (c *CPU6502) cmpAbsolute() (uint64, bool) {
+	operandAddress := c.getAddrAbsolute()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4, false
+}
+
+func (c *CPU6502) cmpAbsoluteX() (uint64, bool) {
+	operandAddress, additionalCycle := c.getAddrAbsoluteX()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4 + additionalCycle, false
+}
+
+func (c *CPU6502) cmpAbsoluteY() (uint64, bool) {
+	operandAddress, additionalCycle := c.getAddrAbsoluteY()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4 + additionalCycle, false
+}
+
+func (c *CPU6502) cmpIdxXIndirect() (uint64, bool) {
+	operandAddress := c.getAddrIdxIndirectX()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 6, false
+}
+
+func (c *CPU6502) cmpIndIdxY() (uint64, bool) {
+	operandAddress, additionalCycle := c.getAddrIndirectIdxY()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 5 + additionalCycle, false
+}

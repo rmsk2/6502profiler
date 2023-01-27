@@ -83,6 +83,118 @@ func TestSTAAbsoluteY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestSTAAbsoluteX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x10A8, 0x44)
+		c.A = 0x52
+		c.X = 0xA8
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x10A8) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sta $1000, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x9D, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STA absolute with X index",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTAZeroPageX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0043, 0x44)
+		c.X = 0x10
+		c.A = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0043) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sta $33, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x95, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STA zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTAIndirectY(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1057, 0x44)
+		c.Mem.Store(0x0012, 0x50)
+		c.Mem.Store(0x0013, 0x10)
+		c.Y = 0x7
+		c.A = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1057) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sta ($12), y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x91, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STA indirect Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTAXIndirect(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1057, 0x44)
+		c.Mem.Store(0x0012, 0x57)
+		c.Mem.Store(0x0013, 0x10)
+		c.X = 0x02
+		c.A = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1057) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sta ($10, x)
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x81, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STA X indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- PHA --------
 
 func TestPHA(t *testing.T) {
@@ -208,6 +320,168 @@ func TestPLANeg(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "PLA",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- STX --------
+
+func TestSTXZeroPage(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0033, 0x44)
+		c.X = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0033) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// stx $33
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x86, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STX zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTXZeroPageY(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0043, 0x44)
+		c.Y = 0x10
+		c.X = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0043) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// stx $33, y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x96, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STX zero page Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTXAbsolute(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1000, 0x44)
+		c.X = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1000) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// stx $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x8E, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STX absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- STY --------
+
+func TestSTYZeroPageX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0043, 0x44)
+		c.X = 0x10
+		c.Y = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0043) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sty $33, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x94, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STY zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTYAbsolute(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1000, 0x44)
+		c.Y = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1000) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sty $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x8C, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STY absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTYZeroPage(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0033, 0x44)
+		c.Y = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0033) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sty $33
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x84, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STY zero page",
 	}
 
 	testSingleInstructionWithCase(t, c)

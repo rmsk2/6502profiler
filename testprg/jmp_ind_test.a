@@ -1,0 +1,11 @@
+!to "test.prg", cbm
+
+* = $0800
+
+    jmp (jmpAddr)
+    brk
+jmpAddr
+!byte <jmpTarget, >jmpTarget
+    brk
+jmpTarget
+    brk

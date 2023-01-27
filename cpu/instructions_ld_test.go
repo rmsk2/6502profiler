@@ -398,6 +398,51 @@ func TestLDXAbsoluteY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestLDXZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x72)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x72
+	}
+
+	// ldx $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA6, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDX Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDXZeroPageY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(230, 0x72)
+		c.Y = 10
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x72
+	}
+
+	// ldx $DC, y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xB6, 220, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDX Zero page with Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- LDY --------
 
 func TestLDYImmediate(t *testing.T) {
@@ -531,6 +576,51 @@ func TestLDYAbsoluteX(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "LDY absolute with X index",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDYZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x72)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Y == 0x72
+	}
+
+	// ldy $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA4, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDY Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLDYZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(230, 0x72)
+		c.X = 10
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Y == 0x72
+	}
+
+	// ldy $DC, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xB4, 220, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDY Zero page with X",
 	}
 
 	testSingleInstructionWithCase(t, c)

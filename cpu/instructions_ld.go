@@ -16,6 +16,21 @@ func (c *CPU6502) ldxImmediate() (uint64, bool) {
 	return 2, stop
 }
 
+func (c *CPU6502) ldxZeroPage() (uint64, bool) {
+	stop := c.ldxBase(c.Mem.Load(c.getAddrZeroPage()))
+	c.PC++
+
+	return 3, stop
+}
+
+func (c *CPU6502) ldxZeroPageIdxY() (uint64, bool) {
+	operandAddress := c.getAddrZeroPageY()
+	stop := c.ldxBase(c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4, stop
+}
+
 func (c *CPU6502) ldxAbsolute() (uint64, bool) {
 	stop := c.ldxBase(c.Mem.Load(c.getAddrAbsolute()))
 	c.PC++
@@ -45,6 +60,21 @@ func (c *CPU6502) ldyImmediate() (uint64, bool) {
 	c.PC++
 
 	return 2, stop
+}
+
+func (c *CPU6502) ldyZeroPage() (uint64, bool) {
+	stop := c.ldyBase(c.Mem.Load(c.getAddrZeroPage()))
+	c.PC++
+
+	return 3, stop
+}
+
+func (c *CPU6502) ldyZeroPageIdxX() (uint64, bool) {
+	operandAddress := c.getAddrZeroPageX()
+	stop := c.ldyBase(c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 4, stop
 }
 
 func (c *CPU6502) ldyAbsolute() (uint64, bool) {

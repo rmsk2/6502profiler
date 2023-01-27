@@ -9,7 +9,7 @@ import (
 
 const (
 	ExitError int = 43
-	ExitOk    int = 20
+	ExitOk    int = 0
 )
 
 func main() {

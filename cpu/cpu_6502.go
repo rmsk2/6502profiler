@@ -98,16 +98,60 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xA2] = (*CPU6502).ldxImmediate
 	res.opCodes[0xBE] = (*CPU6502).ldxAbsoluteY
 	res.opCodes[0xAE] = (*CPU6502).ldxAbsolute
+	res.opCodes[0xA6] = (*CPU6502).ldxZeroPage
+	res.opCodes[0xB6] = (*CPU6502).ldxZeroPageIdxY
 
 	// LDY
 	res.opCodes[0xAC] = (*CPU6502).ldyAbsolute
 	res.opCodes[0xA0] = (*CPU6502).ldyImmediate
 	res.opCodes[0xBC] = (*CPU6502).ldyAbsoluteX
+	res.opCodes[0xA4] = (*CPU6502).ldyZeroPage
+	res.opCodes[0xB4] = (*CPU6502).ldyZeroPageIdxX
 
 	// STA
 	res.opCodes[0x8D] = (*CPU6502).staAbsolute
 	res.opCodes[0x99] = (*CPU6502).staAbsoluteY
 	res.opCodes[0x85] = (*CPU6502).staZeroPage
+	res.opCodes[0x9D] = (*CPU6502).staAbsoluteX
+	res.opCodes[0x95] = (*CPU6502).staZeroPageX
+	res.opCodes[0x91] = (*CPU6502).staIndirectY
+	res.opCodes[0x81] = (*CPU6502).staXIndirect
+
+	// STX
+	res.opCodes[0x86] = (*CPU6502).stxZeroPage
+	res.opCodes[0x96] = (*CPU6502).stxZeroPageY
+	res.opCodes[0x8E] = (*CPU6502).stxAbsolute
+
+	// STY
+	res.opCodes[0x84] = (*CPU6502).styZeroPage
+	res.opCodes[0x94] = (*CPU6502).styZeroPageX
+	res.opCodes[0x8C] = (*CPU6502).styAbsolute
+
+	// CMP
+	res.opCodes[0xC9] = (*CPU6502).cmpImmediate
+	res.opCodes[0xC5] = (*CPU6502).cmpZeroPage
+	res.opCodes[0xD5] = (*CPU6502).cmpZeroPageX
+	res.opCodes[0xCD] = (*CPU6502).cmpAbsolute
+	res.opCodes[0xDD] = (*CPU6502).cmpAbsoluteX
+	res.opCodes[0xD9] = (*CPU6502).cmpAbsoluteY
+	res.opCodes[0xC1] = (*CPU6502).cmpIdxXIndirect
+	res.opCodes[0xD1] = (*CPU6502).cmpIndIdxY
+
+	// JSR
+	res.opCodes[0x20] = (*CPU6502).jsr
+
+	// RTS
+	res.opCodes[0x60] = (*CPU6502).rts
+
+	// JMP
+	res.opCodes[0x4C] = (*CPU6502).jmp
+	if m == Model6502 {
+		res.opCodes[0x6c] = (*CPU6502).jmpIndirect6502
+	}
+
+	if m == Model65C02 {
+		res.opCodes[0x6c] = (*CPU6502).jmpIndirect65C02
+	}
 
 	// PHA
 	res.opCodes[0x48] = (*CPU6502).pha

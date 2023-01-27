@@ -262,3 +262,96 @@ func TestBVSUp(t *testing.T) {
 
 	testSingleInstructionWithCase(t, c)
 }
+
+// -------- jsr/rts --------
+
+func TestJSR(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return (c.A == 0x42) && (c.X == 6)
+	}
+
+	//    lda #5
+	//    jsr .overwrite
+	//    ldx #6
+	//    brk
+	//.overwrite
+	//    lda #0x42
+	//    rts
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xa9, 0x05, 0x20, 0x08, 0x08, 0xa2, 0x06, 0x00, 0xa9, 0x42, 0x60},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "JSR/RTS",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestJMP(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return c.PC == 0x0807
+	}
+
+	//    jmp testLocation
+	//    brk
+	//    brk
+	//    brk
+	//testLocation
+	//    brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x4c, 0x06, 0x08, 0x00, 0x00, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "JMP",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestJMPIndirect6502(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return c.PC == 0x0808
+	}
+
+	//    jmp (jmpAddr)
+	//    brk
+	//jmpAddr
+	//!byte <jmpTarget, >jmpTarget
+	//    brk
+	//jmpTarget
+	//    brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x6c, 0x04, 0x08, 0x00, 0x07, 0x08, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "JMP indirect 6502",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestJMPIndirect65C02(t *testing.T) {
+	verifier := func(c *CPU6502) bool {
+		return c.PC == 0x0808
+	}
+
+	//    jmp (jmpAddr)
+	//    brk
+	//jmpAddr
+	//!byte <jmpTarget, >jmpTarget
+	//    brk
+	//jmpTarget
+	//    brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x6c, 0x04, 0x08, 0x00, 0x07, 0x08, 0x00, 0x00},
+		arranger:        nil,
+		verifier:        verifier,
+		instructionName: "JMP indirect 6502",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}

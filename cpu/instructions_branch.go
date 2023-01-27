@@ -71,3 +71,50 @@ func (c *CPU6502) bvc() (uint64, bool) {
 func (c *CPU6502) bvs() (uint64, bool) {
 	return c.branchOnFlagSet(Flag_V)
 }
+
+// -------- JSR--------
+
+func (c *CPU6502) jsr() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+	hiByte := uint8((c.PC & 0xFF00) >> 8)
+	c.push(hiByte)
+	loByte := uint8(c.PC & 0x00FF)
+	c.push(loByte)
+	c.PC = addr
+
+	return 6, false
+}
+
+// -------- RTS--------
+
+func (c *CPU6502) rts() (uint64, bool) {
+	loByte := uint16(c.pop())
+	hiByte := uint16(c.pop())
+	addr := hiByte*256 + loByte + 1
+	c.PC = addr
+
+	return 6, false
+}
+
+// -------- JMP--------
+
+func (c *CPU6502) jmp() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+	c.PC = addr
+
+	return 3, false
+}
+
+func (c *CPU6502) jmpIndirect6502() (uint64, bool) {
+	addr := c.getAddrIndirectJmp6502()
+	c.PC = addr
+
+	return 5, false
+}
+
+func (c *CPU6502) jmpIndirect65C02() (uint64, bool) {
+	addr := c.getAddrIndirect()
+	c.PC = addr
+
+	return 5, false
+}
