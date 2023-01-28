@@ -52,17 +52,7 @@ func (c *CPU6502) addBaseBin(val1, val2 uint8) uint8 {
 
 	r := uint8(t & 0xFF)
 
-	if r == 0 {
-		c.Flags |= Flag_Z
-	} else {
-		c.Flags &= (^Flag_Z)
-	}
-
-	if (r & 0x80) != 0 {
-		c.Flags |= Flag_N
-	} else {
-		c.Flags &= (^Flag_N)
-	}
+	c.nzFlags(r)
 
 	if t >= 256 {
 		c.Flags |= Flag_C
@@ -106,7 +96,7 @@ func (c *CPU6502) fromBCD(in uint8) uint8 {
 		panic("Invalid BCD data")
 	}
 
-	return hiNibble*10 + loNibble
+	return (hiNibble * 10) + loNibble
 }
 
 func (c *CPU6502) toBCD(res uint8) uint8 {
@@ -114,34 +104,40 @@ func (c *CPU6502) toBCD(res uint8) uint8 {
 	loDigit := res % 10
 	hiDigit := res / 10
 
-	return (hiDigit >> 4) | loDigit
+	return (hiDigit << 4) | loDigit
 }
 
 // See http://www.6502.org/tutorials/decimal_mode.html
 // We implement a logically correct version of BCD. This routine does not simulate undocumented
-// behaviour. We therefore panic if the number is not valid BCD and we do not change any
-// flags other than the carry flag. On a 6502 the only documented behaviour is for
-// setting the carry flag.
+// behaviour. We therefore panic if the number is not valid BCD.
+// On a 6502 the only documented behaviour is for
+// setting the carry flag. On the 65C02 the N and Z flags are also valid. This routine implements
+// the 65C02 behaviour as it is a superset of the 6502 behaviour.
 func (c *CPU6502) addBaseBcd6502(val1, val2 uint8) uint8 {
 	b1, b2, carry := c.prepBCD(val1, val2)
 
 	cr := b1 + b2 + carry
+	res := c.toBCD(cr)
 
-	if (cr / 100) > 0 {
+	c.nzFlags(res)
+
+	if cr >= 100 {
 		c.Flags |= Flag_C
 	} else {
 		c.Flags &= (^Flag_C)
 	}
 
-	return c.toBCD(cr % 100)
+	return res
 }
 
 // See http://www.6502.org/tutorials/decimal_mode.html
 // We implement a logically correct version of BCD. This routine does not simulate undocumented
-// behaviour. We therefore panic if the number is not valid BCD and we do not change any
-// flags other than the carry flag. On a 6502 the only documented behaviour is for
-// setting the carry flag.
-func (c *CPU6502) subBaseBcd6502(val1, val2 uint8) uint8 {
+// behaviour. We therefore panic if the number is not valid BCD.
+// On a 6502 the only documented behaviour is for
+// setting the carry flag. On the 65C02 the N and Z flags are also valid. This routine implements
+// the 65C02 behaviour as it is a superset of the 6502 behaviour.
+func (c *CPU6502) subBaseBcd(val1, val2 uint8) uint8 {
+	var res uint8
 	t1, t2, carry := c.prepBCD(val1, val2)
 
 	b1 := int16(t1)
@@ -152,9 +148,65 @@ func (c *CPU6502) subBaseBcd6502(val1, val2 uint8) uint8 {
 
 	if temp < 0 {
 		c.Flags &= (^Flag_C)
-		return c.toBCD(uint8(temp + 100))
+		res = c.toBCD(uint8(temp + 100))
+		c.nzFlags(res)
 	} else {
 		c.Flags |= Flag_C
-		return c.toBCD(uint8(temp))
+		res = c.toBCD(uint8(temp))
+		c.nzFlags(res)
 	}
+
+	return res
+}
+
+func (c *CPU6502) addBase(val1, val2 uint8) (uint8, uint64) {
+	var res uint8
+	var additionalCycles uint64 = 0
+
+	if (c.model == Model65C02) && ((c.Flags & Flag_D) != 0) {
+		additionalCycles++
+	}
+
+	if (c.Flags & Flag_D) == 0 {
+		res = c.addBaseBin(val1, val2)
+	} else {
+		res = c.addBaseBcd6502(val1, val2)
+	}
+
+	return res, additionalCycles
+}
+
+func (c *CPU6502) subBase(val1, val2 uint8) (uint8, uint64) {
+	var res uint8
+	var additionalCycles uint64 = 0
+
+	if (c.model == Model65C02) && ((c.Flags & Flag_D) != 0) {
+		additionalCycles++
+	}
+
+	if (c.Flags & Flag_D) == 0 {
+		res = c.subBaseBin(val1, val2)
+	} else {
+		res = c.subBaseBcd(val1, val2)
+	}
+
+	return res, additionalCycles
+}
+
+func (c *CPU6502) addImmediate() (uint64, bool) {
+	operand := c.Mem.Load(c.PC)
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 2 + additionalCycles, false
+}
+
+func (c *CPU6502) subImmediate() (uint64, bool) {
+	operand := c.Mem.Load(c.PC)
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 2 + additionalCycles, false
 }

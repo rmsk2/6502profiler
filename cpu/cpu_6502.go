@@ -137,6 +137,12 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xC1] = (*CPU6502).cmpIdxXIndirect
 	res.opCodes[0xD1] = (*CPU6502).cmpIndIdxY
 
+	// ADC
+	res.opCodes[0x69] = (*CPU6502).addImmediate
+
+	// SBC
+	res.opCodes[0xE9] = (*CPU6502).subImmediate
+
 	// JSR
 	res.opCodes[0x20] = (*CPU6502).jsr
 
