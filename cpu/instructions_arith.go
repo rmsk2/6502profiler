@@ -210,3 +210,135 @@ func (c *CPU6502) subImmediate() (uint64, bool) {
 
 	return 2 + additionalCycles, false
 }
+
+func (c *CPU6502) addZeroPage() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrZeroPage())
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 3 + additionalCycles, false
+}
+
+func (c *CPU6502) subZeroPage() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrZeroPage())
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 3 + additionalCycles, false
+}
+
+func (c *CPU6502) addZeroPageX() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrZeroPageX())
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func (c *CPU6502) subZeroPageX() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrZeroPageX())
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func (c *CPU6502) addAbsolute() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrAbsolute())
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func (c *CPU6502) subAbsolute() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrAbsolute())
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func (c *CPU6502) addAbsoluteX() (uint64, bool) {
+	addr, moreCycles := c.getAddrAbsoluteX()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) subAbsoluteX() (uint64, bool) {
+	addr, moreCycles := c.getAddrAbsoluteX()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) addAbsoluteY() (uint64, bool) {
+	addr, moreCycles := c.getAddrAbsoluteY()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) subAbsoluteY() (uint64, bool) {
+	addr, moreCycles := c.getAddrAbsoluteY()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) addIndirectIdxY() (uint64, bool) {
+	addr, moreCycles := c.getAddrIndirectIdxY()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) subIndirectIdxY() (uint64, bool) {
+	addr, moreCycles := c.getAddrIndirectIdxY()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles + moreCycles, false
+}
+
+func (c *CPU6502) addIdxXIndirect() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrIdxIndirectX())
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func (c *CPU6502) subIdxXIndirect() (uint64, bool) {
+	operand := c.Mem.Load(c.getAddrIdxIndirectX())
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 4 + additionalCycles, false
+}

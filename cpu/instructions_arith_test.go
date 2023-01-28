@@ -724,6 +724,48 @@ func TestADCImmediateBCD(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestADCZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x19
+		c.Flags &= (^Flag_C)
+		c.Flags |= Flag_D
+		c.X = 0x02
+		c.Mem.Store(0x0012, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x30 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x35, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC Zero page X BCD",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- SBC --------
 
 func TestSBCImmediate(t *testing.T) {
@@ -800,6 +842,546 @@ func TestSBCImmediateBCD(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "SBC immediate BCD",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x19
+		c.Flags |= Flag_C
+		c.Mem.Store(0x0012, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x08 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xE5, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCBCDZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x19
+		c.Flags &= (^Flag_C)
+		c.Flags |= Flag_D
+		c.X = 0x02
+		c.Mem.Store(0x0012, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x30 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) != 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x35, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC Zero page X BCD",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCBCDZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x19
+		c.Flags |= Flag_C
+		c.Flags |= Flag_D
+		c.X = 0x02
+		c.Mem.Store(0x0012, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x08 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xF5, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC Zero page X BCD",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x6D, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Flags |= Flag_C
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xED, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.X = 0x02
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc $1000, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x7D, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.X = 0x02
+		c.Flags |= Flag_C
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc $1000, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xFD, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCAbsoluteY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc $1000, y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x79, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC absolute Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCAbsoluteY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags |= Flag_C
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc $1000, y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xF9, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC absolute Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCIndirectIdxY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc ($12), y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x71, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC indirect index Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCIndirectIdxY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags |= Flag_C
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1002, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc ($12), y
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xF1, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC indirect index Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestADCIdxXIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.X = 0x02
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc ($10, x)
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x61, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC index X indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSBCIdxXIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.X = 0x02
+		c.Flags |= Flag_C
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc ($10, x)
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xE1, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC index X indirect",
 	}
 
 	testSingleInstructionWithCase(t, c)
