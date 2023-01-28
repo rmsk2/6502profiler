@@ -86,23 +86,27 @@ func (c *CPU6502) subBaseBin(val1, val2 uint8) uint8 {
 	return c.addBaseBin(val1, val2^0xFF)
 }
 
-func (c *CPU6502) fromBCD(val1, val2 uint8) (uint8, uint8, uint8, uint8, uint8) {
-	loNibble1 := uint8(val1 & 0x0F)
-	hiNibble1 := uint8((val1 & 0xF0) >> 4)
-
-	loNibble2 := uint8(val2 & 0x0F)
-	hiNibble2 := uint8((val2 & 0xF0) >> 4)
+func (c *CPU6502) prepBCD(val1, val2 uint8) (uint8, uint8, uint8) {
+	b1 := c.fromBCD(val1)
+	b2 := c.fromBCD(val2)
 
 	var carry uint8 = 0
 	if (c.Flags & Flag_C) != 0 {
 		carry = 1
 	}
 
-	if (loNibble1 > 9) || (hiNibble1 > 9) || (loNibble2 > 9) || (hiNibble2 > 9) {
+	return b1, b2, carry
+}
+
+func (c *CPU6502) fromBCD(in uint8) uint8 {
+	loNibble := in & 0x0F
+	hiNibble := (in & 0xF0) >> 4
+
+	if (loNibble > 9) || (hiNibble > 9) {
 		panic("Invalid BCD data")
 	}
 
-	return loNibble1, hiNibble1, loNibble2, hiNibble2, carry
+	return hiNibble*10 + loNibble
 }
 
 func (c *CPU6502) toBCD(res uint8) uint8 {
@@ -119,9 +123,9 @@ func (c *CPU6502) toBCD(res uint8) uint8 {
 // flags other than the carry flag. On a 6502 the only documented behaviour is for
 // setting the carry flag.
 func (c *CPU6502) addBaseBcd6502(val1, val2 uint8) uint8 {
-	loNibble1, hiNibble1, loNibble2, hiNibble2, carry := c.fromBCD(val1, val2)
+	b1, b2, carry := c.prepBCD(val1, val2)
 
-	cr := hiNibble1*10 + loNibble1 + hiNibble2*10 + loNibble2 + carry
+	cr := b1 + b2 + carry
 
 	if (cr / 100) > 0 {
 		c.Flags |= Flag_C
@@ -138,10 +142,10 @@ func (c *CPU6502) addBaseBcd6502(val1, val2 uint8) uint8 {
 // flags other than the carry flag. On a 6502 the only documented behaviour is for
 // setting the carry flag.
 func (c *CPU6502) subBaseBcd6502(val1, val2 uint8) uint8 {
-	loNibble1, hiNibble1, loNibble2, hiNibble2, carry := c.fromBCD(val1, val2)
+	t1, t2, carry := c.prepBCD(val1, val2)
 
-	b1 := int16(hiNibble1*10 + loNibble1)
-	b2 := int16(hiNibble2*10 + loNibble2)
+	b1 := int16(t1)
+	b2 := int16(t2)
 	cr := int16(1 - carry)
 
 	temp := b1 - b2 - cr
