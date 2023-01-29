@@ -157,6 +157,36 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xF1] = (*CPU6502).subIndirectIdxY
 	res.opCodes[0xE1] = (*CPU6502).subIdxXIndirect
 
+	// EOR *
+	res.opCodes[0x49] = (*CPU6502).eorImmediate
+	res.opCodes[0x45] = (*CPU6502).eorZeroPage
+	res.opCodes[0x55] = (*CPU6502).eorZeroPageX
+	res.opCodes[0x4D] = (*CPU6502).eorAbsolute
+	res.opCodes[0x5D] = (*CPU6502).eorAbsoluteX
+	res.opCodes[0x59] = (*CPU6502).eorAbsoluteY
+	res.opCodes[0x41] = (*CPU6502).eorIdxIndirect
+	res.opCodes[0x51] = (*CPU6502).eorIndirectIdxY
+
+	// ORA *
+	res.opCodes[0x09] = (*CPU6502).oraImmediate
+	res.opCodes[0x05] = (*CPU6502).oraZeroPage
+	res.opCodes[0x15] = (*CPU6502).oraZeroPageX
+	res.opCodes[0x0D] = (*CPU6502).oraAbsolute
+	res.opCodes[0x1D] = (*CPU6502).oraAbsoluteX
+	res.opCodes[0x19] = (*CPU6502).oraAbsoluteY
+	res.opCodes[0x01] = (*CPU6502).oraIdxIndirect
+	res.opCodes[0x11] = (*CPU6502).oraIndirectIdxY
+
+	// AND *
+	res.opCodes[0x29] = (*CPU6502).andImmediate
+	res.opCodes[0x25] = (*CPU6502).andZeroPage
+	res.opCodes[0x35] = (*CPU6502).andZeroPageX
+	res.opCodes[0x2D] = (*CPU6502).andAbsolute
+	res.opCodes[0x3D] = (*CPU6502).andAbsoluteX
+	res.opCodes[0x39] = (*CPU6502).andAbsoluteY
+	res.opCodes[0x21] = (*CPU6502).andIdxIndirect
+	res.opCodes[0x31] = (*CPU6502).andIndirectIdxY
+
 	// JSR
 	res.opCodes[0x20] = (*CPU6502).jsr
 

@@ -342,3 +342,200 @@ func (c *CPU6502) subIdxXIndirect() (uint64, bool) {
 
 	return 4 + additionalCycles, false
 }
+
+// -------- Logical operations --------
+
+type LogicalOp func(a, b uint8) uint8
+
+func Xor(a, b uint8) uint8 {
+	return a ^ b
+}
+
+func And(a, b uint8) uint8 {
+	return a & b
+}
+
+func Or(a, b uint8) uint8 {
+	return a | b
+}
+
+func logicalImmediate(c *CPU6502, op LogicalOp) (uint64, bool) {
+	operand := c.Mem.Load(c.PC)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 2, false
+}
+
+func logicalZeroPage(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address := c.getAddrZeroPage()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 3, false
+}
+
+func logicalZeroPageX(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address := c.getAddrZeroPageX()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 4, false
+}
+
+func logicalAbsolute(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address := c.getAddrAbsolute()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 4, false
+}
+
+func logicalAbsoluteX(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address, additionalCycles := c.getAddrAbsoluteX()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func logicalAbsoluteY(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address, additionalCycles := c.getAddrAbsoluteY()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 4 + additionalCycles, false
+}
+
+func logicalIdxXIndirect(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address := c.getAddrIdxIndirectX()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 6, false
+}
+
+func logicalIndirectIdxY(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address, additionalCycles := c.getAddrIndirectIdxY()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 5 + additionalCycles, false
+}
+
+// -------- EOR --------
+
+func (c *CPU6502) eorImmediate() (uint64, bool) {
+	return logicalImmediate(c, Xor)
+}
+
+func (c *CPU6502) eorZeroPage() (uint64, bool) {
+	return logicalZeroPage(c, Xor)
+}
+
+func (c *CPU6502) eorZeroPageX() (uint64, bool) {
+	return logicalZeroPageX(c, Xor)
+}
+
+func (c *CPU6502) eorAbsolute() (uint64, bool) {
+	return logicalAbsolute(c, Xor)
+}
+
+func (c *CPU6502) eorAbsoluteX() (uint64, bool) {
+	return logicalAbsoluteX(c, Xor)
+}
+
+func (c *CPU6502) eorAbsoluteY() (uint64, bool) {
+	return logicalAbsoluteY(c, Xor)
+}
+
+func (c *CPU6502) eorIdxIndirect() (uint64, bool) {
+	return logicalIdxXIndirect(c, Xor)
+}
+
+func (c *CPU6502) eorIndirectIdxY() (uint64, bool) {
+	return logicalIndirectIdxY(c, Xor)
+}
+
+// -------- ORA --------
+
+func (c *CPU6502) oraImmediate() (uint64, bool) {
+	return logicalImmediate(c, Or)
+}
+
+func (c *CPU6502) oraZeroPage() (uint64, bool) {
+	return logicalZeroPage(c, Or)
+}
+
+func (c *CPU6502) oraZeroPageX() (uint64, bool) {
+	return logicalZeroPageX(c, Or)
+}
+
+func (c *CPU6502) oraAbsolute() (uint64, bool) {
+	return logicalAbsolute(c, Or)
+}
+
+func (c *CPU6502) oraAbsoluteX() (uint64, bool) {
+	return logicalAbsoluteX(c, Or)
+}
+
+func (c *CPU6502) oraAbsoluteY() (uint64, bool) {
+	return logicalAbsoluteY(c, Or)
+}
+
+func (c *CPU6502) oraIdxIndirect() (uint64, bool) {
+	return logicalIdxXIndirect(c, Or)
+}
+
+func (c *CPU6502) oraIndirectIdxY() (uint64, bool) {
+	return logicalIndirectIdxY(c, Or)
+}
+
+// -------- AND --------
+
+func (c *CPU6502) andImmediate() (uint64, bool) {
+	return logicalImmediate(c, And)
+}
+
+func (c *CPU6502) andZeroPage() (uint64, bool) {
+	return logicalZeroPage(c, And)
+}
+
+func (c *CPU6502) andZeroPageX() (uint64, bool) {
+	return logicalZeroPageX(c, And)
+}
+
+func (c *CPU6502) andAbsolute() (uint64, bool) {
+	return logicalAbsolute(c, And)
+}
+
+func (c *CPU6502) andAbsoluteX() (uint64, bool) {
+	return logicalAbsoluteX(c, And)
+}
+
+func (c *CPU6502) andAbsoluteY() (uint64, bool) {
+	return logicalAbsoluteY(c, And)
+}
+
+func (c *CPU6502) andIdxIndirect() (uint64, bool) {
+	return logicalIdxXIndirect(c, And)
+}
+
+func (c *CPU6502) andIndirectIdxY() (uint64, bool) {
+	return logicalIndirectIdxY(c, And)
+}
