@@ -140,7 +140,7 @@ func New6502(m CpuModel) *CPU6502 {
 	// ADC
 	res.opCodes[0x69] = (*CPU6502).addImmediate
 	res.opCodes[0x65] = (*CPU6502).addZeroPage
-	res.opCodes[0x35] = (*CPU6502).addZeroPageX
+	res.opCodes[0x75] = (*CPU6502).addZeroPageX
 	res.opCodes[0x6D] = (*CPU6502).addAbsolute
 	res.opCodes[0x7D] = (*CPU6502).addAbsoluteX
 	res.opCodes[0x79] = (*CPU6502).addAbsoluteY
@@ -177,6 +177,15 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x48] = (*CPU6502).pha
 	// PLA
 	res.opCodes[0x68] = (*CPU6502).pla
+
+	// Flag stuff
+	res.opCodes[0x18] = (*CPU6502).clc
+	res.opCodes[0xD8] = (*CPU6502).cld
+	res.opCodes[0x58] = (*CPU6502).cli
+	res.opCodes[0xB8] = (*CPU6502).clv
+	res.opCodes[0x38] = (*CPU6502).sec
+	res.opCodes[0xF8] = (*CPU6502).sed
+	res.opCodes[0x78] = (*CPU6502).sei
 
 	// BRK
 	res.opCodes[0x00] = func(c *CPU6502) (uint64, bool) {

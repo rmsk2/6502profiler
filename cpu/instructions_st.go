@@ -115,3 +115,47 @@ func (c *CPU6502) pla() (uint64, bool) {
 	c.nzFlags(c.A)
 	return 4, false
 }
+
+// -------- Flag stuff --------
+
+func (c *CPU6502) clc() (uint64, bool) {
+	c.Flags &= (^Flag_C)
+
+	return 2, false
+}
+
+func (c *CPU6502) cli() (uint64, bool) {
+	c.Flags &= (^Flag_I)
+
+	return 2, false
+}
+
+func (c *CPU6502) clv() (uint64, bool) {
+	c.Flags &= (^Flag_V)
+
+	return 2, false
+}
+
+func (c *CPU6502) cld() (uint64, bool) {
+	c.Flags &= (^Flag_D)
+
+	return 2, false
+}
+
+func (c *CPU6502) sec() (uint64, bool) {
+	c.Flags |= Flag_C
+
+	return 2, false
+}
+
+func (c *CPU6502) sei() (uint64, bool) {
+	c.Flags |= Flag_I
+
+	return 2, false
+}
+
+func (c *CPU6502) sed() (uint64, bool) {
+	c.Flags |= Flag_D
+
+	return 2, false
+}

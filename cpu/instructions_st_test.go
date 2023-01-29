@@ -486,3 +486,159 @@ func TestSTYZeroPage(t *testing.T) {
 
 	testSingleInstructionWithCase(t, c)
 }
+
+// -------- Flag stuff --------
+
+func TestCLC(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_C) == 0
+	}
+
+	// clc
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x18, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "CLC",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestCLD(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= Flag_D
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_D) == 0
+	}
+
+	// cld
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xD8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "CLD",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestCLV(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= Flag_V
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_V) == 0
+	}
+
+	// clv
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xB8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "CLV",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestCLI(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= Flag_I
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_I) == 0
+	}
+
+	// cli
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x58, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "CLI",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSEC(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags &= (^Flag_C)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_C) != 0
+	}
+
+	// sec
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x38, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SEC",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSED(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags &= (^Flag_D)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_D) != 0
+	}
+
+	// sed
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xF8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SED",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSEI(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags &= (^Flag_I)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Flags & Flag_I) != 0
+	}
+
+	// sei
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x78, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SEI",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
