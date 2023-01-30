@@ -159,3 +159,72 @@ func (c *CPU6502) sed() (uint64, bool) {
 
 	return 2, false
 }
+
+// -------- PHP --------
+
+func (c *CPU6502) php() (uint64, bool) {
+	c.push(c.Flags)
+
+	return 3, false
+}
+
+// -------- PLP --------
+
+func (c *CPU6502) plp() (uint64, bool) {
+	c.Flags = c.pop()
+
+	return 4, false
+}
+
+// -------- TAX --------
+
+func (c *CPU6502) tax() (uint64, bool) {
+	c.nzFlags(c.A)
+	c.X = c.A
+
+	return 2, false
+}
+
+// -------- TXA --------
+
+func (c *CPU6502) txa() (uint64, bool) {
+	c.nzFlags(c.X)
+	c.A = c.X
+
+	return 2, false
+}
+
+// -------- TAY --------
+
+func (c *CPU6502) tay() (uint64, bool) {
+	c.nzFlags(c.A)
+	c.Y = c.A
+
+	return 2, false
+}
+
+// -------- TYA --------
+
+func (c *CPU6502) tya() (uint64, bool) {
+	c.nzFlags(c.Y)
+	c.A = c.Y
+
+	return 2, false
+}
+
+// -------- TXS --------
+
+func (c *CPU6502) txs() (uint64, bool) {
+	c.SP = c.X
+
+	return 2, false
+}
+
+// -------- TSX --------
+
+func (c *CPU6502) tsx() (uint64, bool) {
+	c.nzFlags(c.SP)
+	c.X = c.SP
+
+	return 2, false
+}

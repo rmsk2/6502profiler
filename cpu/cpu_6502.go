@@ -187,6 +187,56 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x21] = (*CPU6502).andIdxIndirect
 	res.opCodes[0x31] = (*CPU6502).andIndirectIdxY
 
+	// INC *
+	if m == Model65C02 {
+		res.opCodes[0x1a] = (*CPU6502).inc65C02
+	}
+	res.opCodes[0xE6] = (*CPU6502).incZeroPage
+	res.opCodes[0xF6] = (*CPU6502).incZeroPageX
+	res.opCodes[0xEE] = (*CPU6502).incAbsolute
+	res.opCodes[0xFE] = (*CPU6502).incAbsoluteX
+
+	// DEC *
+	if m == Model65C02 {
+		res.opCodes[0x3a] = (*CPU6502).dec65C02
+	}
+	res.opCodes[0xC6] = (*CPU6502).decZeroPage
+	res.opCodes[0xD6] = (*CPU6502).decZeroPageX
+	res.opCodes[0xCE] = (*CPU6502).decAbsolute
+	res.opCodes[0xDE] = (*CPU6502).decAbsoluteX
+
+	// ASL *
+	res.opCodes[0x0a] = (*CPU6502).asl
+	res.opCodes[0x06] = (*CPU6502).aslZeroPage
+	res.opCodes[0x16] = (*CPU6502).aslZeroPageX
+	res.opCodes[0x0E] = (*CPU6502).aslAbsolute
+	res.opCodes[0x1E] = (*CPU6502).aslAbsoluteX
+
+	// LSR *
+	res.opCodes[0x4A] = (*CPU6502).lsr
+	res.opCodes[0x46] = (*CPU6502).lsrZeroPage
+	res.opCodes[0x56] = (*CPU6502).lsrZeroPageX
+	res.opCodes[0x4E] = (*CPU6502).lsrAbsolute
+	res.opCodes[0x5E] = (*CPU6502).lsrAbsoluteX
+
+	// ROL *
+	res.opCodes[0x2A] = (*CPU6502).rol
+	res.opCodes[0x26] = (*CPU6502).rolZeroPage
+	res.opCodes[0x36] = (*CPU6502).rolZeroPageX
+	res.opCodes[0x2E] = (*CPU6502).rolAbsolute
+	res.opCodes[0x3E] = (*CPU6502).rolAbsoluteX
+
+	// ROR *
+	res.opCodes[0x6A] = (*CPU6502).ror
+	res.opCodes[0x66] = (*CPU6502).rorZeroPage
+	res.opCodes[0x76] = (*CPU6502).rorZeroPageX
+	res.opCodes[0x6E] = (*CPU6502).rorAbsolute
+	res.opCodes[0x7E] = (*CPU6502).rorAbsoluteX
+
+	// BIT *
+	res.opCodes[0x24] = (*CPU6502).bitZeroPage
+	res.opCodes[0x2C] = (*CPU6502).bitAbsolute
+
 	// JSR
 	res.opCodes[0x20] = (*CPU6502).jsr
 
@@ -207,6 +257,28 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x48] = (*CPU6502).pha
 	// PLA
 	res.opCodes[0x68] = (*CPU6502).pla
+	// PLP *
+	res.opCodes[0x28] = (*CPU6502).plp
+	// PHP *
+	res.opCodes[0x08] = (*CPU6502).php
+
+	// TAX *
+	res.opCodes[0xAA] = (*CPU6502).tax
+
+	// TXA *
+	res.opCodes[0x8A] = (*CPU6502).txa
+
+	// TAY *
+	res.opCodes[0xA8] = (*CPU6502).tay
+
+	// TYA *
+	res.opCodes[0x98] = (*CPU6502).tya
+
+	// TXS *
+	res.opCodes[0x9A] = (*CPU6502).txs
+
+	// TSX *
+	res.opCodes[0xBA] = (*CPU6502).tsx
 
 	// Flag stuff
 	res.opCodes[0x18] = (*CPU6502).clc

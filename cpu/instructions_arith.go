@@ -539,3 +539,288 @@ func (c *CPU6502) andIdxIndirect() (uint64, bool) {
 func (c *CPU6502) andIndirectIdxY() (uint64, bool) {
 	return logicalIndirectIdxY(c, And)
 }
+
+// -------- Modifier operations --------
+
+type ModifierOp func(c *CPU6502, a uint8) uint8
+
+func Rol(c *CPU6502, a uint8) uint8 {
+	var val uint8 = 0
+
+	if (c.Flags & Flag_C) != 0 {
+		val = 0x01
+	}
+
+	if (a & 0x80) != 0 {
+		c.Flags |= Flag_C
+	} else {
+		c.Flags &= (^Flag_C)
+	}
+
+	return (a << 1) | val
+}
+
+func Ror(c *CPU6502, a uint8) uint8 {
+	var val uint8 = 0
+
+	if (c.Flags & Flag_C) != 0 {
+		val = 0x80
+	}
+
+	if (a & 1) != 0 {
+		c.Flags |= Flag_C
+	} else {
+		c.Flags &= (^Flag_C)
+	}
+
+	return (a >> 1) | val
+}
+
+func Lsr(c *CPU6502, a uint8) uint8 {
+	if (a & 1) != 0 {
+		c.Flags |= Flag_C
+	} else {
+		c.Flags &= (^Flag_C)
+	}
+
+	return a >> 1
+}
+
+func Asl(c *CPU6502, a uint8) uint8 {
+	if (a & 0x80) != 0 {
+		c.Flags |= Flag_C
+	} else {
+		c.Flags &= (^Flag_C)
+	}
+
+	return a << 1
+}
+
+func Inc(c *CPU6502, a uint8) uint8 {
+	return a + 1
+}
+
+func Dec(c *CPU6502, a uint8) uint8 {
+	return a + 0xFF // 0xFF == -1
+}
+
+func (c *CPU6502) modImplied(modifier ModifierOp) (uint64, bool) {
+	c.A = modifier(c, c.A)
+	c.nzFlags(c.A)
+
+	return 2, false
+}
+
+func (c *CPU6502) modZeroPage(modifier ModifierOp) (uint64, bool) {
+	operAddr := c.getAddrZeroPage()
+	oper := c.Mem.Load(operAddr)
+	res := modifier(c, oper)
+	c.Mem.Store(operAddr, res)
+	c.nzFlags(res)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) modZeroPageX(modifier ModifierOp) (uint64, bool) {
+	operAddr := c.getAddrZeroPageX()
+	oper := c.Mem.Load(operAddr)
+	res := modifier(c, oper)
+	c.Mem.Store(operAddr, res)
+	c.nzFlags(res)
+	c.PC++
+
+	return 6, false
+}
+
+func (c *CPU6502) modAbsolute(modifier ModifierOp) (uint64, bool) {
+	operAddr := c.getAddrAbsolute()
+	oper := c.Mem.Load(operAddr)
+	res := modifier(c, oper)
+	c.Mem.Store(operAddr, res)
+	c.nzFlags(res)
+	c.PC++
+
+	return 6, false
+}
+
+func (c *CPU6502) modAbsoluteX(modifier ModifierOp) (uint64, bool) {
+	operAddr, _ := c.getAddrAbsoluteX()
+	oper := c.Mem.Load(operAddr)
+	res := modifier(c, oper)
+	c.Mem.Store(operAddr, res)
+	c.nzFlags(res)
+	c.PC++
+
+	return 7, false
+}
+
+// -------- INC --------
+
+func (c *CPU6502) inc65C02() (uint64, bool) {
+	return c.modImplied(Inc)
+}
+
+func (c *CPU6502) incZeroPage() (uint64, bool) {
+	return c.modZeroPage(Inc)
+}
+
+func (c *CPU6502) incZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Inc)
+}
+
+func (c *CPU6502) incAbsolute() (uint64, bool) {
+	return c.modAbsolute(Inc)
+}
+
+func (c *CPU6502) incAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Inc)
+}
+
+// -------- DEC --------
+
+func (c *CPU6502) dec65C02() (uint64, bool) {
+	return c.modImplied(Dec)
+}
+
+func (c *CPU6502) decZeroPage() (uint64, bool) {
+	return c.modZeroPage(Dec)
+}
+
+func (c *CPU6502) decZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Dec)
+}
+
+func (c *CPU6502) decAbsolute() (uint64, bool) {
+	return c.modAbsolute(Dec)
+}
+
+func (c *CPU6502) decAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Dec)
+}
+
+// -------- ASL --------
+
+func (c *CPU6502) asl() (uint64, bool) {
+	return c.modImplied(Asl)
+}
+
+func (c *CPU6502) aslZeroPage() (uint64, bool) {
+	return c.modZeroPage(Asl)
+}
+
+func (c *CPU6502) aslZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Asl)
+}
+
+func (c *CPU6502) aslAbsolute() (uint64, bool) {
+	return c.modAbsolute(Asl)
+}
+
+func (c *CPU6502) aslAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Asl)
+}
+
+// -------- LSR --------
+
+func (c *CPU6502) lsr() (uint64, bool) {
+	return c.modImplied(Lsr)
+}
+
+func (c *CPU6502) lsrZeroPage() (uint64, bool) {
+	return c.modZeroPage(Lsr)
+}
+
+func (c *CPU6502) lsrZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Lsr)
+}
+
+func (c *CPU6502) lsrAbsolute() (uint64, bool) {
+	return c.modAbsolute(Lsr)
+}
+
+func (c *CPU6502) lsrAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Lsr)
+}
+
+// -------- ROL --------
+
+func (c *CPU6502) rol() (uint64, bool) {
+	return c.modImplied(Rol)
+}
+
+func (c *CPU6502) rolZeroPage() (uint64, bool) {
+	return c.modZeroPage(Rol)
+}
+
+func (c *CPU6502) rolZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Rol)
+}
+
+func (c *CPU6502) rolAbsolute() (uint64, bool) {
+	return c.modAbsolute(Rol)
+}
+
+func (c *CPU6502) rolAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Rol)
+}
+
+// -------- ROR --------
+
+func (c *CPU6502) ror() (uint64, bool) {
+	return c.modImplied(Ror)
+}
+
+func (c *CPU6502) rorZeroPage() (uint64, bool) {
+	return c.modZeroPage(Ror)
+}
+
+func (c *CPU6502) rorZeroPageX() (uint64, bool) {
+	return c.modZeroPageX(Ror)
+}
+
+func (c *CPU6502) rorAbsolute() (uint64, bool) {
+	return c.modAbsolute(Ror)
+}
+
+func (c *CPU6502) rorAbsoluteX() (uint64, bool) {
+	return c.modAbsoluteX(Ror)
+}
+
+// -------- BIT --------
+
+func (c *CPU6502) bitBase(val uint8) {
+	if (c.A & val) == 0 {
+		c.Flags |= Flag_Z
+	} else {
+		c.Flags &= (^Flag_Z)
+	}
+
+	if (val & 0x80) != 0 {
+		c.Flags |= Flag_N
+	} else {
+		c.Flags &= (^Flag_N)
+	}
+
+	if (val & 0x40) != 0 {
+		c.Flags |= Flag_V
+	} else {
+		c.Flags &= (^Flag_V)
+	}
+}
+
+func (c *CPU6502) bitZeroPage() (uint64, bool) {
+	oper := c.Mem.Load(c.getAddrZeroPage())
+	c.bitBase(oper)
+	c.PC++
+
+	return 3, false
+}
+
+func (c *CPU6502) bitAbsolute() (uint64, bool) {
+	oper := c.Mem.Load(c.getAddrAbsolute())
+	c.bitBase(oper)
+	c.PC++
+
+	return 4, false
+}
