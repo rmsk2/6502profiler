@@ -157,7 +157,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xF1] = (*CPU6502).subIndirectIdxY
 	res.opCodes[0xE1] = (*CPU6502).subIdxXIndirect
 
-	// EOR *
+	// EOR
 	res.opCodes[0x49] = (*CPU6502).eorImmediate
 	res.opCodes[0x45] = (*CPU6502).eorZeroPage
 	res.opCodes[0x55] = (*CPU6502).eorZeroPageX
@@ -167,7 +167,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x41] = (*CPU6502).eorIdxIndirect
 	res.opCodes[0x51] = (*CPU6502).eorIndirectIdxY
 
-	// ORA *
+	// ORA
 	res.opCodes[0x09] = (*CPU6502).oraImmediate
 	res.opCodes[0x05] = (*CPU6502).oraZeroPage
 	res.opCodes[0x15] = (*CPU6502).oraZeroPageX
@@ -177,7 +177,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x01] = (*CPU6502).oraIdxIndirect
 	res.opCodes[0x11] = (*CPU6502).oraIndirectIdxY
 
-	// AND *
+	// AND
 	res.opCodes[0x29] = (*CPU6502).andImmediate
 	res.opCodes[0x25] = (*CPU6502).andZeroPage
 	res.opCodes[0x35] = (*CPU6502).andZeroPageX

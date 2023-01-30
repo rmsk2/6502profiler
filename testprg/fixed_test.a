@@ -19,6 +19,6 @@ ARG_R
 !zone main
 
 progStart
-    ;+callFunc mul32BitNormalized, ARG_L, ARG_R
-    +callFuncMono square32BitNormalized, ARG_R
+    +callFunc mul32BitNormalized, ARG_L, ARG_R
+    +callFuncMono square32BitNormalized, ARG_L
     rts
