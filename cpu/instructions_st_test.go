@@ -642,3 +642,53 @@ func TestSEI(t *testing.T) {
 
 	testSingleInstructionWithCase(t, c)
 }
+
+// -------- PHP --------
+
+func TestPHP(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= (^Flag_I)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x01FF) == c.Flags
+	}
+
+	// php
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x08, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PHP",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- PLP --------
+
+func TestPLP(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags |= (^Flag_I)
+		c.push(c.Flags)
+		c.Flags = 0
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Flags == ^Flag_I
+	}
+
+	// plp
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x28, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PLP",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}

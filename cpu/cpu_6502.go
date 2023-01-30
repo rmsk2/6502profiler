@@ -187,7 +187,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x21] = (*CPU6502).andIdxIndirect
 	res.opCodes[0x31] = (*CPU6502).andIndirectIdxY
 
-	// INC *
+	// INC
 	if m == Model65C02 {
 		res.opCodes[0x1a] = (*CPU6502).inc65C02
 	}
@@ -196,7 +196,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xEE] = (*CPU6502).incAbsolute
 	res.opCodes[0xFE] = (*CPU6502).incAbsoluteX
 
-	// DEC *
+	// DEC
 	if m == Model65C02 {
 		res.opCodes[0x3a] = (*CPU6502).dec65C02
 	}
@@ -257,9 +257,9 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x48] = (*CPU6502).pha
 	// PLA
 	res.opCodes[0x68] = (*CPU6502).pla
-	// PLP *
+	// PLP
 	res.opCodes[0x28] = (*CPU6502).plp
-	// PHP *
+	// PHP
 	res.opCodes[0x08] = (*CPU6502).php
 
 	// TAX *

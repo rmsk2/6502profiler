@@ -1967,3 +1967,388 @@ func TestANDIndirectY(t *testing.T) {
 
 	testSingleInstructionWithCase(t, c)
 }
+
+// -------- logical ops --------
+
+func TestLsr(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x03
+	res := Lsr(cpu, val)
+
+	if res != 1 {
+		t.Fatal("Lsr does not work")
+	}
+
+	if (cpu.Flags & Flag_C) == 0 {
+		t.Fatal("Lsr does not set carry")
+	}
+}
+
+func TestLsrNoCarry(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x02
+	res := Lsr(cpu, val)
+
+	if res != 1 {
+		t.Fatal("Lsr does not work")
+	}
+
+	if (cpu.Flags & Flag_C) != 0 {
+		t.Fatal("Lsr does set carry wrongly")
+	}
+}
+
+func TestLsrZero(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x01
+	res := Lsr(cpu, val)
+
+	if res != 0 {
+		t.Fatal("Lsr does not work")
+	}
+
+	if (cpu.Flags & Flag_C) == 0 {
+		t.Fatal("Lsr does not set carry")
+	}
+}
+
+func TestAsl(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x40
+	res := Asl(cpu, val)
+
+	if res != 0x80 {
+		t.Fatal("Asl does not work")
+	}
+
+	if (cpu.Flags & Flag_C) != 0 {
+		t.Fatal("Asl does set carry wrongly")
+	}
+
+	res = Asl(cpu, res)
+
+	if res != 0x00 {
+		t.Fatal("Asl does not work")
+	}
+
+	if (cpu.Flags & Flag_C) == 0 {
+		t.Fatal("Asl does not set carry")
+	}
+}
+
+func TestRol(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x80
+	res := Rol(cpu, val)
+
+	if res != 0x00 {
+		t.Fatal("Rol does not work")
+	}
+
+	if (cpu.Flags & Flag_C) == 0 {
+		t.Fatal("Rol does not set carry")
+	}
+
+	res = Rol(cpu, res)
+
+	if res != 0x01 {
+		t.Fatal("Rol does not work")
+	}
+
+	if (cpu.Flags & Flag_C) != 0 {
+		t.Fatal("Rol does set carry wrongly")
+	}
+}
+
+func TestRor(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	var val uint8 = 0x01
+	res := Ror(cpu, val)
+
+	if res != 0x00 {
+		t.Fatal("Ror does not work")
+	}
+
+	if (cpu.Flags & Flag_C) == 0 {
+		t.Fatal("Ror does not set carry")
+	}
+
+	res = Ror(cpu, res)
+
+	if res != 0x80 {
+		t.Fatal("Ror does not work")
+	}
+
+	if (cpu.Flags & Flag_C) != 0 {
+		t.Fatal("Ror does set carry wrongly")
+	}
+}
+
+func TestDec(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+
+	res := Dec(cpu, 0x02)
+	if res != 1 {
+		t.Fatal("Dec does not work")
+	}
+}
+
+func TestBit(t *testing.T) {
+	cpu := New6502(Model6502)
+	cpu.Init(memory.NewLinearMemory(1024))
+	cpu.A = 0x0F
+
+	cpu.bitBase(0xF0)
+	if (cpu.Flags & Flag_N) == 0 {
+		t.Fatal("Bit does not set negative flag")
+	}
+
+	if (cpu.Flags & Flag_V) == 0 {
+		t.Fatal("Bit does not set overflow flag")
+	}
+
+	if (cpu.Flags & Flag_Z) == 0 {
+		t.Fatal("Bit does not set zero flag")
+	}
+}
+
+// -------- INC --------
+
+func TestINCImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF3
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0xF4
+	}
+
+	// inc
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x1A, 0x01, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INC A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestINCZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xF3)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0xF4
+	}
+
+	// inc $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xE6, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INC Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestINCZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xF3)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0xF4
+	}
+
+	// inc $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xF6, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INC Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestINCAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0xF3)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0xF4
+	}
+
+	// inc $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xEE, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INC absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestINCAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0xF3)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0xF4
+	}
+
+	// inc $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xFE, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "INC absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- DEC --------
+
+func TestDECImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF3
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0xF2
+	}
+
+	// dec
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x3A, 0x01, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEC A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestDECZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xF3)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0xF2
+	}
+
+	// dec $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xC6, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEC Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestDECZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xF3)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0xF2
+	}
+
+	// dec $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xD6, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEC Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestDECAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0xF3)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0xF2
+	}
+
+	// dec $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xCE, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEC absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestDECAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0xF3)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0xF2
+	}
+
+	// dec $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xDE, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "DEC absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
