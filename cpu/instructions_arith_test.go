@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"6502profiler/memory"
+	"fmt"
 	"testing"
 )
 
@@ -2348,6 +2349,576 @@ func TestDECAbsoluteX(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "DEC absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- BIT --------
+
+func TestBITZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.Mem.Store(0x0012, 0xF0)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_V) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// bit $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x24, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BIT Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestBITAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.Mem.Store(0x1012, 0xF0)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_V) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// bit $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x2C, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BIT absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TAX --------
+
+func TestTAX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x0F
+	}
+
+	// tax
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xAA, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TAX",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TAX --------
+
+func TestTXA(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 0x0F
+		c.A = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x0F
+	}
+
+	// txa
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x8A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TXA",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TAY --------
+
+func TestTAY(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.Y = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Y == 0x0F
+	}
+
+	// tay
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xA8, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TAY",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TYA --------
+
+func TestTYA(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Y = 0x0F
+		c.A = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x0F
+	}
+
+	// tya
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x98, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TYA",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TXS --------
+
+func TestTXS(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 0x0F
+		c.SP = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.SP == 0x0F
+	}
+
+	// txs
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x9A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TXS",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TSX --------
+
+func TestTSX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.SP = 0x0F
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.X == 0x0F
+	}
+
+	// tsx
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0xBA, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TSX",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- ASL --------
+
+func TestASLImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x02
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x04
+	}
+
+	// asl
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x0A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestASLZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x04
+	}
+
+	// asl $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x06, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestASLZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x04
+	}
+
+	// asl $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x16, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestASLAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x04
+	}
+
+	// asl $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x0E, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestASLAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x04
+	}
+
+	// asl $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x1E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- LSR --------
+
+func TestLSRImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x02
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x01
+	}
+
+	// lsr
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x4A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLSRZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x01
+	}
+
+	// lsr $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x46, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLSRZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x01
+	}
+
+	// lsr $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x56, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLSRAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x01
+	}
+
+	// lsr $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x5E, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLSRAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x01
+	}
+
+	// lsr $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x5E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- ROL --------
+
+func TestROLImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x02
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		fmt.Println(c.A)
+		return c.A == 0x05
+	}
+
+	// rol
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x2A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestROLZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x05
+	}
+
+	// rol $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x26, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestROLZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x05
+	}
+
+	// rol $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x36, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestROLAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x05
+	}
+
+	// rol $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x2E, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestROLAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x05
+	}
+
+	// rol $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x3E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL absolute X",
 	}
 
 	testSingleInstructionWithCase(t, c)

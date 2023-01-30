@@ -205,21 +205,21 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0xCE] = (*CPU6502).decAbsolute
 	res.opCodes[0xDE] = (*CPU6502).decAbsoluteX
 
-	// ASL *
+	// ASL
 	res.opCodes[0x0a] = (*CPU6502).asl
 	res.opCodes[0x06] = (*CPU6502).aslZeroPage
 	res.opCodes[0x16] = (*CPU6502).aslZeroPageX
 	res.opCodes[0x0E] = (*CPU6502).aslAbsolute
 	res.opCodes[0x1E] = (*CPU6502).aslAbsoluteX
 
-	// LSR *
+	// LSR
 	res.opCodes[0x4A] = (*CPU6502).lsr
 	res.opCodes[0x46] = (*CPU6502).lsrZeroPage
 	res.opCodes[0x56] = (*CPU6502).lsrZeroPageX
 	res.opCodes[0x4E] = (*CPU6502).lsrAbsolute
 	res.opCodes[0x5E] = (*CPU6502).lsrAbsoluteX
 
-	// ROL *
+	// ROL
 	res.opCodes[0x2A] = (*CPU6502).rol
 	res.opCodes[0x26] = (*CPU6502).rolZeroPage
 	res.opCodes[0x36] = (*CPU6502).rolZeroPageX
@@ -233,7 +233,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x6E] = (*CPU6502).rorAbsolute
 	res.opCodes[0x7E] = (*CPU6502).rorAbsoluteX
 
-	// BIT *
+	// BIT
 	res.opCodes[0x24] = (*CPU6502).bitZeroPage
 	res.opCodes[0x2C] = (*CPU6502).bitAbsolute
 
@@ -262,22 +262,22 @@ func New6502(m CpuModel) *CPU6502 {
 	// PHP
 	res.opCodes[0x08] = (*CPU6502).php
 
-	// TAX *
+	// TAX
 	res.opCodes[0xAA] = (*CPU6502).tax
 
-	// TXA *
+	// TXA
 	res.opCodes[0x8A] = (*CPU6502).txa
 
-	// TAY *
+	// TAY
 	res.opCodes[0xA8] = (*CPU6502).tay
 
-	// TYA *
+	// TYA
 	res.opCodes[0x98] = (*CPU6502).tya
 
-	// TXS *
+	// TXS
 	res.opCodes[0x9A] = (*CPU6502).txs
 
-	// TSX *
+	// TSX
 	res.opCodes[0xBA] = (*CPU6502).tsx
 
 	// Flag stuff
