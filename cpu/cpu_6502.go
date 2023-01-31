@@ -226,7 +226,7 @@ func New6502(m CpuModel) *CPU6502 {
 	res.opCodes[0x2E] = (*CPU6502).rolAbsolute
 	res.opCodes[0x3E] = (*CPU6502).rolAbsoluteX
 
-	// ROR *
+	// ROR
 	res.opCodes[0x6A] = (*CPU6502).ror
 	res.opCodes[0x66] = (*CPU6502).rorZeroPage
 	res.opCodes[0x76] = (*CPU6502).rorZeroPageX
