@@ -12,7 +12,7 @@ func NewMemWrapper(m Memory, mask uint16) *WrappingMemory {
 	res := &WrappingMemory{
 		mem:                   m,
 		specialWriteAddresses: make(map[uint16]DataWriteFunc),
-		ioMask:                mask,
+		ioMask:                mask & 0xFF00,
 	}
 
 	return res
