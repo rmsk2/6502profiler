@@ -14,7 +14,8 @@ const (
 
 func main() {
 	cpu := cpu.New6502(cpu.Model6502)
-	cpu.Init(memory.NewLinearMemory(16384))
+	mem := memory.NewPicWrapper(memory.NewLinearMemory(16384), 320, 200)
+	cpu.Init(mem)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: 6502profiler <binary to run>")
@@ -29,6 +30,8 @@ func main() {
 
 	fmt.Printf("Program ran for %d clock cycles\n\n", cpu.NumCycles())
 	memory.Dump(cpu.Mem, 0x0800, 0x08ff)
+
+	mem.Save("apfel.png")
 
 	os.Exit(ExitOk)
 }

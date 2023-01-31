@@ -357,11 +357,5 @@ PLOT_POS_Y
 ; --------------------------------------------------
 decideToSetPoint
     lda NUM_ITER
-    cmp MAX_ITER
-    beq .doPlot
-    lsr                 ; shift lowest bit in carry => lowest bit decides if point is set
-    bcc .skipPlot
-.doPlot
-    ;jsr setPoint
-.skipPlot
+    sta $DDDD
     rts
