@@ -2804,6 +2804,126 @@ func TestLSRAbsoluteX(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+// -------- ROR --------
+
+func TestRORImplied(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x02
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		fmt.Println(c.A)
+		return c.A == 0x81
+	}
+
+	// ror
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x6A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR A",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRORZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x81
+	}
+
+	// ror $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x66, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR Zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRORZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x0012) == 0x81
+	}
+
+	// ror $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x76, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR Zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRORAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x81
+	}
+
+	// ror $1012
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x6E, 0x12, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRORAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.Mem.Load(0x1012) == 0x81
+	}
+
+	// ror $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model6502,
+		testProg:        []byte{0x7E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- ROL --------
 
 func TestROLImplied(t *testing.T) {
