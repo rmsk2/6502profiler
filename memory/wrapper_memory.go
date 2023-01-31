@@ -3,21 +3,23 @@ package memory
 type DataWriteFunc func(data uint8)
 
 type WrappingMemory struct {
-	mem              Memory
-	specialAddresses map[uint16]DataWriteFunc
+	mem                   Memory
+	specialWriteAddresses map[uint16]DataWriteFunc
+	ioMask                uint16
 }
 
-func NewMemWrapper(m Memory) *WrappingMemory {
+func NewMemWrapper(m Memory, mask uint16) *WrappingMemory {
 	res := &WrappingMemory{
-		mem:              m,
-		specialAddresses: make(map[uint16]DataWriteFunc),
+		mem:                   m,
+		specialWriteAddresses: make(map[uint16]DataWriteFunc),
+		ioMask:                mask,
 	}
 
 	return res
 }
 
 func (p *WrappingMemory) AddSpecialWriteAddress(addr uint16, f DataWriteFunc) {
-	p.specialAddresses[addr] = f
+	p.specialWriteAddresses[addr] = f
 }
 
 func (p *WrappingMemory) Load(address uint16) uint8 {
@@ -25,7 +27,12 @@ func (p *WrappingMemory) Load(address uint16) uint8 {
 }
 
 func (p *WrappingMemory) Store(address uint16, b uint8) {
-	procFunc, ok := p.specialAddresses[address]
+	if (address & 0xFF00) != p.ioMask {
+		p.mem.Store(address, b)
+		return
+	}
+
+	procFunc, ok := p.specialWriteAddresses[address]
 	if !ok {
 		p.mem.Store(address, b)
 		return

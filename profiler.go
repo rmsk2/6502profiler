@@ -14,10 +14,10 @@ const (
 
 func main() {
 	cpu := cpu.New6502(cpu.Model6502)
-	mem := memory.NewMemWrapper(memory.NewLinearMemory(16384))
+	mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
+	//mem := memory.NewLinearMemory(16384)
 	picProc := memory.NewPicProcessor(320, 200)
 	mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
-	//mem := memory.NewLinearMemory(16384)
 	cpu.Init(mem)
 
 	if len(os.Args) < 2 {
