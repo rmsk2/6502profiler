@@ -357,5 +357,5 @@ PLOT_POS_Y
 ; --------------------------------------------------
 decideToSetPoint
     lda NUM_ITER
-    sta $DDDD
+    sta $2DDD
     rts

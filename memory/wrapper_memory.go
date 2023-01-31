@@ -1,83 +1,30 @@
 package memory
 
-import (
-	"image"
-	"image/color"
-	"image/png"
-	"os"
-)
+type DataWriteFunc func(data uint8)
 
-type DataProcFunc func(data uint8)
-
-type PictureWrappingMemory struct {
+type WrappingMemory struct {
 	mem              Memory
-	specialAddresses map[uint16]DataProcFunc
-	image            *image.RGBA
-	countX           uint16
-	countY           uint16
+	specialAddresses map[uint16]DataWriteFunc
 }
 
-func NewPicWrapper(m Memory, w, h uint16) *PictureWrappingMemory {
-	upLeft := image.Point{0, 0}
-	lowRight := image.Point{int(w), int(h)}
-
-	res := &PictureWrappingMemory{
+func NewMemWrapper(m Memory) *WrappingMemory {
+	res := &WrappingMemory{
 		mem:              m,
-		image:            image.NewRGBA(image.Rectangle{upLeft, lowRight}),
-		specialAddresses: make(map[uint16]DataProcFunc),
-		countX:           0,
-		countY:           0,
+		specialAddresses: make(map[uint16]DataWriteFunc),
 	}
-
-	res.AddSpecialAddress(0xDDDD, res.setPoint)
 
 	return res
 }
 
-func (p *PictureWrappingMemory) setPoint(data uint8) {
-	col1 := color.NRGBA{0, 255, 0, 255}
-
-	if data == 24 {
-		p.image.Set(int(p.countX), int(p.countY), col1)
-	} else {
-		if (data & 1) != 0 {
-			p.image.Set(int(p.countX), int(p.countY), col1)
-		} else {
-			p.image.Set(int(p.countX), int(p.countY), color.Black)
-		}
-	}
-
-	p.countX++
-	if p.countX >= uint16(p.image.Rect.Dx()) {
-		p.countX = 0
-		p.countY++
-	}
-}
-
-func (p *PictureWrappingMemory) AddSpecialAddress(addr uint16, f DataProcFunc) {
+func (p *WrappingMemory) AddSpecialWriteAddress(addr uint16, f DataWriteFunc) {
 	p.specialAddresses[addr] = f
 }
 
-func (p *PictureWrappingMemory) Save(fileName string) error {
-	f, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer func() { f.Close() }()
-
-	err = png.Encode(f, p.image)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *PictureWrappingMemory) Load(address uint16) uint8 {
+func (p *WrappingMemory) Load(address uint16) uint8 {
 	return p.mem.Load(address)
 }
 
-func (p *PictureWrappingMemory) Store(address uint16, b uint8) {
+func (p *WrappingMemory) Store(address uint16, b uint8) {
 	procFunc, ok := p.specialAddresses[address]
 	if !ok {
 		p.mem.Store(address, b)
@@ -87,6 +34,6 @@ func (p *PictureWrappingMemory) Store(address uint16, b uint8) {
 	procFunc(b)
 }
 
-func (p *PictureWrappingMemory) GetStatistics() []BankAccessStatistics {
+func (p *WrappingMemory) GetStatistics() []BankAccessStatistics {
 	return p.mem.GetStatistics()
 }
