@@ -5,22 +5,10 @@ import (
 	"fmt"
 )
 
-type MemoryBank struct {
-	Address uint16
-	Length  uint16
-	Memory  []byte // len() has to be divisible by Length
-}
-
-type BankAccessStatistics struct {
-	Address          uint16
-	Length           uint16
-	AccessStatistics []uint64 // len() has to be divisible by Length
-}
-
 type Memory interface {
 	Load(address uint16) uint8
 	Store(address uint16, b uint8)
-	GetStatistics() []BankAccessStatistics
+	GetStatistics(address uint16) uint64
 }
 
 func Dump(m Memory, start uint16, end uint16) {
@@ -33,4 +21,10 @@ func Dump(m Memory, start uint16, end uint16) {
 	}
 
 	fmt.Print(hex.Dump(temp))
+}
+
+func DumpStatistics(m Memory, fileName string, start uint16, end uint16) {
+	for count := start; count <= end; count++ {
+		fmt.Println(m.GetStatistics(count))
+	}
 }

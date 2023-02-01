@@ -32,17 +32,6 @@ func (l *LinearMemory) Store(address uint16, b uint8) {
 	l.memory[address] = b
 }
 
-func (l *LinearMemory) GetStatistics() []BankAccessStatistics {
-	memLen := uint16(len(l.memory))
-
-	accessData := BankAccessStatistics{}
-	accessData.Address = 0x0000
-	accessData.Length = memLen
-	accessData.AccessStatistics = make([]uint64, memLen)
-
-	for count := 0; count < len(l.memory); count++ {
-		accessData.AccessStatistics[count] = l.accessCount[count]
-	}
-
-	return []BankAccessStatistics{accessData}
+func (l *LinearMemory) GetStatistics(address uint16) uint64 {
+	return l.accessCount[address]
 }

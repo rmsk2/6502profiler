@@ -41,6 +41,6 @@ func (p *WrappingMemory) Store(address uint16, b uint8) {
 	procFunc(b)
 }
 
-func (p *WrappingMemory) GetStatistics() []BankAccessStatistics {
-	return p.mem.GetStatistics()
+func (p *WrappingMemory) GetStatistics(address uint16) uint64 {
+	return p.mem.GetStatistics(address)
 }
