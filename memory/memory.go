@@ -33,7 +33,7 @@ func DumpStatistics(m Memory, fileName string, start uint16, end uint16) error {
 	defer func() { f.Close() }()
 
 	for count := start; count <= end; count++ {
-		fmt.Fprintln(f, m.GetStatistics(count))
+		fmt.Fprintf(f, "%04x: %02X %d\n", count, m.Load(count), m.GetStatistics(count)-1)
 	}
 
 	return nil
