@@ -3,6 +3,7 @@ package memory
 import (
 	"encoding/hex"
 	"fmt"
+	"os"
 )
 
 type Memory interface {
@@ -23,8 +24,17 @@ func Dump(m Memory, start uint16, end uint16) {
 	fmt.Print(hex.Dump(temp))
 }
 
-func DumpStatistics(m Memory, fileName string, start uint16, end uint16) {
-	for count := start; count <= end; count++ {
-		fmt.Println(m.GetStatistics(count))
+func DumpStatistics(m Memory, fileName string, start uint16, end uint16) error {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
 	}
+
+	defer func() { f.Close() }()
+
+	for count := start; count <= end; count++ {
+		fmt.Fprintln(f, m.GetStatistics(count))
+	}
+
+	return nil
 }

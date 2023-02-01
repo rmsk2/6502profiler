@@ -15,10 +15,9 @@ const (
 func main() {
 	cpu := cpu.New6502(cpu.Model6502)
 	//mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
-	mem := memory.NewLinearMemory(16384)
 	//picProc := memory.NewPicProcessor(320, 200)
-
 	//mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
+	mem := memory.NewLinearMemory(16384)
 	cpu.Init(mem)
 
 	if len(os.Args) < 2 {
@@ -33,8 +32,7 @@ func main() {
 	}
 
 	fmt.Printf("Program ran for %d clock cycles\n\n", cpu.NumCycles())
-	//memory.Dump(cpu.Mem, 0x0800, 0x08ff)
-	memory.DumpStatistics(mem, "access_data.txt", 2048, 4280)
+	memory.DumpStatistics(mem, "access_data.txt", 2048, 2048+3072)
 
 	//picProc.Save("apfel.png")
 
