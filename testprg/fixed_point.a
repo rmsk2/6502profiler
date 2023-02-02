@@ -751,10 +751,6 @@ sub32Bit
 ; The operand is modified, i.e. *op <- -*op 
 ; --------------------------------------------------
 neg32
-    ; lda ADDR_OPER_LEFT
-    ; sta ARITH_SCRATCH1
-    ; lda ADDR_OPER_LEFT+1 
-    ; sta ARITH_SCRATCH1+1
     ldy #0
     lda (ARITH_SCRATCH1), y
     eor #1
@@ -768,9 +764,6 @@ neg32
 ; The result is returned in the second operand, i.e. *opR <- *opL * *opR 
 ; --------------------------------------------------
 mul32BitNormalized
-    ;+getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH5, ARITH_SCRATCH7
-    ; The sign of the result is - if the signs of the two operands are different
-    ; and + otherwise. I.e. the result sign bit is the XOR of the two original sign bits
     ldy #0
     lda (ARITH_SCRATCH1),y                ; set sign of result
     eor (ARITH_SCRATCH3),y
