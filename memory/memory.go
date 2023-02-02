@@ -24,7 +24,7 @@ func Dump(m Memory, start uint16, end uint16) {
 	fmt.Print(hex.Dump(temp))
 }
 
-func DumpStatistics(m Memory, fileName string, start uint16, end uint16) error {
+func DumpStatistics(m Memory, fileName string, acmeLabels map[uint16][]string, start uint16, end uint16) error {
 	f, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -33,7 +33,19 @@ func DumpStatistics(m Memory, fileName string, start uint16, end uint16) error {
 	defer func() { f.Close() }()
 
 	for count := start; count <= end; count++ {
-		fmt.Fprintf(f, "%04x: %02X %d\n", count, m.Load(count), m.GetStatistics(count)-1)
+		labels, ok := acmeLabels[count]
+		if ok {
+			for _, j := range labels {
+				fmt.Fprintln(f, j)
+			}
+		}
+
+		numAccess := m.GetStatistics(count)
+		if numAccess != 0 {
+			numAccess -= 1
+		}
+
+		fmt.Fprintf(f, "    %04x: %02X %d\n", count, m.Load(count), numAccess)
 	}
 
 	return nil

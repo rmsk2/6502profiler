@@ -1,6 +1,7 @@
 package main
 
 import (
+	"6502profiler/acmeassembler"
 	"6502profiler/cpu"
 	"6502profiler/memory"
 	"fmt"
@@ -14,14 +15,20 @@ const (
 
 func main() {
 	cpu := cpu.New6502(cpu.Model6502)
-	//mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
-	//picProc := memory.NewPicProcessor(320, 200)
-	//mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
-	mem := memory.NewLinearMemory(16384)
+	mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
+	picProc := memory.NewPicProcessor(320, 200)
+	mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
+	//mem := memory.NewLinearMemory(16384)
 	cpu.Init(mem)
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: 6502profiler <binary to run>")
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: 6502profiler <binary to run> <label file>")
+		os.Exit(ExitError)
+	}
+
+	labels, err := acmeassembler.ParseLabelFile(os.Args[2])
+	if err != nil {
+		fmt.Printf("A problem occurred: %v\n", err)
 		os.Exit(ExitError)
 	}
 
@@ -31,10 +38,10 @@ func main() {
 		os.Exit(ExitError)
 	}
 
-	fmt.Printf("Program ran for %d clock cycles\n\n", cpu.NumCycles())
-	memory.DumpStatistics(mem, "access_data.txt", 2048, 2048+3072)
+	fmt.Printf("Program ran for %d clock cycles\n", cpu.NumCycles())
+	memory.DumpStatistics(mem, "access_data.txt", labels, 2048, 2048+3072)
 
-	//picProc.Save("apfel.png")
+	picProc.Save("apfel.png")
 
 	os.Exit(ExitOk)
 }

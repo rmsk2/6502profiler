@@ -6,18 +6,13 @@ ARITH_SCRATCH1 = $FB
 ARITH_SCRATCH2 = $FC
 ARITH_SCRATCH3 = $FD
 ARITH_SCRATCH4 = $FE
+LOOKUP_SCRATCH1 = $F7
+LOOKUP_SCRATCH2 = $F8
+LOOKUP_SCRATCH3 = $F9
+COUNT_L = $9E
+COUNT_R = $9F
+HELP_MUL = $FA
 
-; It is assumed that these values are 4 contiguous bytes in the
-; zero page
-ARITH_SCRATCH5 = $F7
-ARITH_SCRATCH6 = $F8
-ARITH_SCRATCH7 = $F9
-ARITH_SCRATCH8 = $FA
-
-; It is assumed that these values are 2 contiguous bytes in the
-; zero page
-ARITH_SCRATCH9 = $9E
-ARITH_SCRATCH10 = $9F
 
 ; --------------------------------------------------
 ; load16BitImmediate loads the 16 bit value given in .val into the memory location given
@@ -255,9 +250,6 @@ SQ_TAB_MSB
 !byte $C4, $C5, $C7, $C9, $CB, $CC, $CE, $D0, $D2, $D4, $D5, $D7, $D9, $DB, $DD, $DF
 !byte $E1, $E2, $E4, $E6, $E8, $EA, $EC, $EE, $F0, $F2, $F4, $F6, $F8, $FA, $FC, $FE
 
-LOOKUP_SCRATCH1 = $FB
-LOOKUP_SCRATCH2 = $FC
-LOOKUP_SCRATCH3 = $FD
 
 ; --------------------------------------------------
 ; mul16BitFast mutiplies the bytes contained in accu and x register 
@@ -305,7 +297,7 @@ LOOKUP_SCRATCH3 = $FD
 ; The high byte of the result is returned in accu, the lo byte in the X register.
 ; --------------------------------------------------
 mul16Bit
-    +mul16BitLookup ARITH_SCRATCH1, ARITH_SCRATCH2, ARITH_SCRATCH3
+    +mul16BitLookup LOOKUP_SCRATCH1, LOOKUP_SCRATCH2, LOOKUP_SCRATCH3
     rts
 
 }
@@ -317,34 +309,14 @@ TEMP_VAL
 TEMP_ADDR
 !byte 0,0
 
-!macro getParameters .addrL, .addrR, .target1, .target2 {
-    lda .addrL
-    sta .target1
-    lda .addrL+1 
-    sta .target1+1
-    lda .addrR
-    sta .target2
-    lda .addrR+1 
-    sta .target2+1
-}
-
-!macro prepareParms .addrL, .addrR {
-}
-
-ADDR_OPER_LEFT
-!byte 0,0
-ADDR_OPER_RIGHT
-!byte 0,0
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT
-; and adds its operands. This routine ignores the sign byte.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4 
+; and adds them. This routine ignores the sign byte.
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL + *opR 
 ; --------------------------------------------------
 add32BitUnsigned
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
-add32BitUnsignedInternal
     ldy #1                         ; skip over sign byte
     clc
     lda (ARITH_SCRATCH1),y
@@ -366,14 +338,12 @@ add32BitUnsignedInternal
     rts
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT
-; and subtracts its operands. The caller has to ensure that *opL >= *opR
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4 
+; and subtracts them. The caller has to ensure that *opL >= *opR
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL - *opR 
 ; --------------------------------------------------
 sub32BitUnsigned
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
-sub32BitUnsignedInternal
     ldy #1                         ; skip over sign byte
     sec
     lda (ARITH_SCRATCH1),y
@@ -394,14 +364,12 @@ sub32BitUnsignedInternal
     rts
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT
-; and subtracts its operands. The caller has to ensure that *opR >= *opL. This routine ignores the sign bytes.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4 
+; and subtracts them. The caller has to ensure that *opR >= *opL. This routine ignores the sign bytes.
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opR - *opL 
 ; --------------------------------------------------
 sub32SwitchedUnsigned
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
-sub32SwitchedUnsignedInternal
     ldy #1                         ; skip over sign byte
     sec
     lda (ARITH_SCRATCH3),y
@@ -424,28 +392,18 @@ sub32SwitchedUnsignedInternal
 
 TEMP_MUL
 !byte 0,0,0,0,0,0,0,0
-COUNT_L
-!byte 0
-COUNT_R
-!byte 0
-HELP_MUL
-!byte 0
+
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4.
 ; It multiplies its operands as if they were unsigned 32 bit integers.
 ;
 ; The result is returned in the eight byte buffer starting at TEMP_MUL. 
 ; --------------------------------------------------
 mul32BitUnsigned
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH5, ARITH_SCRATCH7
-mul32BitUnsignedInternal
     lda #0
     sta COUNT_L                   ; clear counter for digits of left operand
     sta COUNT_R                   ; clear counter for digits of right operand
-    ; lda #<TEMP_MUL                ; set temp buffer address 
-    ; sta ARITH_SCRATCH9
-    ; lda #>TEMP_MUL
-    ; sta ARITH_SCRATCH9+1
+
     ldx #7                        ; clear temp buffer
     lda #0
 .clear                            
@@ -456,12 +414,12 @@ mul32BitUnsignedInternal
 .loopMul
     ldy COUNT_L
     iny                           ; skip sign byte
-    lda (ARITH_SCRATCH5), y       ; load COUNT_L digit of left operand 
+    lda (ARITH_SCRATCH1), y       ; load COUNT_L digit of left operand 
     beq .noExtraCarry
     tax                           ; and store it in X register
     ldy COUNT_R                   ; load COUNT_R digit of right operand in accu
     iny                           ; skip sign byte
-    lda (ARITH_SCRATCH7), y
+    lda (ARITH_SCRATCH3), y
     beq .noExtraCarry
     jsr mul16Bit                  ; multiply these 8 bit values. Result MSB in accu, LSB in x register
     sta HELP_MUL                  ; store MSB of multiplication result in temp variable
@@ -502,17 +460,12 @@ mul32BitUnsignedInternal
 
 
 ; --------------------------------------------------
-; This subroutine pulls the address of its operand from the parameter block ADDR_OPER_LEFT.
+; This subroutine expects its operand in ARITH_SCRATCH1/2.
 ; It squares its operand as if it was an unsigned 32 bit integer.
 ;
 ; The result is returned in the eight byte buffer starting at TEMP_MUL. 
 ; --------------------------------------------------
 square32BitUnsigned
-    lda ADDR_OPER_LEFT
-    sta ARITH_SCRATCH5
-    lda ADDR_OPER_LEFT+1 
-    sta ARITH_SCRATCH5+1
-square32BitUnsignedInternal
     lda #0
     sta COUNT_L                   ; clear counter for digits of left operand
     sta COUNT_R                   ; clear counter for digits of right operand
@@ -525,28 +478,28 @@ square32BitUnsignedInternal
 
 .loopSquare
     lda #1
-    sta ARITH_SCRATCH7
+    sta ARITH_SCRATCH3
 
     ldy COUNT_L
     cpy COUNT_R
     bne .squareNormal
     iny                           ; skip sign byte
-    lda (ARITH_SCRATCH5), y       ; load COUNT_L digit of left operand 
+    lda (ARITH_SCRATCH1), y       ; load COUNT_L digit of left operand 
     beq .noExtraCarrySquare
     tay
     lda SQ_TAB_LSB, y
     tax
     lda SQ_TAB_MSB, y
-    dec ARITH_SCRATCH7
+    dec ARITH_SCRATCH3
     jmp .processResult
 .squareNormal
     iny                           ; skip sign byte
-    lda (ARITH_SCRATCH5), y       ; load COUNT_L digit of left operand 
+    lda (ARITH_SCRATCH1), y       ; load COUNT_L digit of left operand 
     beq .noExtraCarrySquare
     tax                           ; and store it in X register
     ldy COUNT_R                   ; load COUNT_R digit of right operand in accu
     iny                           ; skip sign byte
-    lda (ARITH_SCRATCH5), y
+    lda (ARITH_SCRATCH1), y
     beq .noExtraCarrySquare
     jsr mul16Bit                  ; multiply these 8 bit values. Result MSB in accu, LSB in x register
 .processResult
@@ -574,7 +527,7 @@ square32BitUnsignedInternal
     sta TEMP_MUL, y
     bcs .carryLoopSquare
 .checkDoubleAdd
-    dec ARITH_SCRATCH7
+    dec ARITH_SCRATCH3
     bne .noExtraCarrySquare
     jmp .addTwice
 .noExtraCarrySquare
@@ -596,15 +549,13 @@ square32BitUnsignedInternal
 
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT
-; and compares its two operands. This routine ignores the sign byte it only compares the absolute values.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4 
+; and compares them. This routine ignores the sign byte it only compares the absolute values.
 ;
 ; The result is returned in the carry flag. Its is set if *opL >= *opR. In addition the the zero flag is set
 ; when the values are equal.
 ; --------------------------------------------------
 cmp32BitUnsigned
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
-cmp32BitUnsignedInternal
     ldy #4                       ; start at MSB
     lda (ARITH_SCRATCH1), y
     cmp (ARITH_SCRATCH3), y
@@ -631,13 +582,12 @@ cmp32BitUnsignedInternal
 
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the paramter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4 
 ; The routine copies the value of oL to oR
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL 
 ; --------------------------------------------------
 move32Bit
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
     ldy #4
 .loopMove
     lda (ARITH_SCRATCH1),y
@@ -649,18 +599,13 @@ move32Bit
 
 
 ; --------------------------------------------------
-; This subroutine pulls the address of its operand from the parameter blocks ADDR_OPER_LEFT
+; This subroutine expects its operand in ARITH_SCRATCH1/2.
 ; The routine then doubles the value of its operand by simply performing a left shift. It
 ; ignores the sign byte.
 ;
 ; The operand is modified, i.e. *op <- 2 * *op 
 ; --------------------------------------------------
 double32Bit
-    lda ADDR_OPER_LEFT
-    sta ARITH_SCRATCH1
-    lda ADDR_OPER_LEFT+1 
-    sta ARITH_SCRATCH1+1
-
     ldy #1                        ; skip sign value
     lda (ARITH_SCRATCH1),y
     asl
@@ -685,18 +630,13 @@ double32Bit
 
 
 ; --------------------------------------------------
-; This subroutine pulls the address of its operand from the parameter blocks ADDR_OPER_LEFT
+; This subroutine expects it operand in ARITH_SCRATCH1/2.
 ; The routine then halves the value of its operand by simply performing a right shift. It
 ; ignores the sign byte.
 ;
 ; The operand is modified, i.e. *op <- *op / 2 
 ; --------------------------------------------------
 halve32Bit
-    lda ADDR_OPER_LEFT
-    sta ARITH_SCRATCH1
-    lda ADDR_OPER_LEFT+1 
-    sta ARITH_SCRATCH1+1
-
     clc
     ldy #4 
     lda (ARITH_SCRATCH1),y                       
@@ -724,17 +664,16 @@ LEFT_GREATER_EQUAL_RIGHT
 !byte 0
 
 !macro prepareAddSub {
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH1, ARITH_SCRATCH3
     lda #0
     sta LEFT_GREATER_EQUAL_RIGHT
-    jsr cmp32BitUnsignedInternal
+    jsr cmp32BitUnsigned
     bcc .leftLessThanRight
     inc LEFT_GREATER_EQUAL_RIGHT
 .leftLessThanRight
 }
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the parameter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4.
 ; The routine adds the two operands and handles their signs correctly.
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL + *opR 
@@ -750,7 +689,7 @@ add32Bit
     ; switched subtraction
     ; sign of result is sign of opR
     ; result is opR
-    jsr sub32SwitchedUnsignedInternal
+    jsr sub32SwitchedUnsigned
     rts
 .normalSub
     ; normal subtraction
@@ -758,18 +697,18 @@ add32Bit
     ; result is OpR
     lda (ARITH_SCRATCH1), y                ; set sign of result   
     sta (ARITH_SCRATCH3), y
-    jsr sub32BitUnsignedInternal
+    jsr sub32BitUnsigned
     rts
 .simpleAdd
     ; addition
     ; sign of both operands is equal
     ; sign does not change
-    jsr add32BitUnsignedInternal
+    jsr add32BitUnsigned
     rts
 
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the parameter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4.
 ; The routine subtracts the two operands and handles their signs correctly.
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL - *opR 
@@ -788,13 +727,13 @@ sub32Bit
     lda (ARITH_SCRATCH3), y               ; set sign of result
     eor #1
     sta (ARITH_SCRATCH3), y
-    jsr sub32SwitchedUnsignedInternal
+    jsr sub32SwitchedUnsigned
     rts
 .normalSub2
     ; normal subtraction
     ; sign of result is unchanged
     ; result is opR
-    jsr sub32BitUnsignedInternal
+    jsr sub32BitUnsigned
     rts
 .simpleAdd2
     ; add both operands
@@ -802,20 +741,20 @@ sub32Bit
     ; result is opR
     lda (ARITH_SCRATCH1), y               ; set sign of result
     sta (ARITH_SCRATCH3), y
-    jsr add32BitUnsignedInternal
+    jsr add32BitUnsigned
     rts
 
 ; --------------------------------------------------
-; This subroutine pulls the address of its operand from the parameter blocks ADDR_OPER_LEFT
+; This subroutine expects its operand in ARITH_SCRATCH1/2. 
 ; The routine flips the sign of its operand
 ;
 ; The operand is modified, i.e. *op <- -*op 
 ; --------------------------------------------------
 neg32
-    lda ADDR_OPER_LEFT
-    sta ARITH_SCRATCH1
-    lda ADDR_OPER_LEFT+1 
-    sta ARITH_SCRATCH1+1
+    ; lda ADDR_OPER_LEFT
+    ; sta ARITH_SCRATCH1
+    ; lda ADDR_OPER_LEFT+1 
+    ; sta ARITH_SCRATCH1+1
     ldy #0
     lda (ARITH_SCRATCH1), y
     eor #1
@@ -823,28 +762,28 @@ neg32
     rts
 
 ; --------------------------------------------------
-; This subroutine pulls the addresses of the two operands from the parameter blocks ADDR_OPER_LEFT and ADDR_OPER_RIGHT.
+; This subroutine expects its operands in ARITH_SCRATCH1/2 and ARITH_SCRATCH3/4.
 ; The routine multiplies the two operands and handles their signs correctly.
 ;
 ; The result is returned in the second operand, i.e. *opR <- *opL * *opR 
 ; --------------------------------------------------
 mul32BitNormalized
-    +getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH5, ARITH_SCRATCH7
+    ;+getParameters ADDR_OPER_LEFT, ADDR_OPER_RIGHT, ARITH_SCRATCH5, ARITH_SCRATCH7
     ; The sign of the result is - if the signs of the two operands are different
     ; and + otherwise. I.e. the result sign bit is the XOR of the two original sign bits
     ldy #0
-    lda (ARITH_SCRATCH5),y                ; set sign of result
-    eor (ARITH_SCRATCH7),y
-    sta (ARITH_SCRATCH7),y
+    lda (ARITH_SCRATCH1),y                ; set sign of result
+    eor (ARITH_SCRATCH3),y
+    sta (ARITH_SCRATCH3),y
 
-    jsr mul32BitUnsignedInternal
+    jsr mul32BitUnsigned
 
     ; copy bytes 3,4,5,6 from TEMP_MUL
-    ; to bytes 1,2,3,4 of (ARITH_SCRATCH7)
+    ; to bytes 1,2,3,4 of (ARITH_SCRATCH3)
     ldy #1
 .loopNorm2
     lda TEMP_MUL+2, y
-    sta (ARITH_SCRATCH7), y
+    sta (ARITH_SCRATCH3), y
     iny
     cpy #5
     bne .loopNorm2
@@ -853,30 +792,25 @@ mul32BitNormalized
 
 
 ; --------------------------------------------------
-; This subroutine pulls the address of its operand from the parameter block ADDR_OPER_LEFT.
+; This subroutine expects its operand in ARITH_SCRATCH1/2.
 ; The routine squres its operand and handles the sign correctly.
 ;
 ; The result is returned in the operand, i.e. *opL <- *opL * *opL 
 ; --------------------------------------------------
 square32BitNormalized
-    lda ADDR_OPER_LEFT
-    sta ARITH_SCRATCH5
-    lda ADDR_OPER_LEFT+1 
-    sta ARITH_SCRATCH5+1
-
     ; The sign of the result always positive
     lda #0
     ldy #0
-    sta (ARITH_SCRATCH5), y                 
+    sta (ARITH_SCRATCH1), y                 
 
-    jsr square32BitUnsignedInternal
+    jsr square32BitUnsigned
 
     ; copy bytes 3,4,5,6 from TEMP_MUL
-    ; to bytes 1,2,3,4 of (ARITH_SCRATCH5)
+    ; to bytes 1,2,3,4 of (ARITH_SCRATCH1)
     ldy #1
 .loopNorm3
     lda TEMP_MUL+2, y
-    sta (ARITH_SCRATCH5), y
+    sta (ARITH_SCRATCH1), y
     iny
     cpy #5
     bne .loopNorm3
@@ -884,13 +818,13 @@ square32BitNormalized
     rts    
 
 !macro callFunc .func, .addrL, .addrR {
-    +load16BitImmediate .addrL, ADDR_OPER_LEFT
-    +load16BitImmediate .addrR, ADDR_OPER_RIGHT
+    +load16BitImmediate .addrL, ARITH_SCRATCH1
+    +load16BitImmediate .addrR, ARITH_SCRATCH3
     jsr .func
 }
 
 !macro callFuncMono .func, .addrL {
-    +load16BitImmediate .addrL, ADDR_OPER_LEFT
+    +load16BitImmediate .addrL, ARITH_SCRATCH1
     jsr .func
 }
 
