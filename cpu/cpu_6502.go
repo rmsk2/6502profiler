@@ -326,7 +326,7 @@ func (c *CPU6502) LoadAndRun(fileName string) (err error) {
 	return c.CopyAndRun(data[2:], loadAddress)
 }
 
-func (c *CPU6502) CopyProg(program []byte, startAddress uint16) (err error) {
+func (c *CPU6502) CopyBinary(binary []byte, startAddress uint16) (err error) {
 	// Recover from panic created by memory access
 	defer func() {
 		if res := recover(); res != nil {
@@ -337,7 +337,7 @@ func (c *CPU6502) CopyProg(program []byte, startAddress uint16) (err error) {
 
 	copyAddress := startAddress
 
-	for _, j := range program {
+	for _, j := range binary {
 		c.Mem.Store(copyAddress, j)
 		copyAddress++ // This can overflow
 	}
@@ -346,7 +346,7 @@ func (c *CPU6502) CopyProg(program []byte, startAddress uint16) (err error) {
 }
 
 func (c *CPU6502) CopyAndRun(program []byte, startAddress uint16) (err error) {
-	err = c.CopyProg(program, startAddress)
+	err = c.CopyBinary(program, startAddress)
 	if err != nil {
 		return err
 	}

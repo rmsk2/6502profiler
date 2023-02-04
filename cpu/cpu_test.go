@@ -45,7 +45,7 @@ func testSingleInstructionWithArrange(model CpuModel, testProg []byte, arranger 
 	cpu := New6502(model)
 	cpu.Init(memory.NewLinearMemory(8192))
 
-	err := cpu.CopyProg(testProg, 0x800)
+	err := cpu.CopyBinary(testProg, 0x800)
 	if err != nil {
 		return false, err
 	}
