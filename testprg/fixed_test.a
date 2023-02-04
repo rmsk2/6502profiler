@@ -191,15 +191,15 @@ testMandelbrotDone
     ; *****************************
 
     ; XN_SQUARE <= XN
-    +callFunc move32Bit, XN, XN_SQUARE
+    +move32BitInline XN, XN_SQUARE
     ; XN_SQUARE <= XN_SQUARE * XN_SQUARE
     +callFuncMono square32BitNormalized, XN_SQUARE
     ; YN_SQUARE <= YN
-    +callFunc move32Bit, YN, YN_SQUARE
+    +move32BitInline YN, YN_SQUARE
     ; YN_SQUARE <= YN_SQUARE * YN_SQUARE
     +callFuncMono square32BitNormalized, YN_SQUARE
     ; TEMP_MAX <= XN_SQUARE
-    +callFunc move32Bit, XN_SQUARE, TEMP_MAX
+    +move32BitInline XN_SQUARE, TEMP_MAX
     ; TEMP_MAX <= YN_SQUARE + TEMP_MAX
     +callFunc add32Bit, YN_SQUARE, TEMP_MAX
 
@@ -248,16 +248,16 @@ calcOneMandelbrotSequence
     ;+printFixedPoint YN
 
     ; XN_OLD <= XN
-    +callFunc move32Bit, XN, XN_OLD
+    +move32BitInline XN, XN_OLD
     
     ; *****************************
     ; xn+1 = xn*xn - yn*yn + real
     ; *****************************
 
     ; XN <= XN_SQUARE
-    +callFunc move32Bit, XN_SQUARE, XN
+    +move32BitInline XN_SQUARE, XN
     ; YN_SQUARE <= -YN_SQUARE
-    +callFuncMono neg32, YN_SQUARE
+    +neg32Inline YN_SQUARE
     ; XN <= YN_SQUARE + XN
     +callFunc add32Bit, YN_SQUARE, XN
     ; XN <= REAL + XN
