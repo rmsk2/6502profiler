@@ -326,12 +326,12 @@ func (c *CPU6502) LoadAndRun(fileName string) (err error) {
 	return c.CopyAndRun(data[2:], loadAddress)
 }
 
-func (c *CPU6502) CopyBinary(binary []byte, startAddress uint16) (err error) {
+func (c *CPU6502) CopyToMem(binary []byte, startAddress uint16) (err error) {
 	// Recover from panic created by memory access
 	defer func() {
 		if res := recover(); res != nil {
 			// Use named return value to return a value after handling the panic
-			err = fmt.Errorf("error copying 6502 program: %v", res)
+			err = fmt.Errorf("error copying to memory: %v", res)
 		}
 	}()
 
@@ -345,8 +345,29 @@ func (c *CPU6502) CopyBinary(binary []byte, startAddress uint16) (err error) {
 	return err
 }
 
+func (c *CPU6502) CopyFromMem(startAddress uint16, length uint16) (data []byte, err error) {
+	// Recover from panic created by memory access
+	defer func() {
+		if res := recover(); res != nil {
+			// Use named return value to return a value after handling the panic
+			err = fmt.Errorf("error copying from memory: %v", res)
+		}
+	}()
+
+	data = []byte{}
+	copyAddress := startAddress
+	var count uint16
+
+	for count = 0; count < length; count++ {
+		data = append(data, c.Mem.Load(copyAddress))
+		copyAddress++
+	}
+
+	return data, err
+}
+
 func (c *CPU6502) CopyAndRun(program []byte, startAddress uint16) (err error) {
-	err = c.CopyBinary(program, startAddress)
+	err = c.CopyToMem(program, startAddress)
 	if err != nil {
 		return err
 	}

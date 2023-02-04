@@ -31,7 +31,7 @@ func TestRelativeOverflow(t *testing.T) {
 func TestGetAddrAbsolute(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x42, 0x24}, 0x0000)
+	cpu.CopyToMem([]byte{0x42, 0x24}, 0x0000)
 	cpu.PC = 0x0000
 
 	if cpu.getAddrAbsolute() != 0x2442 {
@@ -42,7 +42,7 @@ func TestGetAddrAbsolute(t *testing.T) {
 func TestGetAddrZeroPage(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x42}, 0x0000)
+	cpu.CopyToMem([]byte{0x42}, 0x0000)
 	cpu.PC = 0x0000
 
 	if cpu.getAddrZeroPage() != 0x42 {
@@ -53,7 +53,7 @@ func TestGetAddrZeroPage(t *testing.T) {
 func TestGetAddrAbsoluteY(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x42, 0x24}, 0x0000)
+	cpu.CopyToMem([]byte{0x42, 0x24}, 0x0000)
 	cpu.PC = 0x0000
 	cpu.Y = 0x08
 
@@ -67,7 +67,7 @@ func TestGetAddrAbsoluteY(t *testing.T) {
 func TestGetAddrAbsoluteX(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x52, 0x25}, 0x0000)
+	cpu.CopyToMem([]byte{0x52, 0x25}, 0x0000)
 	cpu.PC = 0x0000
 	cpu.X = 0x08
 
@@ -81,7 +81,7 @@ func TestGetAddrAbsoluteX(t *testing.T) {
 func TestGetAddrZeroPageY(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x17}, 0x0000)
+	cpu.CopyToMem([]byte{0x17}, 0x0000)
 	cpu.PC = 0x0000
 	cpu.Y = 0xFF
 
@@ -93,7 +93,7 @@ func TestGetAddrZeroPageY(t *testing.T) {
 func TestGetAddrZeroPageX(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xFF}, 0x0000)
+	cpu.CopyToMem([]byte{0xFF}, 0x0000)
 	cpu.PC = 0x0000
 	cpu.X = 0xFF
 
@@ -105,7 +105,7 @@ func TestGetAddrZeroPageX(t *testing.T) {
 func TestGetAddrIndirect(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x02, 0x00, 0x89, 0xAF}, 0x0000)
+	cpu.CopyToMem([]byte{0x02, 0x00, 0x89, 0xAF}, 0x0000)
 	cpu.PC = 0x0000
 
 	if cpu.getAddrIndirect() != 0xAF89 {
@@ -116,7 +116,7 @@ func TestGetAddrIndirect(t *testing.T) {
 func TestGetAddrJmIndirect65C02(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xFF, 0x30}, 0x0000)
+	cpu.CopyToMem([]byte{0xFF, 0x30}, 0x0000)
 	cpu.Mem.Store(0x30FF, 0x80)
 	cpu.Mem.Store(0x3000, 0x40)
 	cpu.Mem.Store(0x3100, 0x50)
@@ -131,7 +131,7 @@ func TestGetAddrJmIndirect65C02(t *testing.T) {
 func TestGetAddrRelativeNegative(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xa9, 0x00, 0xf0, 0xfe}, 0x0000)
+	cpu.CopyToMem([]byte{0xa9, 0x00, 0xf0, 0xfe}, 0x0000)
 	cpu.PC = 0x0003
 
 	res, _ := cpu.getAddrRelative()
@@ -144,7 +144,7 @@ func TestGetAddrRelativeNegative(t *testing.T) {
 func TestGetAddrRelativePositive(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xa9, 0x00, 0xf0, 0x00, 0xea}, 0x0000)
+	cpu.CopyToMem([]byte{0xa9, 0x00, 0xf0, 0x00, 0xea}, 0x0000)
 	cpu.PC = 0x0003
 
 	res, _ := cpu.getAddrRelative()
@@ -157,7 +157,7 @@ func TestGetAddrRelativePositive(t *testing.T) {
 func TestGetAddrIndirectIdxY(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x12}, 0x0000)
+	cpu.CopyToMem([]byte{0x12}, 0x0000)
 	cpu.Mem.Store(0x0012, 0x78)
 	cpu.Mem.Store(0x0013, 0x56)
 	cpu.Y = 2
@@ -173,7 +173,7 @@ func TestGetAddrIndirectIdxY(t *testing.T) {
 func TestGetAddrIdxIndirectX(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x12}, 0x0000)
+	cpu.CopyToMem([]byte{0x12}, 0x0000)
 	cpu.Mem.Store(0x0012, 0x78)
 	cpu.Mem.Store(0x0013, 0x56)
 	cpu.Mem.Store(0x0014, 0xBC)
@@ -192,7 +192,7 @@ func TestGetAddrIdxIndirectX(t *testing.T) {
 func TestGetAddrJmIndirectJmp6502(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xFF, 0x30}, 0x0000)
+	cpu.CopyToMem([]byte{0xFF, 0x30}, 0x0000)
 	cpu.Mem.Store(0x30FF, 0x80)
 	cpu.Mem.Store(0x3000, 0x40)
 	cpu.Mem.Store(0x3100, 0x50)
@@ -207,7 +207,7 @@ func TestGetAddrJmIndirectJmp6502(t *testing.T) {
 func TestGetAddrJmIndirectJmp6502Correct(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0xFE, 0x30}, 0x0000)
+	cpu.CopyToMem([]byte{0xFE, 0x30}, 0x0000)
 	cpu.Mem.Store(0x30FE, 0x80)
 	cpu.Mem.Store(0x30FF, 0x50)
 
@@ -221,7 +221,7 @@ func TestGetAddrJmIndirectJmp6502Correct(t *testing.T) {
 func TestGetAddrIdxIndirect65C02(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x57, 0x13}, 0x0000)
+	cpu.CopyToMem([]byte{0x57, 0x13}, 0x0000)
 	cpu.Mem.Store(0x1456, 0xCD)
 	cpu.Mem.Store(0x1457, 0xAB)
 	cpu.X = 0xFF
@@ -237,7 +237,7 @@ func TestGetAddrIdxIndirect65C02(t *testing.T) {
 func TestGetAddrZp65C02(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))
-	cpu.CopyBinary([]byte{0x12}, 0x0000)
+	cpu.CopyToMem([]byte{0x12}, 0x0000)
 	cpu.Mem.Store(0x0012, 0x78)
 	cpu.Mem.Store(0x0013, 0x56)
 	cpu.PC = 0x0000
