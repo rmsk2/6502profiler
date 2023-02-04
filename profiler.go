@@ -21,8 +21,8 @@ func main() {
 	mem := memory.NewLinearMemory(16384)
 	cpu.Init(mem)
 
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: 6502profiler <binary to run> <label file>")
+	if len(os.Args) < 4 {
+		fmt.Println("Usage: 6502profiler <binary to run> <label file> <file to save runtime info>")
 		os.Exit(ExitError)
 	}
 
@@ -44,7 +44,7 @@ func main() {
 		return memory.CutOffMedian(m, start, end, 0.1)
 	}
 
-	memory.DumpStatistics(mem, "access_data.txt", labels, 2048, 2048+2048, ctOff)
+	memory.DumpStatistics(mem, os.Args[3], labels, 2048, 2048+2048, ctOff)
 
 	// picProc.Save("apfel.png")
 
