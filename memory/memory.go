@@ -12,6 +12,8 @@ type Memory interface {
 	GetStatistics(address uint16) uint64
 }
 
+type CutOffCalc func(m Memory, start uint16, end uint16) uint64
+
 func Dump(m Memory, start uint16, end uint16) {
 	temp := make([]byte, end-start+1)
 	var index uint16 = 0
@@ -24,13 +26,15 @@ func Dump(m Memory, start uint16, end uint16) {
 	fmt.Print(hex.Dump(temp))
 }
 
-func DumpStatistics(m Memory, fileName string, acmeLabels map[uint16][]string, start uint16, end uint16) error {
+func DumpStatistics(m Memory, fileName string, acmeLabels map[uint16][]string, start uint16, end uint16, determineCutOffValue CutOffCalc) error {
 	f, err := os.Create(fileName)
 	if err != nil {
 		return err
 	}
 
 	defer func() { f.Close() }()
+
+	cutOff := determineCutOffValue(m, start, end)
 
 	for count := start; count <= end; count++ {
 		labels, ok := acmeLabels[count]
@@ -45,7 +49,12 @@ func DumpStatistics(m Memory, fileName string, acmeLabels map[uint16][]string, s
 			numAccess -= 1
 		}
 
-		fmt.Fprintf(f, "    %04x: %02X %d\n", count, m.Load(count), numAccess)
+		prefix := "     "
+		if numAccess >= cutOff {
+			prefix = "###  "
+		}
+
+		fmt.Fprintf(f, "%s%04x: %02X %d\n", prefix, count, m.Load(count), numAccess)
 	}
 
 	return nil
