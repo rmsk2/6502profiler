@@ -6,10 +6,13 @@ type LinearMemory struct {
 }
 
 func NewLinearMemory(size uint32) *LinearMemory {
-	sizeMax := size & 0x0000FFFF
+	if size > 65536 {
+		size = 65536
+	}
+
 	res := &LinearMemory{
-		memory:      make([]byte, sizeMax),
-		accessCount: make([]uint64, sizeMax),
+		memory:      make([]byte, size),
+		accessCount: make([]uint64, size),
 	}
 
 	res.ClearPerformanceData()
