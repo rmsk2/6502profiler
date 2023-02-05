@@ -375,7 +375,6 @@ func (c *CPU6502) CopyAndRun(program []byte, startAddress uint16) (err error) {
 	err = c.Run(startAddress)
 
 	return err
-
 }
 
 func (c *CPU6502) Run(startAddress uint16) (err error) {
