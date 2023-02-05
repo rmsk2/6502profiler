@@ -90,6 +90,11 @@ Currently all 6502/6510 addressing modes and all but one instruction are emulate
 see any use for this instruction on the purely logical level on which `6502profiler` operates. On top of that only a few
 65C02 spedific addressing modes and instructions have been implemented up to this point. 
 
+# Building `6502profiler`
+
+The software is written in Go and therefore it can be built by the usual `go build` command. Tests are provided for all
+6502 instructions and can be executed through `go test ./...`.
+
 # Upcoming
 
 - Implement a feature that allows to test assembly code where the verification is done in a scripting language (the plan is to use Lua)
