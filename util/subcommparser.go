@@ -62,7 +62,7 @@ func (s *SubCommParser) Execute() {
 		err := subCommand.command(os.Args[2:])
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(ExitErrorSyntax)
+			os.Exit(ExitError)
 		}
 	}
 }
