@@ -1,8 +1,11 @@
-package memory
+package profiler
 
-import "sort"
+import (
+	"6502profiler/memory"
+	"sort"
+)
 
-func CutOffAbsoluteValue(m Memory, start uint16, end uint16, p float64) uint64 {
+func CutOffAbsoluteValue(m memory.Memory, start uint16, end uint16, p float64) uint64 {
 	temp := map[uint64]bool{}
 
 	for count := start; count <= end; count++ {
@@ -28,7 +31,7 @@ func CutOffAbsoluteValue(m Memory, start uint16, end uint16, p float64) uint64 {
 	return keys[cutOffIndex]
 }
 
-func CutOffMedian(m Memory, start uint16, end uint16, p float64) uint64 {
+func CutOffMedian(m memory.Memory, start uint16, end uint16, p float64) uint64 {
 	// length of memory area is at least 1
 
 	temp := []uint64{}
