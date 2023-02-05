@@ -18,7 +18,7 @@ func main() {
 	// mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
 	// picProc := memory.NewPicProcessor(320, 200)
 	// mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
-	mem := memory.NewLinearMemory(16384)
+	mem := memory.NewLinearMemory(65536)
 	cpu.Init(mem)
 
 	if len(os.Args) < 4 {

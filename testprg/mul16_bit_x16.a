@@ -1,0 +1,48 @@
+!to "mulx16", cbm
+
+* = $0800
+
+PRE_PTR = $12
+PRE_PTR_HI = $13
+TEMP_VAL_A = $14
+
+lda #34
+ldx #45
+jsr mul16Bit
+brk
+
+!macro mul16BitBankedRAM {
+    sta TEMP_VAL_A
+    and #%00000111                   ; bank num for lo byte is lower 3 bits of value a and a 0
+    asl                              ; make room for lower bit for hi byte bank
+    eor #%00010000                   ; make sure bank number 0 is not used as it is utilized by the kernal
+    sta 0                            ; make selected 8K bank appear at $A000
+    
+    ; determine offset in bank
+    lda TEMP_VAL_A
+    lsr
+    lsr
+    lsr
+    ;clc
+    ;adc #$A0
+    ora #$A0                         ; adc and ora are equivalent in this case as the lower 5 bits of $A0 are zero
+    sta PRE_PTR_HI
+    txa
+    tay
+    lda (PRE_PTR), y
+    tax
+    lda 0
+    eor #$01                        ; hi bytes are stored in the bank where bit 0 is set
+    sta 0
+    lda (PRE_PTR), y    
+}
+
+; --------------------------------------------------
+; This subroutine takes its two operands in X and A and multiplies them. This is achieved
+; by a multiplication table that is stored in banked RAM.
+;
+; The high byte of the result is returned in accu, the lo byte in the X register.
+; --------------------------------------------------
+mul16Bit
+    +mul16BitBankedRAM
+    rts

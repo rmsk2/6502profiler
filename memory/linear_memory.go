@@ -5,10 +5,11 @@ type LinearMemory struct {
 	accessCount []uint64
 }
 
-func NewLinearMemory(size uint16) *LinearMemory {
+func NewLinearMemory(size uint32) *LinearMemory {
+	sizeMax := size & 0x0000FFFF
 	res := &LinearMemory{
-		memory:      make([]byte, size),
-		accessCount: make([]uint64, size),
+		memory:      make([]byte, sizeMax),
+		accessCount: make([]uint64, sizeMax),
 	}
 
 	res.ClearPerformanceData()
