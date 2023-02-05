@@ -13,6 +13,9 @@ import (
 
 func ProfileCommand(arguments []string) error {
 	const strategyMedian = "median"
+	var p float64
+	var labels map[uint16][]string
+	var err error = nil
 
 	profileFlags := flag.NewFlagSet("6502profiler profile", flag.ContinueOnError)
 	binaryFileName := profileFlags.String("prg", "", "Path to the program to run")
@@ -26,20 +29,20 @@ func ProfileCommand(arguments []string) error {
 	// picProc := memory.NewPicProcessor(320, 200)
 	// mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
 	mem := memory.NewLinearMemory(65536)
-	var p float64
 
 	cpu.Init(mem)
 
-	err := profileFlags.Parse(arguments)
-	if err != nil {
+	if err = profileFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
 	}
+
+	statisticRequested := (*outputFileName != "")
 
 	if *binaryFileName == "" {
 		return fmt.Errorf("no program specified")
 	}
 
-	if *outputFileName != "" {
+	if statisticRequested {
 		if *labelFileName == "" {
 			return fmt.Errorf("a label file has to be specified")
 		}
@@ -48,31 +51,37 @@ func ProfileCommand(arguments []string) error {
 			return fmt.Errorf("%d is not a valid value for cutoff percentage", *percentageCutOff)
 		}
 
-		p = float64(*percentageCutOff) / 100.0
-	}
-
-	res := cpu.LoadAndRun(*binaryFileName)
-	if res != nil {
-		return fmt.Errorf("a problem occurred: %v", res)
-	}
-
-	fmt.Printf("Program ran for %d clock cycles\n", cpu.NumCycles())
-
-	if *outputFileName != "" {
-		labels, err := acmeassembler.ParseLabelFile(*labelFileName)
+		labels, err = acmeassembler.ParseLabelFile(*labelFileName)
 		if err != nil {
 			return fmt.Errorf("a problem occurred: %v", err)
 		}
 
-		ctOff := func(m memory.Memory, start, end uint16) uint64 {
-			if *strategy != strategyMedian {
+		p = float64(*percentageCutOff) / 100.0
+	}
+
+	loadAddress, progLen, err := cpu.LoadAndRun(*binaryFileName)
+	if err != nil {
+		return fmt.Errorf("a problem occurred: %v", err)
+	}
+
+	fmt.Printf("Program ran for %d clock cycles\n", cpu.NumCycles())
+
+	if statisticRequested {
+		var ctOff profiler.CutOffCalc
+
+		if *strategy != strategyMedian {
+			ctOff = func(m memory.Memory, start, end uint16) uint64 {
 				return profiler.CutOffAbsoluteValue(m, start, end, p)
-			} else {
+			}
+		} else {
+			ctOff = func(m memory.Memory, start, end uint16) uint64 {
 				return profiler.CutOffMedian(m, start, end, p)
 			}
 		}
 
-		profiler.DumpStatistics(mem, *outputFileName, labels, 2048, 2048+2048, ctOff)
+		if err = profiler.DumpStatistics(mem, *outputFileName, labels, loadAddress, (loadAddress + progLen - 1), ctOff); err != nil {
+			return fmt.Errorf("problem generating output file: %v", err)
+		}
 	}
 
 	// picProc.Save("apfel.png")

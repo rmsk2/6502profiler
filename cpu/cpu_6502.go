@@ -311,19 +311,19 @@ func (c *CPU6502) Init(m memory.Memory) {
 	c.SP = 0xFF
 }
 
-func (c *CPU6502) LoadAndRun(fileName string) (err error) {
+func (c *CPU6502) LoadAndRun(fileName string) (loadAddress uint16, progLen uint16, err error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		return fmt.Errorf("unable to load binary: %v", err)
+		return 0, 0, fmt.Errorf("unable to load binary: %v", err)
 	}
 
 	if len(data) < 3 {
-		return fmt.Errorf("no program data found")
+		return 0, 0, fmt.Errorf("no program data found")
 	}
 
-	var loadAddress uint16 = uint16(data[1])*256 + uint16(data[0])
+	loadAddress = uint16(data[1])*256 + uint16(data[0])
 
-	return c.CopyAndRun(data[2:], loadAddress)
+	return loadAddress, uint16(len(data) - 2), c.CopyAndRun(data[2:], loadAddress)
 }
 
 func (c *CPU6502) CopyToMem(binary []byte, startAddress uint16) (err error) {
