@@ -35,7 +35,7 @@ of the binary contain the load address in the usual form (lo byte first). It is 
 this address. The final instruction in a program that is run by `6502profiler` has to be `BRK` and not `RTS`.
 
 If the `-out` option is specified `6502profiler` outputs statistical data about the current program execution. The output contains two
-types of lines. Label lines and address lines. The following example illustrates a label line followed by two address lines.
+types of lines. Label lines and address lines. The following example illustrates a label line followed by three address lines.
 
 ```
 SQ_TAB_LSB
