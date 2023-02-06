@@ -25,15 +25,16 @@ func NewPicProcessor(w, h uint16) *PicProcessor {
 }
 
 func (p *PicProcessor) SetPoint(data uint8) {
-	col1 := color.NRGBA{0, 255, 0, 255}
+	colGreen := color.NRGBA{0, 255, 0, 255}
+	colWhite := color.NRGBA{255, 255, 255, 255}
 
 	if data == 24 {
-		p.image.Set(int(p.countX), int(p.countY), col1)
+		p.image.Set(int(p.countX), int(p.countY), colGreen)
 	} else {
 		if (data & 1) != 0 {
-			p.image.Set(int(p.countX), int(p.countY), col1)
+			p.image.Set(int(p.countX), int(p.countY), colGreen)
 		} else {
-			p.image.Set(int(p.countX), int(p.countY), color.Black)
+			p.image.Set(int(p.countX), int(p.countY), colWhite)
 		}
 	}
 
