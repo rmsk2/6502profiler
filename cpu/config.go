@@ -100,9 +100,9 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 
 	if len(c.IoAddrConfig) != 0 {
 		wrapper = memory.NewMemWrapper(mem, uint16(c.IoMask)<<8)
-		//for i, j := range c.IoAddrConfig {
-
-		//}
+		// for i, j := range c.IoAddrConfig {
+		// 	fmt.Printf("%d: %s\n", i, j)
+		// }
 
 		mem = wrapper
 	}
