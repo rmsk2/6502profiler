@@ -1,0 +1,8 @@
+{
+    "Model": 1,
+    "MemSpec": "Linear64K",
+    "IoMask": 0,
+    "IoAddrConfig": {
+        
+    }
+}
