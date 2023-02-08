@@ -16,6 +16,8 @@ func ProfileCommand(arguments []string) error {
 	var p float64
 	var labels map[uint16][]string
 	var err error = nil
+	var config *cpu.Config = cpu.EmptyConfig()
+	var processor *cpu.CPU6502
 
 	profileFlags := flag.NewFlagSet("6502profiler profile", flag.ContinueOnError)
 	binaryFileName := profileFlags.String("prg", "", "Path to the program to run")
@@ -23,19 +25,28 @@ func ProfileCommand(arguments []string) error {
 	outputFileName := profileFlags.String("out", "", "Path to the out file that holds the generated data")
 	percentageCutOff := profileFlags.Uint("prcnt", 10, "Percentage used to determine cut off value")
 	strategy := profileFlags.String("strategy", strategyMedian, "Strategy to determine cutoff value")
+	configName := profileFlags.String("c", "", "Config file name")
 
-	cpu := cpu.New6502(cpu.Model6502)
 	// mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
 	// picProc := memory.NewPicProcessor(320, 200)
 	// mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
-	mem := memory.NewLinearMemory(65536)
-
-	cpu.Init(mem)
+	//mem := memory.NewLinearMemory(65536)
 
 	if err = profileFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
 	}
 
+	if *configName != "" {
+		config, err = cpu.LoadConfig(*configName)
+		if err != nil {
+			return fmt.Errorf("error loading config: %v", err)
+		}
+	}
+
+	processor, err = config.NewCpu()
+	if err != nil {
+		return fmt.Errorf("error processing config: %v", err)
+	}
 	statisticRequested := (*outputFileName != "")
 
 	if *binaryFileName == "" {
@@ -59,12 +70,12 @@ func ProfileCommand(arguments []string) error {
 		p = float64(*percentageCutOff) / 100.0
 	}
 
-	loadAddress, progLen, err := cpu.LoadAndRun(*binaryFileName)
+	loadAddress, progLen, err := processor.LoadAndRun(*binaryFileName)
 	if err != nil {
 		return fmt.Errorf("a problem occurred: %v", err)
 	}
 
-	fmt.Printf("Program ran for %d clock cycles\n", cpu.NumCycles())
+	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
 
 	if statisticRequested {
 		var ctOff profiler.CutOffCalc
@@ -79,7 +90,7 @@ func ProfileCommand(arguments []string) error {
 			}
 		}
 
-		if err = profiler.DumpStatistics(mem, *outputFileName, labels, loadAddress, (loadAddress + progLen - 1), ctOff); err != nil {
+		if err = profiler.DumpStatistics(processor.Mem, *outputFileName, labels, loadAddress, (loadAddress + progLen - 1), ctOff); err != nil {
 			return fmt.Errorf("problem generating output file: %v", err)
 		}
 	}
