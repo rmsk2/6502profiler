@@ -11,12 +11,29 @@ import (
 	"os"
 )
 
+const strategyMedian = "median"
+
+func determineCutOffCalc(strategy *string, p float64) profiler.CutOffCalc {
+	var ctOff profiler.CutOffCalc
+
+	if *strategy != strategyMedian {
+		ctOff = func(m memory.Memory, start, end uint16) uint64 {
+			return profiler.CutOffAbsoluteValue(m, start, end, p)
+		}
+	} else {
+		ctOff = func(m memory.Memory, start, end uint16) uint64 {
+			return profiler.CutOffMedian(m, start, end, p)
+		}
+	}
+
+	return ctOff
+}
+
 func ProfileCommand(arguments []string) error {
-	const strategyMedian = "median"
 	var p float64
 	var labels map[uint16][]string
 	var err error = nil
-	var config *cpu.Config = cpu.EmptyConfig()
+	var config *cpu.Config = cpu.DefaultConfig()
 	var processor *cpu.CPU6502
 
 	profileFlags := flag.NewFlagSet("6502profiler profile", flag.ContinueOnError)
@@ -26,11 +43,6 @@ func ProfileCommand(arguments []string) error {
 	percentageCutOff := profileFlags.Uint("prcnt", 10, "Percentage used to determine cut off value")
 	strategy := profileFlags.String("strategy", strategyMedian, "Strategy to determine cutoff value")
 	configName := profileFlags.String("c", "", "Config file name")
-
-	// mem := memory.NewMemWrapper(memory.NewLinearMemory(16384), 0x2D00)
-	// picProc := memory.NewPicProcessor(320, 200)
-	// mem.AddSpecialWriteAddress(0x2DDD, picProc.SetPoint)
-	//mem := memory.NewLinearMemory(65536)
 
 	if err = profileFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -47,6 +59,8 @@ func ProfileCommand(arguments []string) error {
 	if err != nil {
 		return fmt.Errorf("error processing config: %v", err)
 	}
+	defer func() { processor.Mem.Close() }()
+
 	statisticRequested := (*outputFileName != "")
 
 	if *binaryFileName == "" {
@@ -78,24 +92,12 @@ func ProfileCommand(arguments []string) error {
 	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
 
 	if statisticRequested {
-		var ctOff profiler.CutOffCalc
-
-		if *strategy != strategyMedian {
-			ctOff = func(m memory.Memory, start, end uint16) uint64 {
-				return profiler.CutOffAbsoluteValue(m, start, end, p)
-			}
-		} else {
-			ctOff = func(m memory.Memory, start, end uint16) uint64 {
-				return profiler.CutOffMedian(m, start, end, p)
-			}
-		}
+		var ctOff = determineCutOffCalc(strategy, p)
 
 		if err = profiler.DumpStatistics(processor.Mem, *outputFileName, labels, loadAddress, (loadAddress + progLen - 1), ctOff); err != nil {
 			return fmt.Errorf("problem generating output file: %v", err)
 		}
 	}
-
-	// picProc.Save("apfel.png")
 
 	return nil
 }

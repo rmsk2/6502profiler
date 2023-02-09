@@ -312,6 +312,15 @@ func (c *CPU6502) Init(m memory.Memory) {
 }
 
 func (c *CPU6502) LoadAndRun(fileName string) (loadAddress uint16, progLen uint16, err error) {
+	loadAddress, progLen, err = c.Load(fileName)
+	if err != nil {
+		return 0, 0, fmt.Errorf("unable to run program: %v", err)
+	}
+
+	return loadAddress, progLen, c.Run(loadAddress)
+}
+
+func (c *CPU6502) Load(fileName string) (loadAddress uint16, progLen uint16, err error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return 0, 0, fmt.Errorf("unable to load binary: %v", err)
@@ -322,8 +331,9 @@ func (c *CPU6502) LoadAndRun(fileName string) (loadAddress uint16, progLen uint1
 	}
 
 	loadAddress = uint16(data[1])*256 + uint16(data[0])
+	c.CopyToMem(data[2:], loadAddress)
 
-	return loadAddress, uint16(len(data) - 2), c.CopyAndRun(data[2:], loadAddress)
+	return loadAddress, uint16(len(data) - 2), nil
 }
 
 func (c *CPU6502) CopyToMem(binary []byte, startAddress uint16) (err error) {

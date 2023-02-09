@@ -1,9 +1,7 @@
 {
     "Model": 1,
-    "MemSpec": "Linear64K",
-    "IoMask": 0,
-    "IoAddrConfig": {
-        "23": "file:name.dingens",
-        "24": "pic:name.dingens:320,200"
+    "MemSpec": "Linear16K",
+    "IoMask": 45,
+    "IoAddrConfig": {   
     }
 }

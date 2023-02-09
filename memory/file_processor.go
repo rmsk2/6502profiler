@@ -3,10 +3,28 @@ package memory
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 type FileProcessor struct {
 	f *os.File
+}
+
+// NewFileProcFomConfig parses a config string of the form "file:apfel2.bin" and
+// creates the corresponding FileProcessor struct.
+func NewFileProcFromConfig(conf string) (MemWrapper, bool) {
+	components := strings.Split(conf, ":")
+
+	if len(components) != 2 {
+		return nil, false
+	}
+
+	if components[0] != "file" {
+		return nil, false
+	}
+
+	f, err := NewFileProcessor(components[1])
+	return f, err == nil
 }
 
 func NewFileProcessor(fileName string) (*FileProcessor, error) {
@@ -27,6 +45,9 @@ func (p *FileProcessor) Write(b uint8) {
 	}
 }
 
-func (p *FileProcessor) Close() error {
-	return p.f.Close()
+func (p *FileProcessor) Close() {
+	err := p.f.Close()
+	if err != nil {
+		panic(fmt.Sprintf("error closing data file: %v", err))
+	}
 }

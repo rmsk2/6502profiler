@@ -77,6 +77,32 @@ to the assembly source code. This may serve as an example:
 The first number is the line number in the source file. The second number is the address to which the machine language
 instruction has been written in the output.
 
+# Emulator configuration
+
+The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
+
+```
+{
+    "Model": 1,
+    "MemSpec": "Linear16K",
+    "IoMask": 45,
+    "IoAddrConfig": {       
+        "221": "file:apfel2.bin"      
+    }
+}
+```
+
+`Model` can be 0 or 1. The number 0 encodes a standard 6502/6510 and 1 stands for a 65C02. At the moment `MemSpec` can be 
+`Linear16K`, `Linear32K` or `Linear64K` and denotes a contiguous chunk of memory starting at address 0 with a length of 16, 
+32 or 64 kilobyte. `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
+from the emulator by means of write instructions to a special I/O address. 
+
+The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
+corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
+in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
+the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
+remaining string specifies the file name.
+
 # Performance
 
 I have used `6502profiler` to further optimize the calculation routines for my [C64](https://github.com/rmsk2/c64_mandelbrot) 

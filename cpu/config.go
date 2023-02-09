@@ -12,6 +12,16 @@ type Config struct {
 	MemSpec      string
 	IoMask       uint8
 	IoAddrConfig map[uint8]string
+	AcmeTemplate string
+	AcmeSrcDir   string
+	AcmeBinDir   string
+}
+
+type ConfParser func(cnf string) (memory.MemWrapper, bool)
+
+var confParsers []ConfParser = []ConfParser{
+	memory.NewFileProcFromConfig,
+	memory.NewPicProcFromConfig,
 }
 
 const L16 = "Linear16K"
@@ -59,15 +69,32 @@ func LoadConfig(fileName string) (*Config, error) {
 	return res, nil
 }
 
-func EmptyConfig() *Config {
+func DefaultConfig() *Config {
 	res := &Config{
 		Model:        Model6502,
 		MemSpec:      L32,
 		IoMask:       0,
 		IoAddrConfig: map[uint8]string{},
+		AcmeTemplate: "acme -I %s -o %s %s",
+		AcmeSrcDir:   "./",
+		AcmeBinDir:   "./",
 	}
 
 	return res
+}
+
+func (c *Config) TryParseWrapperLine(line string) (memory.MemWrapper, bool) {
+	var res memory.MemWrapper = nil
+	ok := false
+
+	for _, j := range confParsers {
+		res, ok = j(line)
+		if ok {
+			return res, ok
+		}
+	}
+
+	return res, ok
 }
 
 func (c *Config) SaveConfig(fileName string) error {
@@ -99,10 +126,21 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 	}
 
 	if len(c.IoAddrConfig) != 0 {
-		wrapper = memory.NewMemWrapper(mem, uint16(c.IoMask)<<8)
-		// for i, j := range c.IoAddrConfig {
-		// 	fmt.Printf("%d: %s\n", i, j)
-		// }
+		var res memory.MemWrapper = nil
+		ok := false
+		baseAddress := uint16(c.IoMask) << 8
+
+		wrapper = memory.NewMemWrapper(mem, baseAddress)
+
+		for i, j := range c.IoAddrConfig {
+			res, ok = c.TryParseWrapperLine(j)
+			if ok {
+				address := baseAddress | uint16(i)
+				wrapper.AddWrapper(address, res)
+			} else {
+				return nil, fmt.Errorf("unable to process memory wrapper config: '%s'", j)
+			}
+		}
 
 		mem = wrapper
 	}
