@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"6502profiler/acmeassembler"
 	"6502profiler/memory"
 	"encoding/json"
 	"fmt"
@@ -12,7 +13,7 @@ type Config struct {
 	MemSpec      string
 	IoMask       uint8
 	IoAddrConfig map[uint8]string
-	AcmeTemplate string
+	AcmeBinary   string
 	AcmeSrcDir   string
 	AcmeBinDir   string
 }
@@ -75,7 +76,7 @@ func DefaultConfig() *Config {
 		MemSpec:      L32,
 		IoMask:       0,
 		IoAddrConfig: map[uint8]string{},
-		AcmeTemplate: "acme -I %s -o %s %s",
+		AcmeBinary:   "acme",
 		AcmeSrcDir:   "./",
 		AcmeBinDir:   "./",
 	}
@@ -109,6 +110,10 @@ func (c *Config) SaveConfig(fileName string) error {
 	}
 
 	return nil
+}
+
+func (c *Config) GetAcme() *acmeassembler.ACME {
+	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir)
 }
 
 func (c *Config) NewCpu() (*CPU6502, error) {

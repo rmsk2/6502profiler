@@ -3,5 +3,8 @@
     "MemSpec": "Linear16K",
     "IoMask": 45,
     "IoAddrConfig": {   
-    }
+    },
+    "AcmeBinary": "/Users/martin/data/acme/acme",
+    "AcmeSrcDir": "/Users/martin/go/src/6502profiler/testprg",
+    "AcmeBinDir": "/Users/martin/go/src/6502profiler/testprg"
 }

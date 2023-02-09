@@ -1,6 +1,8 @@
 package acmeassembler
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestLineParsing(t *testing.T) {
 	s1 := "	resetParametersHires	= $df0	; ?"

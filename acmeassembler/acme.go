@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
+	"path"
 	"regexp"
 	"strconv"
 )
@@ -50,4 +52,31 @@ func ParseLabelFile(fileName string) (map[uint16][]string, error) {
 	}
 
 	return result, nil
+}
+
+type ACME struct {
+	binPath string
+	srcDir  string
+	binDir  string
+}
+
+func NewACME(path string, srcDir string, binDir string) *ACME {
+	return &ACME{
+		binPath: path,
+		srcDir:  srcDir,
+		binDir:  binDir,
+	}
+}
+
+func (a *ACME) Assemble(fileName string) (string, error) {
+	mlProg := path.Join(a.binDir, fmt.Sprintf("%s.bin", fileName))
+	mlSrc := path.Join(a.srcDir, fileName)
+	cmd := exec.Command(a.binPath, "-I", a.srcDir, "-o", mlProg, "-f", "cbm", mlSrc)
+
+	err := cmd.Run()
+	if err != nil {
+		return "", fmt.Errorf("unable to assemble '%s'", fileName)
+	}
+
+	return mlProg, nil
 }
