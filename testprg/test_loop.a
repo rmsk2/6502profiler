@@ -1,7 +1,11 @@
-!to "test.prg", cbm
 
-* = $0800
 
+.DATA_IN
+!byte 0x40,0x30,0x20,0x10
+.DATA_OUT
+!byte 0,0,0,0
+
+simpleLoop
     ldy #3
     lda #<.DATA_IN
     sta $12
@@ -12,9 +16,4 @@
     sta .DATA_OUT,y
     dey
     bpl .loop
-    brk
-
-.DATA_IN
-!byte 0x40,0x30,0x20,0x10
-.DATA_OUT
-!byte 0,0,0,0
+    rts

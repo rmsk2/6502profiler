@@ -58,19 +58,21 @@ type ACME struct {
 	binPath string
 	srcDir  string
 	binDir  string
+	testDir string
 }
 
-func NewACME(path string, srcDir string, binDir string) *ACME {
+func NewACME(path string, srcDir string, binDir string, testDir string) *ACME {
 	return &ACME{
 		binPath: path,
 		srcDir:  srcDir,
 		binDir:  binDir,
+		testDir: testDir,
 	}
 }
 
 func (a *ACME) Assemble(fileName string) (string, error) {
 	mlProg := path.Join(a.binDir, fmt.Sprintf("%s.bin", fileName))
-	mlSrc := path.Join(a.srcDir, fileName)
+	mlSrc := path.Join(a.testDir, fileName)
 	cmd := exec.Command(a.binPath, "-I", a.srcDir, "-o", mlProg, "-f", "cbm", mlSrc)
 
 	err := cmd.Run()

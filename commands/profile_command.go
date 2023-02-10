@@ -49,7 +49,7 @@ func ProfileCommand(arguments []string) error {
 	}
 
 	if *configName != "" {
-		config, err = cpu.LoadConfig(*configName)
+		config, err = cpu.NewConfigFromFile(*configName)
 		if err != nil {
 			return fmt.Errorf("error loading config: %v", err)
 		}

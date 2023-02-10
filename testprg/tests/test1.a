@@ -1,0 +1,9 @@
+* = $0800
+
+jmp testStart
+
+!source "test_loop.a"
+
+testStart
+    jsr simpleLoop
+    brk

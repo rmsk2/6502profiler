@@ -16,6 +16,7 @@ type Config struct {
 	AcmeBinary   string
 	AcmeSrcDir   string
 	AcmeBinDir   string
+	AcmeTestDir  string
 }
 
 type ConfParser func(cnf string) (memory.MemWrapper, bool)
@@ -31,7 +32,7 @@ const L64 = "Linear64K"
 const X16_512 = "XSixteen512K"
 const X16_2048 = "XSixteen2048K"
 
-func LoadConfig(fileName string) (*Config, error) {
+func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
 
 	allowedMemModels := map[string]bool{
@@ -79,12 +80,13 @@ func DefaultConfig() *Config {
 		AcmeBinary:   "acme",
 		AcmeSrcDir:   "./",
 		AcmeBinDir:   "./",
+		AcmeTestDir:  "./test",
 	}
 
 	return res
 }
 
-func (c *Config) TryParseWrapperLine(line string) (memory.MemWrapper, bool) {
+func (c *Config) tryParseWrapperLine(line string) (memory.MemWrapper, bool) {
 	var res memory.MemWrapper = nil
 	ok := false
 
@@ -98,7 +100,7 @@ func (c *Config) TryParseWrapperLine(line string) (memory.MemWrapper, bool) {
 	return res, ok
 }
 
-func (c *Config) SaveConfig(fileName string) error {
+func (c *Config) Save(fileName string) error {
 	data, err := json.MarshalIndent(c, "", "    ")
 	if err != nil {
 		return fmt.Errorf("unable to save config in file %s: %v", fileName, err)
@@ -112,8 +114,12 @@ func (c *Config) SaveConfig(fileName string) error {
 	return nil
 }
 
-func (c *Config) GetAcme() *acmeassembler.ACME {
-	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir)
+type Assembler interface {
+	Assemble(fileName string) (string, error)
+}
+
+func (c *Config) GetAssembler() Assembler {
+	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 }
 
 func (c *Config) NewCpu() (*CPU6502, error) {
@@ -138,7 +144,7 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 		wrapper = memory.NewMemWrapper(mem, baseAddress)
 
 		for i, j := range c.IoAddrConfig {
-			res, ok = c.TryParseWrapperLine(j)
+			res, ok = c.tryParseWrapperLine(j)
 			if ok {
 				address := baseAddress | uint16(i)
 				wrapper.AddWrapper(address, res)

@@ -9,6 +9,6 @@ func main() {
 	subcommParser := util.NewSubcommandParser()
 
 	subcommParser.AddCommand("profile", commands.ProfileCommand, "Record data about program executions")
-	subcommParser.AddCommand("test", commands.TestCommand, "Run tests on assembler programs ")
+	subcommParser.AddCommand("verify", commands.VerifyCommand, "Run tests on assembler programs ")
 	subcommParser.Execute()
 }
