@@ -1,5 +1,5 @@
 {
     "Name": "Simple loop test",
     "AssemblerSource": "test1.a",
-    "TestScript": ""
+    "TestScript": "test1.lua"
 }
