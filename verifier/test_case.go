@@ -44,7 +44,7 @@ func (t *TestCase) Save(fileName string) error {
 	return nil
 }
 
-func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, srcDir string) error {
+func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir string) error {
 	binaryToTest, err := assembler.Assemble(t.AssemblerSource)
 	if err != nil {
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
@@ -55,7 +55,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, srcDir str
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 	}
 
-	scriptPath := path.Join(srcDir, t.TestScript)
+	scriptPath := path.Join(testDir, t.TestScript)
 	fmt.Println(scriptPath)
 
 	// Initialize scripting environment

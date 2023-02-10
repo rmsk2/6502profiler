@@ -44,7 +44,7 @@ func VerifyCommand(arguments []string) error {
 		return fmt.Errorf("unable to create cpu for test case: %v", err)
 	}
 
-	err = testCase.Execute(cpu, config.GetAssembler(), config.AcmeSrcDir)
+	err = testCase.Execute(cpu, config.GetAssembler(), config.AcmeTestDir)
 	if err != nil {
 		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
 	}
