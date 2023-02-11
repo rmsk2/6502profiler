@@ -228,21 +228,25 @@ func (c *LuaCtx) callArrange() error {
 	return nil
 }
 
-func (c *LuaCtx) callAssert() (bool, error) {
+func (c *LuaCtx) callAssert() (bool, string, error) {
 	assertLua := lua.P{
 		Fn:      c.L.GetGlobal("assert"),
-		NRet:    1,
+		NRet:    2,
 		Protect: true,
 	}
 
 	err := c.L.CallByParam(assertLua)
 	if err != nil {
-		return false, fmt.Errorf("unable to call assert function in test script: %v", err)
+		return false, "", fmt.Errorf("unable to call assert function in test script: %v", err)
 	}
 
-	ret, _ := c.L.Get(-1).(lua.LBool) // returned value
+	retMsg, _ := c.L.Get(-1).(lua.LString) // test message
+	msg := string(retMsg)
+	c.L.Pop(1)
+
+	ret, _ := c.L.Get(-1).(lua.LBool) // test result
 	testRes := bool(ret)
 	c.L.Pop(1)
 
-	return testRes, nil
+	return testRes, msg, nil
 }

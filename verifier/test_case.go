@@ -86,14 +86,13 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir st
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 	}
 
-	testRes, err := ctx.callAssert()
+	testRes, testMsg, err := ctx.callAssert()
 	if err != nil {
 		return fmt.Errorf("unable to assert test case '%s': %v", t.Name, err)
 	}
 
 	if !testRes {
-		fmt.Println("FAIL")
-		return fmt.Errorf("test failed")
+		return fmt.Errorf("test failed: %s", testMsg)
 	}
 
 	fmt.Println("OK")

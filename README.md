@@ -201,8 +201,8 @@ testStart
     brk
 ```
 
-It is assumed that the test driver starts its execution at the load address. Finally the corresponding test script is implemented
-and also stored (as `test1.lua` ) in the test directory.
+It is assumed that the test driver starts its execution at the load address. The emulator stops when it encounters a `brk` instruction. Finally the
+corresponding test script is implemented and also stored (as `test1.lua` ) in the test directory.
 
 ```
 function arrange()
@@ -232,6 +232,10 @@ function assert()
 end
 ```
 
+`arrange` is expected to take no arguments and return no value. `assert` also takes no arguments but has to return two values. The first
+one is a boolean and is set to true if the test was successfull. The second return value is a string and should contain some helpful
+message in case the test has failed.
+
 The `set_memory` and `get_memory` functions can be used to get and set emulator memory. Memory contents is always represented as a
 hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `load_address`
 and `prog_len`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. The following functions can be used in 
@@ -240,7 +244,7 @@ Lua to query and manipulate the processor state:
 |Function Name| Description |
 |-|-|
 | `set_memory(hex_data, address)` | Store the data given in `hex_data` at address `address`| 
-| `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address`| 
+| `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address` as a hex string| 
 | `get_flags()` | Returns an eight character string that contains the letters `NVBDIZC-`. A letter is in the string if the corresponding flag is set|
 | `set_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
 | `get_pc()` | Returns the program counter |
