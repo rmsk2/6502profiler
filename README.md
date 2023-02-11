@@ -15,6 +15,8 @@ it keeps track of how many times each memory cell is accessed (i.e. read and/or 
 On top of that `6502profiler` offers the possibility to implement tests for assembler subroutines where arranging the test data and evaluating the
 results is offloaded to a Lua script.
 
+**Caution: This is work in pogress, things may change and maybe even break.**
+
 ## Emulator configuration
 
 The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
@@ -231,7 +233,7 @@ Currently all 6502/6510 addressing modes and all but one instruction are emulate
 see any use for this instruction on the purely logical level on which `6502profiler` operates. On top of that only a few
 65C02 spedific addressing modes and instructions have been implemented up to this point. 
 
-The `verify` coammand currently can only run one test case. This will change very soon ... .
+The `verify` command currently can only run one test case. This will change very soon ... .
 
 # Building `6502profiler`
 
