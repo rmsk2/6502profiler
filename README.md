@@ -165,8 +165,8 @@ format:
 
 ```
 
-The file names are interpreted relative to the `AcmeTestDir` configuration entry. Here an example for a test driver and a test
-script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory:
+The file names are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. Here an example for a test 
+driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory:
 
 ```
 .DATA_IN
