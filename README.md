@@ -2,18 +2,57 @@
 
 This software is in essence an emulator for the MOS 6502, 6510 (and in future versions the 65C02) microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
-and sound. It is rather intended to be a development tool for optimizing (and in the future verifying) the implementation of pure algorithms on these
-old computers. To state this again: No graphics or sound capabilities of any of the old computers are emulated and therefore routines like that can 
-not be optimized by using `6502profiler`.
+and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on these old computers. 
+To state this again: No graphics or sound capabilities of any of the old computers are emulated and therefore routines like that can not be optimized
+by using `6502profiler`.
 
 `6502profiler` reads a binary as for instance created by the `ACME` macro assembler and executes it inside the emulator. While running the program
 it counts the nunber of clock cycles that are used up during execution. On top of that it can be used to identify "hot spots" in the program because
 it keeps track of how many times each memory cell is accessed (i.e. read and/or written).
 
+# Emulator configuration
+
+The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
+
+```
+{
+    "Model": 1,
+    "MemSpec": "Linear16K",
+    "IoMask": 45,
+    "IoAddrConfig": {   
+    },
+    "AcmeBinary": "acme",
+    "AcmeSrcDir": "./testprg",
+    "AcmeBinDir": "./testprg/tests/bin",
+    "AcmeTestDir": "./testprg/tests"
+}
+```
+
+`Model` can be 0 or 1. The number 0 encodes a standard 6502/6510 and 1 stands for a 65C02. At the moment `MemSpec` can be 
+`Linear16K`, `Linear32K` or `Linear64K` and denotes a contiguous chunk of memory starting at address 0 with a length of 16, 
+32 or 64 kilobyte. `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
+from the emulator by means of write instructions to a special I/O address. 
+
+The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
+corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
+in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
+the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
+remaining string specifies the file name.
+
+The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
+the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
+the test descriptions, the assembler source for the tests and the testscripts are located. Assembled test programs are store 
+in the directory referenced by `AcmeBinDir`.
+
 # How to use `6502profiler`
 
-`6502profiler` has a command line interface. The first parameter is a so called command. Currently only the `profile` command is implemented.
-It understands the following command line options:
+`6502profiler` has a command line interface. The first parameter is a so called command. Currently the `profile` and the 
+`verify` command is implemented.
+
+## The `profile` command
+
+This command is intended to collect and evaluate data about the performance of the program under test. It understands the following 
+command line options:
 
 ```
 ./6502profiler profile -h
@@ -79,37 +118,75 @@ to the assembly source code. This may serve as an example:
 The first number is the line number in the source file. The second number is the address to which the machine language
 instruction has been written in the output.
 
-# Emulator configuration
+## The `verify` command
 
-The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
+This command is intended to facilitate the testing of assembler subroutines. The syntax for using the `verify` command is
+
+```
+./6502profiler verify -h
+Usage of 6502profiler verify:
+  -c string
+    	Config file name
+  -t string
+    	Test case file
+```
+
+The name of the test case file is interpreted relative to the `AcmeTestDir` configuration entry.
+
+The general idea is to have a source file which contains the subroutine to test in one directory (the source directory) 
+and an additional separate test driver program in a test directory which calls the routines that are to be tested in an appropriate
+fashion. The test driver includes (using the `!source` pseudo opcode) the files which contain the subroutine to test from the 
+source directory. Then the test driver is assembled (or compiled) into the test binary directory.
+
+The `verify` command then loads the test driver binary and a corresponding Lua test script. This script has to define at least
+two functions `arrange` and `assert`. Before running the test driver in the emulator the `verify` command calls the `arrange`
+function in the Lua script which can modify the emulator state before the test driver is run (for instance to arrange test data). 
+Then the test driver is run by the emulator and when that is done the `assert`function of the test script evaluates whether
+the program returns the expected result. The test is successfull if the `assert` script returns true.
+
+The source files for the test driver and the test script have to be referenced in a JSON test case file which has the following
+format:
 
 ```
 {
-    "Model": 1,
-    "MemSpec": "Linear16K",
-    "IoMask": 45,
-    "IoAddrConfig": {       
-        "221": "file:apfel2.bin"      
-    },
-    "AcmeBinary": "acme",
-    "AcmeSrcDir": "../testprg",
-    "AcmeBinDir": "../testprg"    
+    "Name": "Simple loop test",
+    "AssemblerSource": "test1.a",
+    "TestScript": "test1.lua"
 }
+
 ```
 
-`Model` can be 0 or 1. The number 0 encodes a standard 6502/6510 and 1 stands for a 65C02. At the moment `MemSpec` can be 
-`Linear16K`, `Linear32K` or `Linear64K` and denotes a contiguous chunk of memory starting at address 0 with a length of 16, 
-32 or 64 kilobyte. `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
-from the emulator by means of write instructions to a special I/O address. 
+The file names are interpreted relative to the `AcmeTestDir` configuration entry. Here an example for a test driver and a test
+script. First the test driver:
 
-The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
-corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
-in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
-the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
-remaining string specifies the file name.
+```
+* = $0800
 
-The `Acme*`entries define the path to the `acme` program binary, the path to the directory where the assembler source files 
-and the resulting assembled binaries are located.
+jmp testStart
+
+!source "test_loop.a"
+
+testStart
+    jsr simpleLoop
+    brk
+```
+
+It is assumed that the test driver starts its execution on the first byte of the load address. Here the corresponding test script:
+
+```
+function arrange()
+    setmemory("10203040", loadaddress+3)
+end
+
+function assert()
+    d = getmemory(loadaddress+7, 4)
+    return d == "10203040"
+end
+```
+
+The `setmemory` and `getmemory` functions can be used to get and set emulator memory. Memory contents is always represented as a
+hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `loadaddress`
+and `proglen`.
 
 # Performance
 
@@ -123,6 +200,8 @@ a minute. The corresponding assembler source code can be found in `testprg/fixed
 Currently all 6502/6510 addressing modes and all but one instruction are emulated. The missing instruction is `RTI` as I do not
 see any use for this instruction on the purely logical level on which `6502profiler` operates. On top of that only a few
 65C02 spedific addressing modes and instructions have been implemented up to this point. 
+
+The `verify` coammand currently can only run one test case. This will change very soon ... .
 
 # Building `6502profiler`
 

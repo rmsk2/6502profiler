@@ -4,7 +4,7 @@
     "IoMask": 45,
     "IoAddrConfig": {   
     },
-    "AcmeBinary": "/Users/martin/data/acme/acme",
+    "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
     "AcmeTestDir": "./testprg/tests"
