@@ -285,7 +285,6 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
-- Implement a feature that allows to test assembly code where the verification is done in a scripting language (the plan is to use Lua)
 - Implement the additional addressing modes and instructions of the 65C02 processor
 - Implement the memory model used by the Commander X16
 - Maybe implement a single stepping mode
