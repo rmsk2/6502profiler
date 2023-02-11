@@ -215,7 +215,8 @@ end
 
 The `setmemory` and `getmemory` functions can be used to get and set emulator memory. Memory contents is always represented as a
 hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `loadaddress`
-and `proglen`. The test can be run by `./6502profiler verify -c config.json -t test1.json`.
+and `proglen`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. More functionality will be implemented
+to query and influence the processor state from within the Lua scripts.
 
 # Performance
 
