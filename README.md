@@ -242,7 +242,16 @@ Lua to query and manipulate the processor state:
 | `set_memory(hex_data, address)` | Store the data given in `hex_data` at address `address`| 
 | `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address`| 
 | `get_flags()` | Returns an eight character string that contains the letters `NVBDIZC-`. A letter is in the string if the corresponding flag is set|
-| `get_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
+| `set_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
+| `get_pc()` | Returns the program counter |
+| `get_sp()`| Returns the stack pointer |
+| `get_accu()` | Returns the value stored in the accumulator | 
+| `set_accu(val)` | Stores `val` in the accu | 
+| `get_xreg()` | Returns the value stored in the X register | 
+| `set_xreg(val)` | Stores `val` in the X register | 
+| `get_yreg()` | Returns the value stored in the Y register | 
+| `set_yreg(val)` | Stores `val` in the Y register | 
+
 
 # Performance
 
