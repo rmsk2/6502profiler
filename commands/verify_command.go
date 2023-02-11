@@ -8,7 +8,71 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 )
+
+func VerifyAllCommand(arguments []string) error {
+	r := regexp.MustCompile(`^(.+)\.json$`)
+
+	var config *cpu.Config = cpu.DefaultConfig()
+	var err error
+	verifierFlags := flag.NewFlagSet("6502profiler verifyall", flag.ContinueOnError)
+	configName := verifierFlags.String("c", "", "Config file name")
+
+	if err = verifierFlags.Parse(arguments); err != nil {
+		os.Exit(util.ExitErrorSyntax)
+	}
+
+	if *configName != "" {
+		config, err = cpu.NewConfigFromFile(*configName)
+		if err != nil {
+			return fmt.Errorf("error loading config: %v", err)
+		}
+	}
+
+	file, err := os.Open(config.AcmeTestDir)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	names, err := file.Readdirnames(0)
+	if err != nil {
+		return err
+	}
+
+	for _, j := range names {
+		if r.MatchString(j) {
+			err := executeOneTest(j, config)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func executeOneTest(testCaseName string, config *cpu.Config) error {
+	caseFileName := path.Join(config.AcmeTestDir, testCaseName)
+
+	testCase, err := verifier.NewTestCaseFromFile(caseFileName)
+	if err != nil {
+		return fmt.Errorf("unable to load test case file: %v", err)
+	}
+
+	cpu, err := config.NewCpu()
+	if err != nil {
+		return fmt.Errorf("unable to create cpu for test case: %v", err)
+	}
+
+	err = testCase.Execute(cpu, config.GetAssembler(), config.AcmeTestDir)
+	if err != nil {
+		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
+	}
+
+	return nil
+}
 
 func VerifyCommand(arguments []string) error {
 	var config *cpu.Config = cpu.DefaultConfig()
@@ -32,22 +96,5 @@ func VerifyCommand(arguments []string) error {
 		return fmt.Errorf("test case path has to be specified")
 	}
 
-	caseFileName := path.Join(config.AcmeTestDir, *testCasePath)
-
-	testCase, err := verifier.NewTestCaseFromFile(caseFileName)
-	if err != nil {
-		return fmt.Errorf("unable to load test case file: %v", err)
-	}
-
-	cpu, err := config.NewCpu()
-	if err != nil {
-		return fmt.Errorf("unable to create cpu for test case: %v", err)
-	}
-
-	err = testCase.Execute(cpu, config.GetAssembler(), config.AcmeTestDir)
-	if err != nil {
-		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
-	}
-
-	return nil
+	return executeOneTest(*testCasePath, config)
 }
