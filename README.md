@@ -15,7 +15,7 @@ it keeps track of how many times each memory cell is accessed (i.e. read and/or 
 On top of that `6502profiler` offers the possibility to implement tests for assembler subroutines where arranging the test data and evaluating the
 results is offloaded to a Lua script.
 
-**Caution: This is work in pogress, things may change and maybe even break.**
+**Caution: This is work in pogress, things will change and maybe even break.**
 
 ## Emulator configuration
 
