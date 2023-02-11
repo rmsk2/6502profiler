@@ -1,0 +1,11 @@
+* = $0800
+
+FAST_MUL = 1
+
+jmp testStart
+
+!source "fixed_point.a"
+
+testStart
+    jsr mul16Bit
+    brk
