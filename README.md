@@ -126,9 +126,9 @@ to the assembly source code. This may serve as an example:
 The first number is the line number in the source file. The second number is the address to which the machine language
 instruction has been written in the output.
 
-## The `verify` command
+## The `verify` and `verifyall`commands
 
-This command is intended to facilitate the testing of assembler subroutines. The syntax for using the `verify` command is
+These commands are intended to facilitate the testing of assembler subroutines. The syntax for using the `verify` command is
 
 ```
 ./6502profiler verify -h
@@ -256,6 +256,14 @@ Lua to query and manipulate the processor state:
 | `get_yreg()` | Returns the value stored in the Y register | 
 | `set_yreg(val)` | Stores `val` in the Y register | 
 
+The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
+config file. It has the following syntax:
+
+```
+Usage of 6502profiler verifyall:
+  -c string
+    	Config file name
+```
 
 # Performance
 
@@ -269,8 +277,6 @@ a minute. The corresponding assembler source code can be found in `testprg/fixed
 Currently all 6502/6510 addressing modes and all but one instruction are emulated. The missing instruction is `RTI` as I do not
 see any use for this instruction on the purely logical level on which `6502profiler` operates. On top of that only a few
 65C02 spedific addressing modes and instructions have been implemented up to this point. 
-
-The `verify` command currently can only run one test case. This will change very soon ... .
 
 # Building `6502profiler`
 
