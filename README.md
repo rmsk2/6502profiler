@@ -1,5 +1,7 @@
 # `6502profiler`
 
+## Overview
+
 This software is in essence an emulator for the MOS 6502, 6510 (and in future versions the 65C02) microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on these old computers. 
@@ -8,9 +10,12 @@ by using `6502profiler`.
 
 `6502profiler` reads a binary as for instance created by the `ACME` macro assembler and executes it inside the emulator. While running the program
 it counts the nunber of clock cycles that are used up during execution. On top of that it can be used to identify "hot spots" in the program because
-it keeps track of how many times each memory cell is accessed (i.e. read and/or written).
+it keeps track of how many times each memory cell is accessed (i.e. read and/or written). 
 
-# Emulator configuration
+On top of that `6502profiler` offers the possibility to implement tests for assembler subroutines where arranging the test data and evaluating the
+results is offloaded to a Lua script.
+
+## Emulator configuration
 
 The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
 
@@ -19,7 +24,8 @@ The config is stored in a JSON file and can be used through the `-c` option. The
     "Model": 1,
     "MemSpec": "Linear16K",
     "IoMask": 45,
-    "IoAddrConfig": {   
+    "IoAddrConfig": {
+        "221": "file:output.bin"   
     },
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
@@ -41,13 +47,13 @@ remaining string specifies the file name.
 
 The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
 the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
-the test descriptions, the assembler source for the tests and the testscripts are located. Assembled test programs are store 
-in the directory referenced by `AcmeBinDir`.
+the test descriptions, the assembler source for the tests (the test drivers) and the test scripts are located. Assembled test 
+drivers are stored in the directory referenced by `AcmeBinDir`.
 
 # How to use `6502profiler`
 
 `6502profiler` has a command line interface. The first parameter is a so called command. Currently the `profile` and the 
-`verify` command is implemented.
+`verify` commands are implemented.
 
 ## The `profile` command
 
