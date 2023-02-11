@@ -234,13 +234,15 @@ end
 
 The `set_memory` and `get_memory` functions can be used to get and set emulator memory. Memory contents is always represented as a
 hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `load_address`
-and `prog_len`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. The following additional functions
-can be used in Lua to query and manipulate the processor state:
+and `prog_len`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. The following functions can be used in 
+Lua to query and manipulate the processor state:
 
 |Function Name| Description |
 |-|-|
 | `set_memory(hex_data, address)` | Store the data given in `hex_data` at address `address`| 
 | `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address`| 
+| `get_flags()` | Returns an eight character string that contains the letters `NVBDIZC-`. A letter is in the string if the corresponding flag is set|
+| `get_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
 
 # Performance
 
