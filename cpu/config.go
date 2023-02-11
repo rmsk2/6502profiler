@@ -79,7 +79,7 @@ func DefaultConfig() *Config {
 		IoAddrConfig: map[uint8]string{},
 		AcmeBinary:   "acme",
 		AcmeSrcDir:   "./",
-		AcmeBinDir:   "./",
+		AcmeBinDir:   "./test/bin",
 		AcmeTestDir:  "./test",
 	}
 

@@ -1,5 +1,5 @@
 {
     "Name": "Simple loop test",
-    "AssemblerSource": "test1.a",
+    "TestDriverSource": "test1.a",
     "TestScript": "test1.lua"
 }

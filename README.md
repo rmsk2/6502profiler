@@ -141,14 +141,14 @@ The name of the test case file is interpreted relative to the `AcmeTestDir` conf
 
 The general idea is to have a source file which contains the subroutine to test in one directory (the source directory) 
 and an additional separate test driver program in a test directory which calls the routines that are to be tested in an appropriate
-fashion. The test driver includes (using the `!source` pseudo opcode) the files which contain the subroutine to test from the 
+fashion. The test driver includes the files which contain the subroutines to test (using the `!source` pseudo opcode) from the 
 source directory. Then the test driver is assembled (or compiled) into the test binary directory.
 
 The `verify` command then loads the test driver binary and a corresponding Lua test script. This script has to define at least
 two functions `arrange` and `assert`. Before running the test driver in the emulator the `verify` command calls the `arrange`
 function in the Lua script which can modify the emulator state before the test driver is run (for instance to arrange test data). 
 Then the test driver is run by the emulator and when that is done the `assert`function of the test script evaluates whether
-the program returns the expected result. The test is successfull if the `assert` script returns true.
+the program returned the expected result. The test is successfull if the `assert` script returns `true`.
 
 The source files for the test driver and the test script have to be referenced in a JSON test case file which has the following
 format:
@@ -156,7 +156,7 @@ format:
 ```
 {
     "Name": "Simple loop test",
-    "AssemblerSource": "test1.a",
+    "TestDriverSource": "test1.a",
     "TestScript": "test1.lua"
 }
 
@@ -177,7 +177,7 @@ testStart
     brk
 ```
 
-It is assumed that the test driver starts its execution on the first byte of the load address. Here the corresponding test script:
+It is assumed that the test driver starts its execution at the load address. Here the corresponding test script:
 
 ```
 function arrange()

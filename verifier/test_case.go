@@ -11,9 +11,9 @@ import (
 )
 
 type TestCase struct {
-	Name            string
-	AssemblerSource string
-	TestScript      string
+	Name             string
+	TestDriverSource string
+	TestScript       string
 }
 
 func NewTestCaseFromFile(fileName string) (*TestCase, error) {
@@ -47,7 +47,7 @@ func (t *TestCase) Save(fileName string) error {
 }
 
 func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir string) error {
-	binaryToTest, err := assembler.Assemble(t.AssemblerSource)
+	binaryToTest, err := assembler.Assemble(t.TestDriverSource)
 	if err != nil {
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 	}
