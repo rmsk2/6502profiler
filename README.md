@@ -206,19 +206,41 @@ and also stored (as `test1.lua` ) in the test directory.
 
 ```
 function arrange()
-    setmemory("10203040", loadaddress+3)
+    set_memory("10203040", load_address+3)
 end
 
 function assert()
-    d = getmemory(loadaddress+7, 4)
-    return d == "10203040"
+    d = get_memory(load_address+7, 4)
+    fl = get_flags()
+    data_ok = (d == "10203040")
+    negative_is_set = (string.find(fl, "N", 0, true) ~= nil)
+
+    res = data_ok and negative_is_set
+    if not res then
+        print()
+    end
+
+    if not data_ok then
+        print(string.format("data wrong '%s'", d))
+    end
+
+    if not negative_is_set then
+        print(string.format("negative flag not set: %s", fl))
+    end
+
+    return res
 end
 ```
 
-The `setmemory` and `getmemory` functions can be used to get and set emulator memory. Memory contents is always represented as a
-hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `loadaddress`
-and `proglen`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. More functionality will be implemented
-to query and influence the processor state from within the Lua scripts.
+The `set_memory` and `get_memory` functions can be used to get and set emulator memory. Memory contents is always represented as a
+hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `load_address`
+and `prog_len`. The test can be run by `./6502profiler verify -c config.json -t test1.json`. The following additional functions
+can be used in Lua to query and manipulate the processor state:
+
+|Function Name| Description |
+|-|-|
+| `set_memory(hex_data, address)` | Store the data given in `hex_data` at address `address`| 
+| `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address`| 
 
 # Performance
 
