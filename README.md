@@ -49,8 +49,8 @@ remaining string specifies the file name.
 
 The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
 the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
-the test descriptions, the assembler source for the tests (the test drivers) and the test scripts are located. Assembled test 
-drivers are stored in the directory referenced by `AcmeBinDir`.
+the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
+stored in the directory referenced by `AcmeBinDir`.
 
 # How to use `6502profiler`
 
