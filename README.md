@@ -203,7 +203,7 @@ testStart
 ```
 
 It is assumed that the test driver starts its execution at the load address which has to be contained in the first two bytes of the
-binary (as usual lo byte first). The emulator stops when it encounters a `brk` instruction. Finally the corresponding test script is 
+binary (as usual lo byte first). The emulator stops when it encounters a `BRK` instruction. Finally the corresponding test script is 
 implemented and also stored (as `test1.lua` ) in the test directory.
 
 ```
