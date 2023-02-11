@@ -163,7 +163,29 @@ format:
 ```
 
 The file names are interpreted relative to the `AcmeTestDir` configuration entry. Here an example for a test driver and a test
-script. First the test driver:
+script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory:
+
+```
+.DATA_IN
+!byte 0x40,0x30,0x20,0x10
+.DATA_OUT
+!byte 0,0,0,0
+
+simpleLoop
+    ldy #3
+    lda #<.DATA_IN
+    sta $12
+    lda #>.DATA_IN
+    sta $13
+.loop
+    lda ($12), y
+    sta .DATA_OUT,y
+    dey
+    bpl .loop
+    rts
+```
+
+We then write the test driver and store it as `test1.a` in the test directory.
 
 ```
 * = $0800
@@ -177,7 +199,8 @@ testStart
     brk
 ```
 
-It is assumed that the test driver starts its execution at the load address. Here the corresponding test script:
+It is assumed that the test driver starts its execution at the load address. Finally the corresponding test script is implemented
+and also stored (as `test1.lua` ) in the test directory.
 
 ```
 function arrange()
