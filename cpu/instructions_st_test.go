@@ -166,6 +166,35 @@ func TestSTAIndirectY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestSTAIndirect(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1057, 0x44)
+		c.Mem.Store(0x0012, 0x57)
+		c.Mem.Store(0x0013, 0x10)
+		c.Y = 0x7
+		c.A = 0x52
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1057) == 0x52) && (flagsBefore == c.Flags)
+	}
+
+	// sta ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x92, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STA indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestSTAXIndirect(t *testing.T) {
 	var flagsBefore uint8
 

@@ -47,6 +47,14 @@ func (c *CPU6502) staIndirectY() (uint64, bool) {
 	return 6, false
 }
 
+func (c *CPU6502) staIndirect() (uint64, bool) {
+	addr := c.getAddrZp65C02()
+	c.Mem.Store(addr, c.A)
+	c.PC++
+
+	return 5, false
+}
+
 func (c *CPU6502) staXIndirect() (uint64, bool) {
 	addr := c.getAddrIdxIndirectX()
 	c.Mem.Store(addr, c.A)

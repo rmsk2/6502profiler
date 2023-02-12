@@ -530,6 +530,44 @@ func TestCMPIndirectIdxY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestCMPIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Y = 3
+		c.A = 0x72
+		c.Mem.Store(0x0012, 0x03)
+		c.Mem.Store(0x0013, 0x08)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// cmp ($12)
+	// brk
+	// !byte $72
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xd2, 0x12, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "CMP indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestCMPIdxXIndirect(t *testing.T) {
 	arranger := func(c *CPU6502) {
 		c.X = 2

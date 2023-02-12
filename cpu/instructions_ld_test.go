@@ -235,6 +235,31 @@ func TestLDAIndirectIdxY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestLDAIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Y = 3
+		c.Mem.Store(0x0012, 0x03)
+		c.Mem.Store(0x0013, 0x08)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x72
+	}
+
+	// lda ($12)
+	// brk
+	// !byte $72
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xb2, 0x12, 0x00, 0x72},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LDA indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestLDAIdxXIndirect(t *testing.T) {
 	arranger := func(c *CPU6502) {
 		c.X = 2

@@ -140,3 +140,11 @@ func (c *CPU6502) cmpIndIdxY() (uint64, bool) {
 
 	return 5 + additionalCycle, false
 }
+
+func (c *CPU6502) cmpIndirect() (uint64, bool) {
+	operandAddress := c.getAddrZp65C02()
+	c.cmpBase(c.A, c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 5, false
+}

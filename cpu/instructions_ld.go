@@ -154,6 +154,14 @@ func (c *CPU6502) ldaIndIdxY() (uint64, bool) {
 	return 4 + additionalCycle, stop
 }
 
+func (c *CPU6502) ldaIndirect() (uint64, bool) {
+	operandAddress := c.getAddrZp65C02()
+	stop := c.ldaBase(c.Mem.Load(operandAddress))
+	c.PC++
+
+	return 5, stop
+}
+
 func (c *CPU6502) ldaIdxIndirectX() (uint64, bool) {
 	operandAddress := c.getAddrIdxIndirectX()
 	stop := c.ldaBase(c.Mem.Load(operandAddress))
