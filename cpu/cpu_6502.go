@@ -306,6 +306,23 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0x1c] = (*CPU6502).trbAbsolute
 		res.opCodes[0x04] = (*CPU6502).tsbZeroPage
 		res.opCodes[0x0c] = (*CPU6502).tsbAbsolute
+		res.opCodes[0x0f] = (*CPU6502).bbr0
+		res.opCodes[0x1f] = (*CPU6502).bbr1
+		res.opCodes[0x2f] = (*CPU6502).bbr2
+		res.opCodes[0x3f] = (*CPU6502).bbr3
+		res.opCodes[0x4f] = (*CPU6502).bbr4
+		res.opCodes[0x5f] = (*CPU6502).bbr5
+		res.opCodes[0x6f] = (*CPU6502).bbr6
+		res.opCodes[0x7f] = (*CPU6502).bbr7
+		res.opCodes[0x8f] = (*CPU6502).bbs0
+		res.opCodes[0x9f] = (*CPU6502).bbs1
+		res.opCodes[0xaf] = (*CPU6502).bbs2
+		res.opCodes[0xbf] = (*CPU6502).bbs3
+		res.opCodes[0xcf] = (*CPU6502).bbs4
+		res.opCodes[0xdf] = (*CPU6502).bbs5
+		res.opCodes[0xef] = (*CPU6502).bbs6
+		res.opCodes[0xff] = (*CPU6502).bbs7
+
 	}
 
 	return res

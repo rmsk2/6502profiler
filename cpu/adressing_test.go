@@ -154,6 +154,40 @@ func TestGetAddrRelativePositive(t *testing.T) {
 	}
 }
 
+func TestGetAddrBitBranchRelativePositive(t *testing.T) {
+	cpu := New6502(Model65C02)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyToMem([]byte{0xa9, 0xfe, 0x85, 0x40, 0x0f, 0x40, 0x01, 0x00, 0x00}, 0x0000)
+	cpu.PC = 0x0005
+
+	zpAddr, branchAddress, _ := cpu.getAddressesBitBranchRelative()
+
+	if branchAddress != 0x0008 {
+		t.Fatal("Relative bit branch addressing for a positive	offset does not work. Branch address wrong")
+	}
+
+	if zpAddr != 0x0040 {
+		t.Fatal("Relative bit branch addressing for a positive	offset does not work. Zero page address wrong")
+	}
+}
+
+func TestGetAddrBitBranchRelativeNegative(t *testing.T) {
+	cpu := New6502(Model65C02)
+	cpu.Init(memory.NewLinearMemory(16384))
+	cpu.CopyToMem([]byte{0x00, 0xa9, 0xfe, 0x85, 0x40, 0x0f, 0x40, 0xf8, 0x00}, 0x0000)
+	cpu.PC = 0x0006
+
+	zpAddr, branchAddress, _ := cpu.getAddressesBitBranchRelative()
+
+	if branchAddress != 0x0000 {
+		t.Fatal("Relative bit branch addressing for a negative	offset does not work. Branch address wrong")
+	}
+
+	if zpAddr != 0x0040 {
+		t.Fatal("Relative bit branch addressing for a negative	offset does not work. Zero page address wrong")
+	}
+}
+
 func TestGetAddrIndirectIdxY(t *testing.T) {
 	cpu := New6502(Model6502)
 	cpu.Init(memory.NewLinearMemory(16384))

@@ -24,6 +24,28 @@ func (c *CPU6502) branchOnFlagSet(flag uint8) (uint64, bool) {
 	return 3 + additionalCycle, false
 }
 
+func (c *CPU6502) branchOnBitClear(bit uint8) (uint64, bool) {
+	zpAddr, branchAddr, additionalCycle := c.getAddressesBitBranchRelative()
+	if (c.Mem.Load(zpAddr) & bit) != 0 {
+		c.PC++
+		return 5, false
+	}
+
+	c.PC = branchAddr
+	return 6 + additionalCycle, false
+}
+
+func (c *CPU6502) branchOnBitSet(bit uint8) (uint64, bool) {
+	zpAddr, branchAddr, additionalCycle := c.getAddressesBitBranchRelative()
+	if (c.Mem.Load(zpAddr) & bit) == 0 {
+		c.PC++
+		return 5, false
+	}
+
+	c.PC = branchAddr
+	return 6 + additionalCycle, false
+}
+
 // -------- BPL --------
 
 func (c *CPU6502) bpl() (uint64, bool) {
@@ -79,6 +101,74 @@ func (c *CPU6502) bra() (uint64, bool) {
 	c.PC = branchAddress
 
 	return 3 + additionalCycle, false
+}
+
+// -------- BBR0 - BBR7 --------
+
+func (c *CPU6502) bbr0() (uint64, bool) {
+	return c.branchOnBitClear(0x01)
+}
+
+func (c *CPU6502) bbr1() (uint64, bool) {
+	return c.branchOnBitClear(0x02)
+}
+
+func (c *CPU6502) bbr2() (uint64, bool) {
+	return c.branchOnBitClear(0x04)
+}
+
+func (c *CPU6502) bbr3() (uint64, bool) {
+	return c.branchOnBitClear(0x08)
+}
+
+func (c *CPU6502) bbr4() (uint64, bool) {
+	return c.branchOnBitClear(0x10)
+}
+
+func (c *CPU6502) bbr5() (uint64, bool) {
+	return c.branchOnBitClear(0x20)
+}
+
+func (c *CPU6502) bbr6() (uint64, bool) {
+	return c.branchOnBitClear(0x40)
+}
+
+func (c *CPU6502) bbr7() (uint64, bool) {
+	return c.branchOnBitClear(0x80)
+}
+
+// -------- BBS0 - BBS7 --------
+
+func (c *CPU6502) bbs0() (uint64, bool) {
+	return c.branchOnBitSet(0x01)
+}
+
+func (c *CPU6502) bbs1() (uint64, bool) {
+	return c.branchOnBitSet(0x02)
+}
+
+func (c *CPU6502) bbs2() (uint64, bool) {
+	return c.branchOnBitSet(0x04)
+}
+
+func (c *CPU6502) bbs3() (uint64, bool) {
+	return c.branchOnBitSet(0x08)
+}
+
+func (c *CPU6502) bbs4() (uint64, bool) {
+	return c.branchOnBitSet(0x10)
+}
+
+func (c *CPU6502) bbs5() (uint64, bool) {
+	return c.branchOnBitSet(0x20)
+}
+
+func (c *CPU6502) bbs6() (uint64, bool) {
+	return c.branchOnBitSet(0x40)
+}
+
+func (c *CPU6502) bbs7() (uint64, bool) {
+	return c.branchOnBitSet(0x80)
 }
 
 // -------- JSR--------

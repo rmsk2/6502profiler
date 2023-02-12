@@ -123,3 +123,11 @@ func (c *CPU6502) getAddrIdxIndirect65C02() uint16 {
 
 	return uint16(c.Mem.Load(baseAddr+1))*256 + uint16(c.Mem.Load(baseAddr))
 }
+
+func (c *CPU6502) getAddressesBitBranchRelative() (uint16, uint16, uint64) {
+	zpAddr := c.getAddrZeroPage()
+	c.PC++
+	branchAddress, additionalCycle := c.getAddrRelative()
+
+	return zpAddr, branchAddress, additionalCycle
+}

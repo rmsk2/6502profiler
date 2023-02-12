@@ -1,0 +1,11 @@
+!to "bbr0", cbm
+!cpu w65c02 
+
+* = $0800
+
+    lda #$FE
+    sta $40
+    bbr0 $40, skip
+    brk
+skip
+    brk

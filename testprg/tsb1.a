@@ -1,0 +1,10 @@
+!to "tsb1", cbm
+!cpu 65c02
+
+* = $0800
+
+LDA #$A6
+STA $1000
+LDA #$41
+TSB $1000
+brk
