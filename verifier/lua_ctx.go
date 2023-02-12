@@ -36,6 +36,8 @@ func NewLuaCtx(cpu *cpu.CPU6502, testDir string, l *lua.LState) *LuaCtx {
 func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint16) error {
 	L.SetGlobal("get_memory", L.NewFunction(c.GetMemory))
 	L.SetGlobal("set_memory", L.NewFunction(c.SetMemory))
+	L.SetGlobal("write_byte", L.NewFunction(c.WriteSingleByte))
+	L.SetGlobal("read_byte", L.NewFunction(c.ReadSingleByte))
 	L.SetGlobal("get_flags", L.NewFunction(c.GetFlagsLua))
 	L.SetGlobal("set_flags", L.NewFunction(c.SetFlagsLua))
 	L.SetGlobal("get_sp", L.NewFunction(c.GetSP))
@@ -211,6 +213,15 @@ func (c *LuaCtx) GetMemory(L *lua.LState) int {
 	return 1
 }
 
+func (c *LuaCtx) ReadSingleByte(L *lua.LState) int {
+	addr := uint16(L.ToInt(1))
+
+	data := c.cpu.Mem.Load(addr)
+	L.Push(lua.LNumber(data))
+
+	return 1
+}
+
 func (c *LuaCtx) SetMemory(L *lua.LState) int {
 	dataStr := L.ToString(1)
 	addr := L.ToInt(2)
@@ -224,6 +235,15 @@ func (c *LuaCtx) SetMemory(L *lua.LState) int {
 	if err != nil {
 		panic("Uuable to write memory")
 	}
+
+	return 0
+}
+
+func (c *LuaCtx) WriteSingleByte(L *lua.LState) int {
+	dataByte := uint8(L.ToInt(2))
+	addr := uint16(L.ToInt(1))
+
+	c.cpu.Mem.Store(addr, dataByte)
 
 	return 0
 }
