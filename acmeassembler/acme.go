@@ -25,7 +25,7 @@ func parseOneLine(line string) (uint16, string, error) {
 	return uint16(res), matches[1], nil
 }
 
-func ParseLabelFile(fileName string) (map[uint16][]string, error) {
+func (a *ACME) ParseLabelFile(fileName string) (map[uint16][]string, error) {
 	result := make(map[uint16][]string)
 
 	f, err := os.Open(fileName)

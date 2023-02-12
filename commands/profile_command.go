@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"6502profiler/acmeassembler"
 	"6502profiler/cpu"
 	"6502profiler/memory"
 	"6502profiler/profiler"
@@ -55,6 +54,8 @@ func ProfileCommand(arguments []string) error {
 		}
 	}
 
+	assembler := config.GetAssembler()
+
 	processor, err = config.NewCpu()
 	if err != nil {
 		return fmt.Errorf("error processing config: %v", err)
@@ -76,7 +77,7 @@ func ProfileCommand(arguments []string) error {
 			return fmt.Errorf("%d is not a valid value for cutoff percentage", *percentageCutOff)
 		}
 
-		labels, err = acmeassembler.ParseLabelFile(*labelFileName)
+		labels, err = assembler.ParseLabelFile(*labelFileName)
 		if err != nil {
 			return fmt.Errorf("a problem occurred: %v", err)
 		}
