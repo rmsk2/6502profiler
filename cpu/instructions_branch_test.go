@@ -263,6 +263,57 @@ func TestBVSUp(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestBRAUp(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags = 255
+		c.Flags &= (^Flag_C)
+		c.PC = UnitProgStart + 1
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.PC == UnitProgStart+1
+	}
+
+	//.up
+	//    brk
+	//    bra .up
+	//    brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x00, 0x80, 0xfd, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BRA up",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestBRADown(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags = 255
+		c.Flags &= (^Flag_N)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.PC == UnitProgStart+4
+	}
+
+	//    bra .down
+	//    brk
+	//.down
+	//    brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x80, 0x01, 0x00, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BRA down",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- jsr/rts --------
 
 func TestJSR(t *testing.T) {

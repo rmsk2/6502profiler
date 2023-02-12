@@ -72,6 +72,15 @@ func (c *CPU6502) bvs() (uint64, bool) {
 	return c.branchOnFlagSet(Flag_V)
 }
 
+// -------- BRA--------
+
+func (c *CPU6502) bra() (uint64, bool) {
+	branchAddress, additionalCycle := c.getAddrRelative()
+	c.PC = branchAddress
+
+	return 3 + additionalCycle, false
+}
+
 // -------- JSR--------
 
 func (c *CPU6502) jsr() (uint64, bool) {

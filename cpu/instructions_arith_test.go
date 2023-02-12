@@ -3043,3 +3043,193 @@ func TestROLAbsoluteX(t *testing.T) {
 
 	testSingleInstructionWithCase(t, c)
 }
+
+// -------- TRB --------
+
+func TestTRBZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x55
+		c.Flags |= Flag_Z
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if c.Mem.Load(0) != 0x84 {
+			return false
+		}
+
+		if c.A != 0x33 {
+			return false
+		}
+
+		return true
+	}
+
+	//LDA #$A6
+	//STA $00
+	//LDA #$33
+	//TRB $00
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xa9, 0xa6, 0x85, 0x00, 0xa9, 0x33, 0x14, 0x00, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TRB zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestTRBZeroPage2(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x55
+		c.Flags &= (^Flag_Z)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if c.Mem.Load(0) != 0xa6 {
+			return false
+		}
+
+		if c.A != 0x41 {
+			return false
+		}
+
+		return true
+	}
+
+	//lda #$A6
+	//sta $00
+	//lda #$41
+	//trb $00
+	//brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xa9, 0xa6, 0x85, 0x00, 0xa9, 0x41, 0x14, 0x00, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TRB zero page 2",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestTRBAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x33
+		c.Mem.Store(0x1000, 0xA6)
+		c.Flags |= Flag_Z
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if c.Mem.Load(0x1000) != 0x84 {
+			return false
+		}
+
+		if c.A != 0x33 {
+			return false
+		}
+
+		return true
+	}
+
+	//trb $1000
+	//brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x1c, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TRB absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- TSB --------
+
+func TestTSBZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x55
+		c.Flags |= Flag_Z
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if c.Mem.Load(0) != 0xB7 {
+			return false
+		}
+
+		if c.A != 0x33 {
+			return false
+		}
+
+		return true
+	}
+
+	// lda #$A6
+	// sta $00
+	// lda #$33
+	// tsb $00
+	// brak
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xa9, 0xa6, 0x85, 0x00, 0xa9, 0x33, 0x04, 0x00, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TSB zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestTSBAbsolute(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Flags &= (^Flag_Z)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if c.Mem.Load(0x1000) != 0xE7 {
+			return false
+		}
+
+		if c.A != 0x41 {
+			return false
+		}
+
+		return true
+	}
+
+	// lda #$A6
+	// sta $1000
+	// lda #$41
+	// tsb $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xa9, 0xa6, 0x8d, 0x00, 0x10, 0xa9, 0x41, 0x0c, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "TSB absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}

@@ -824,3 +824,75 @@ func (c *CPU6502) bitAbsolute() (uint64, bool) {
 
 	return 4, false
 }
+
+// -------- TRB --------
+
+func (c *CPU6502) trbBase(val uint8) uint8 {
+	if (c.A & val) == 0 {
+		c.Flags |= Flag_Z
+	} else {
+		c.Flags &= (^Flag_Z)
+	}
+
+	return (^c.A) & val
+}
+
+func (c *CPU6502) trbZeroPage() (uint64, bool) {
+	addr := c.getAddrZeroPage()
+
+	oper := c.Mem.Load(addr)
+	res := c.trbBase(oper)
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) trbAbsolute() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+
+	oper := c.Mem.Load(addr)
+	res := c.trbBase(oper)
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 6, false
+}
+
+// -------- TSB --------
+
+func (c *CPU6502) tsbBase(val uint8) uint8 {
+	if (c.A & val) == 0 {
+		c.Flags |= Flag_Z
+	} else {
+		c.Flags &= (^Flag_Z)
+	}
+
+	return c.A | val
+}
+
+func (c *CPU6502) tsbZeroPage() (uint64, bool) {
+	addr := c.getAddrZeroPage()
+
+	oper := c.Mem.Load(addr)
+	res := c.tsbBase(oper)
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) tsbAbsolute() (uint64, bool) {
+	addr := c.getAddrAbsolute()
+
+	oper := c.Mem.Load(addr)
+	res := c.tsbBase(oper)
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 6, false
+}

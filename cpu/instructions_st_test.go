@@ -195,6 +195,260 @@ func TestSTAXIndirect(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+// -------- STZ --------
+
+func TestSTZbsolute(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1000, 0x44)
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1000) == 0x00) && (flagsBefore == c.Flags)
+	}
+
+	// stz $1000
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x9C, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STZ absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTZZeroPage(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0033, 0x44)
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0033) == 0x00) && (flagsBefore == c.Flags)
+	}
+
+	// stz $33
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x64, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STZ zero page",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTZAbsoluteX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x10A8, 0x44)
+		c.X = 0xA8
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x10A8) == 0x00) && (flagsBefore == c.Flags)
+	}
+
+	// stz $1000, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x9E, 0x00, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STZ absolute with X index",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSTZZeroPageX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0043, 0x44)
+		c.X = 0x10
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x0043) == 0x00) && (flagsBefore == c.Flags)
+	}
+
+	// stz $33, x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x74, 0x33, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "STZ zero page X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- PHX --------
+
+func TestPHX(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.X = 0x52
+		c.SP = 0xFF
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if flagsBefore != c.Flags {
+			return false
+		}
+
+		if c.Mem.Load(0x1FF) != 0x52 {
+			return false
+		}
+
+		if c.SP != 0xFE {
+			return false
+		}
+
+		return true
+	}
+
+	// phx
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xDA, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PHX",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- PLX --------
+
+func TestPLX0(t *testing.T) {
+
+	arranger := func(c *CPU6502) {
+		c.Flags = Flag_Z
+		c.Mem.Store(0x0100, 0x85)
+		c.SP = 0xFF
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.X != 0x85) || (c.SP != 0x00) {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		return (c.Flags & Flag_N) != 0
+	}
+
+	// plx
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xFA, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PLX",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- PHY --------
+
+func TestPHY(t *testing.T) {
+	var flagsBefore uint8
+
+	arranger := func(c *CPU6502) {
+		c.Y = 0x52
+		c.SP = 0xFF
+		flagsBefore = c.Flags
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if flagsBefore != c.Flags {
+			return false
+		}
+
+		if c.Mem.Load(0x1FF) != 0x52 {
+			return false
+		}
+
+		if c.SP != 0xFE {
+			return false
+		}
+
+		return true
+	}
+
+	// phy
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x5A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PHY",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- PLY --------
+
+func TestPLY0(t *testing.T) {
+
+	arranger := func(c *CPU6502) {
+		c.Flags = Flag_Z
+		c.Mem.Store(0x0100, 0x85)
+		c.SP = 0xFF
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Y != 0x85) || (c.SP != 0x00) {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		return (c.Flags & Flag_N) != 0
+	}
+
+	// ply
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x7A, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "PLY",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- PHA --------
 
 func TestPHA(t *testing.T) {

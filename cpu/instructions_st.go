@@ -55,6 +55,37 @@ func (c *CPU6502) staXIndirect() (uint64, bool) {
 	return 6, false
 }
 
+// -------- STZ --------
+
+func (c *CPU6502) stzZeroPage() (uint64, bool) {
+	c.Mem.Store(c.getAddrZeroPage(), 0)
+	c.PC++
+
+	return 4, false
+}
+
+func (c *CPU6502) stzZeroPageX() (uint64, bool) {
+	c.Mem.Store(c.getAddrZeroPageX(), 0)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) stzAbsolute() (uint64, bool) {
+	c.Mem.Store(c.getAddrAbsolute(), 0)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) stzAbsoluteX() (uint64, bool) {
+	addr, _ := c.getAddrAbsoluteX()
+	c.Mem.Store(addr, 0)
+	c.PC++
+
+	return 6, false
+}
+
 // -------- STX --------
 
 func (c *CPU6502) stxZeroPage() (uint64, bool) {
@@ -113,6 +144,36 @@ func (c *CPU6502) pha() (uint64, bool) {
 func (c *CPU6502) pla() (uint64, bool) {
 	c.A = c.pop()
 	c.nzFlags(c.A)
+	return 4, false
+}
+
+// -------- PHX --------
+
+func (c *CPU6502) phx() (uint64, bool) {
+	c.push(c.X)
+	return 3, false
+}
+
+// -------- PLX --------
+
+func (c *CPU6502) plx() (uint64, bool) {
+	c.X = c.pop()
+	c.nzFlags(c.X)
+	return 4, false
+}
+
+// -------- PHY --------
+
+func (c *CPU6502) phy() (uint64, bool) {
+	c.push(c.Y)
+	return 3, false
+}
+
+// -------- PLY --------
+
+func (c *CPU6502) ply() (uint64, bool) {
+	c.Y = c.pop()
+	c.nzFlags(c.Y)
 	return 4, false
 }
 
