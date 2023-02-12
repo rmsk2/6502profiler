@@ -256,7 +256,7 @@ Lua to query and manipulate the processor state:
 | `get_yreg()` | Returns the value stored in the Y register | 
 | `set_yreg(val)` | Stores `val` in the Y register | 
 
-On top of that the following two variables are injected into the Lua script from the Go host program:
+On top of that the following three variables are injected into the Lua script from the Go host program:
 
 |Variable Name| Description |
 |-|-|
