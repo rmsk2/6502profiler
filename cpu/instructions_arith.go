@@ -896,3 +896,95 @@ func (c *CPU6502) tsbAbsolute() (uint64, bool) {
 
 	return 6, false
 }
+
+// -------- RMB0-7 --------
+
+func (c *CPU6502) rmbBase(bit uint8) (uint64, bool) {
+	addr := c.getAddrZeroPage()
+
+	oper := c.Mem.Load(addr)
+	res := oper & (bit ^ 0xFF)
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) rmb0() (uint64, bool) {
+	return c.rmbBase(0x01)
+}
+
+func (c *CPU6502) rmb1() (uint64, bool) {
+	return c.rmbBase(0x02)
+}
+
+func (c *CPU6502) rmb2() (uint64, bool) {
+	return c.rmbBase(0x04)
+}
+
+func (c *CPU6502) rmb3() (uint64, bool) {
+	return c.rmbBase(0x08)
+}
+
+func (c *CPU6502) rmb4() (uint64, bool) {
+	return c.rmbBase(0x10)
+}
+
+func (c *CPU6502) rmb5() (uint64, bool) {
+	return c.rmbBase(0x20)
+}
+
+func (c *CPU6502) rmb6() (uint64, bool) {
+	return c.rmbBase(0x40)
+}
+
+func (c *CPU6502) rmb7() (uint64, bool) {
+	return c.rmbBase(0x80)
+}
+
+// -------- SMB0-7 --------
+
+func (c *CPU6502) smbBase(bit uint8) (uint64, bool) {
+	addr := c.getAddrZeroPage()
+
+	oper := c.Mem.Load(addr)
+	res := oper | bit
+
+	c.Mem.Store(addr, res)
+	c.PC++
+
+	return 5, false
+}
+
+func (c *CPU6502) smb0() (uint64, bool) {
+	return c.smbBase(0x01)
+}
+
+func (c *CPU6502) smb1() (uint64, bool) {
+	return c.smbBase(0x02)
+}
+
+func (c *CPU6502) smb2() (uint64, bool) {
+	return c.smbBase(0x04)
+}
+
+func (c *CPU6502) smb3() (uint64, bool) {
+	return c.smbBase(0x08)
+}
+
+func (c *CPU6502) smb4() (uint64, bool) {
+	return c.smbBase(0x10)
+}
+
+func (c *CPU6502) smb5() (uint64, bool) {
+	return c.smbBase(0x20)
+}
+
+func (c *CPU6502) smb6() (uint64, bool) {
+	return c.smbBase(0x40)
+}
+
+func (c *CPU6502) smb7() (uint64, bool) {
+	return c.smbBase(0x80)
+}

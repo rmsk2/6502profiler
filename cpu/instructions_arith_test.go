@@ -2,7 +2,6 @@ package cpu
 
 import (
 	"6502profiler/memory"
-	"fmt"
 	"testing"
 )
 
@@ -2813,7 +2812,6 @@ func TestRORImplied(t *testing.T) {
 	}
 
 	verifier := func(c *CPU6502) bool {
-		fmt.Println(c.A)
 		return c.A == 0x81
 	}
 
@@ -2933,7 +2931,6 @@ func TestROLImplied(t *testing.T) {
 	}
 
 	verifier := func(c *CPU6502) bool {
-		fmt.Println(c.A)
 		return c.A == 0x05
 	}
 
@@ -3229,6 +3226,378 @@ func TestTSBAbsolute(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "TSB absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- RMB0-7 --------
+
+func TestRMB0ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xFE
+	}
+
+	// rmb0 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x07, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB0",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB1ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xFD
+	}
+
+	// rmb1 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x17, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB1",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB2ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xFB
+	}
+
+	// rmb2 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x27, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB2",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB3ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xF7
+	}
+
+	// rmb3 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x37, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB3",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB4ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xEF
+	}
+
+	// rmb4 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x47, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB4",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB5ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xDF
+	}
+
+	// rmb5 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x57, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB5",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB6ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0xBF
+	}
+
+	// rmb6 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x67, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB6",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestRMB7ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0xFF)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x7F
+	}
+
+	// rmb7 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x77, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "RMB7",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+// -------- SMB0-7 --------
+
+func TestSMB0ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x01
+	}
+
+	// smb0 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x87, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB0",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB1ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x02
+	}
+
+	// smb1 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x97, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB1",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB2ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x04
+	}
+
+	// smb2 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xa7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB2",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB3ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x08
+	}
+
+	// smb3 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xb7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB3",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB4ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x10
+	}
+
+	// smb4 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xc7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB4",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB5ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x20
+	}
+
+	// smb5 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xd7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB5",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB6ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x40
+	}
+
+	// smb6 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xe7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB6",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestSMB7ZeroPage(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x0012, 0x00)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		res := c.Mem.Load(0x0012)
+		return res == 0x80
+	}
+
+	// smb7 $12
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xf7, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SMB7",
 	}
 
 	testSingleInstructionWithCase(t, c)

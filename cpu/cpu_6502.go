@@ -306,6 +306,7 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0x1c] = (*CPU6502).trbAbsolute
 		res.opCodes[0x04] = (*CPU6502).tsbZeroPage
 		res.opCodes[0x0c] = (*CPU6502).tsbAbsolute
+
 		res.opCodes[0x0f] = (*CPU6502).bbr0
 		res.opCodes[0x1f] = (*CPU6502).bbr1
 		res.opCodes[0x2f] = (*CPU6502).bbr2
@@ -314,6 +315,7 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0x5f] = (*CPU6502).bbr5
 		res.opCodes[0x6f] = (*CPU6502).bbr6
 		res.opCodes[0x7f] = (*CPU6502).bbr7
+
 		res.opCodes[0x8f] = (*CPU6502).bbs0
 		res.opCodes[0x9f] = (*CPU6502).bbs1
 		res.opCodes[0xaf] = (*CPU6502).bbs2
@@ -323,6 +325,23 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0xef] = (*CPU6502).bbs6
 		res.opCodes[0xff] = (*CPU6502).bbs7
 
+		res.opCodes[0x07] = (*CPU6502).rmb0
+		res.opCodes[0x17] = (*CPU6502).rmb1
+		res.opCodes[0x27] = (*CPU6502).rmb2
+		res.opCodes[0x37] = (*CPU6502).rmb3
+		res.opCodes[0x47] = (*CPU6502).rmb4
+		res.opCodes[0x57] = (*CPU6502).rmb5
+		res.opCodes[0x67] = (*CPU6502).rmb6
+		res.opCodes[0x77] = (*CPU6502).rmb7
+
+		res.opCodes[0x87] = (*CPU6502).smb0
+		res.opCodes[0x97] = (*CPU6502).smb1
+		res.opCodes[0xa7] = (*CPU6502).smb2
+		res.opCodes[0xb7] = (*CPU6502).smb3
+		res.opCodes[0xc7] = (*CPU6502).smb4
+		res.opCodes[0xd7] = (*CPU6502).smb5
+		res.opCodes[0xe7] = (*CPU6502).smb6
+		res.opCodes[0xf7] = (*CPU6502).smb7
 	}
 
 	return res
