@@ -290,9 +290,7 @@ func New6502(m CpuModel) *CPU6502 {
 	}
 
 	if m == Model65C02 {
-		res.opCodes[0x6c] = (*CPU6502).jmpIndirect65C02
-		res.opCodes[0x1a] = (*CPU6502).inc65C02
-		res.opCodes[0x3a] = (*CPU6502).dec65C02
+		// New instructions
 		res.opCodes[0x80] = (*CPU6502).bra
 		res.opCodes[0x64] = (*CPU6502).stzZeroPage
 		res.opCodes[0x74] = (*CPU6502).stzZeroPageX
@@ -343,6 +341,12 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0xe7] = (*CPU6502).smb6
 		res.opCodes[0xf7] = (*CPU6502).smb7
 
+		// New addressing modes for exisiting instructions
+		res.opCodes[0x6c] = (*CPU6502).jmpIndirect65C02
+		res.opCodes[0x7c] = (*CPU6502).jmpIndexXIndirect
+		res.opCodes[0x1a] = (*CPU6502).inc65C02
+		res.opCodes[0x3a] = (*CPU6502).dec65C02
+
 		res.opCodes[0x89] = (*CPU6502).bitImmediate
 		res.opCodes[0x34] = (*CPU6502).bitZeroPageX
 		res.opCodes[0x3C] = (*CPU6502).bitAbsoluteX
@@ -356,11 +360,13 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0xb2] = (*CPU6502).ldaIndirect
 		res.opCodes[0x92] = (*CPU6502).staIndirect
 
+		// Different cycle count when compared with a 6502. ADD and SBC are missing here
+		// because the differences in cycle count for these instructions are implemented in
+		// the ADD and SBC routines directly.
 		res.opCodes[0x1e] = (*CPU6502).aslAbsoluteX65C02
 		res.opCodes[0x5e] = (*CPU6502).lsrAbsoluteX65C02
 		res.opCodes[0x3e] = (*CPU6502).rolAbsoluteX65C02
 		res.opCodes[0x7e] = (*CPU6502).rorAbsoluteX65C02
-		res.opCodes[0x7c] = (*CPU6502).jmpIndexXIndirect
 	}
 
 	return res
