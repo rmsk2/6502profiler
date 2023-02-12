@@ -894,7 +894,34 @@ func TestJMPIndirect65C02(t *testing.T) {
 		testProg:        []byte{0x6c, 0x04, 0x08, 0x00, 0x07, 0x08, 0x00, 0x00},
 		arranger:        nil,
 		verifier:        verifier,
-		instructionName: "JMP indirect 6502",
+		instructionName: "JMP indirect 65C02",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestJMPINdexXIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.X = 4
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.PC == 0x0808
+	}
+
+	//    jmp ($0800, x)
+	//    brk
+	//jmpAddr
+	//!byte <jmpTarget, >jmpTarget
+	//    brk
+	//jmpTarget
+	//    brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x7c, 0x00, 0x08, 0x00, 0x07, 0x08, 0x00, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "JMP Index X indirect",
 	}
 
 	testSingleInstructionWithCase(t, c)

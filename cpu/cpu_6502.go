@@ -360,6 +360,7 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0x5e] = (*CPU6502).lsrAbsoluteX65C02
 		res.opCodes[0x3e] = (*CPU6502).rolAbsoluteX65C02
 		res.opCodes[0x7e] = (*CPU6502).rorAbsoluteX65C02
+		res.opCodes[0x7c] = (*CPU6502).jmpIndexXIndirect
 	}
 
 	return res

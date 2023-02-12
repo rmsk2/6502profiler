@@ -217,3 +217,10 @@ func (c *CPU6502) jmpIndirect65C02() (uint64, bool) {
 
 	return 5, false
 }
+
+func (c *CPU6502) jmpIndexXIndirect() (uint64, bool) {
+	addr := c.getAddrIdxIndirect65C02()
+	c.PC = addr
+
+	return 6, false
+}
