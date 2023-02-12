@@ -2,7 +2,7 @@
 
 ## Overview
 
-This software is in essence an emulator for the MOS 6502, 6510 (and in future versions the 65C02) microprocessors. In contrast to the plethora of 
+This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on these old computers. 
 To state this again: No graphics or sound capabilities of any of the old computers are emulated and therefore routines like that can not be optimized
@@ -299,6 +299,5 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
-- Implement the additional addressing modes and instructions of the 65C02 processor
 - Implement the memory model used by the Commander X16
 - Maybe implement a single stepping mode
