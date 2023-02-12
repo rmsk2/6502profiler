@@ -697,6 +697,17 @@ func (c *CPU6502) modAbsoluteX(modifier ModifierOp) (uint64, bool) {
 	return 7, false
 }
 
+func (c *CPU6502) modAbsoluteX65C02(modifier ModifierOp) (uint64, bool) {
+	operAddr, _ := c.getAddrAbsoluteX()
+	oper := c.Mem.Load(operAddr)
+	res := modifier(c, oper)
+	c.Mem.Store(operAddr, res)
+	c.nzFlags(res)
+	c.PC++
+
+	return 6, false
+}
+
 // -------- INC --------
 
 func (c *CPU6502) inc65C02() (uint64, bool) {
@@ -763,6 +774,10 @@ func (c *CPU6502) aslAbsoluteX() (uint64, bool) {
 	return c.modAbsoluteX(Asl)
 }
 
+func (c *CPU6502) aslAbsoluteX65C02() (uint64, bool) {
+	return c.modAbsoluteX65C02(Asl)
+}
+
 // -------- LSR --------
 
 func (c *CPU6502) lsr() (uint64, bool) {
@@ -783,6 +798,10 @@ func (c *CPU6502) lsrAbsolute() (uint64, bool) {
 
 func (c *CPU6502) lsrAbsoluteX() (uint64, bool) {
 	return c.modAbsoluteX(Lsr)
+}
+
+func (c *CPU6502) lsrAbsoluteX65C02() (uint64, bool) {
+	return c.modAbsoluteX65C02(Lsr)
 }
 
 // -------- ROL --------
@@ -807,6 +826,10 @@ func (c *CPU6502) rolAbsoluteX() (uint64, bool) {
 	return c.modAbsoluteX(Rol)
 }
 
+func (c *CPU6502) rolAbsoluteX65C02() (uint64, bool) {
+	return c.modAbsoluteX65C02(Rol)
+}
+
 // -------- ROR --------
 
 func (c *CPU6502) ror() (uint64, bool) {
@@ -827,6 +850,10 @@ func (c *CPU6502) rorAbsolute() (uint64, bool) {
 
 func (c *CPU6502) rorAbsoluteX() (uint64, bool) {
 	return c.modAbsoluteX(Ror)
+}
+
+func (c *CPU6502) rorAbsoluteX65C02() (uint64, bool) {
+	return c.modAbsoluteX65C02(Ror)
 }
 
 // -------- BIT --------

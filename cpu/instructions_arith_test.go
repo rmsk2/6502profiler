@@ -2960,6 +2960,29 @@ func TestASLAbsoluteX(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestASLAbsoluteX65C02(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1012) == 0x04) && (c.NumCycles() == 6)
+	}
+
+	// asl $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x1E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ASL absolute X (65C02)",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- LSR --------
 
 func TestLSRImplied(t *testing.T) {
@@ -3069,6 +3092,29 @@ func TestLSRAbsoluteX(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "LSR absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestLSRAbsoluteX65C02(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1012) == 0x01) && (c.NumCycles() == 6)
+	}
+
+	// lsr $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x5E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "LSR absolute X (65C02)",
 	}
 
 	testSingleInstructionWithCase(t, c)
@@ -3193,6 +3239,30 @@ func TestRORAbsoluteX(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestRORAbsoluteX65C02(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1012) == 0x81) == (c.NumCycles() == 6)
+	}
+
+	// ror $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x7E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROR absolute X (65C02)",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- ROL --------
 
 func TestROLImplied(t *testing.T) {
@@ -3307,6 +3377,30 @@ func TestROLAbsoluteX(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "ROL absolute X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestROLAbsoluteX65C02(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.Mem.Store(0x1012, 0x02)
+		c.Flags |= Flag_C
+		c.X = 2
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return (c.Mem.Load(0x1012) == 0x05) && (c.NumCycles() == 6)
+	}
+
+	// rol $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x3E, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ROL absolute X (65C02)",
 	}
 
 	testSingleInstructionWithCase(t, c)
