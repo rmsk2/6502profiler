@@ -291,8 +291,8 @@ a minute. The corresponding assembler source code can be found in `testprg/fixed
 # Limitations
 
 Currently all 6502/6510 addressing modes and all but one instruction are emulated. The missing instruction is `RTI` as I do not
-see any use for this instruction on the purely logical level on which `6502profiler` operates. On top of that only a few
-65C02 spedific addressing modes and instructions have been implemented up to this point. 
+see any use for this instruction on the purely logical level on which `6502profiler` operates. Furthermore the 65C02 instructions
+`STP` and `WAI` are also not implemented for the same reason.
 
 # Building `6502profiler`
 
