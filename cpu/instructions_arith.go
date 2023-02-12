@@ -817,12 +817,37 @@ func (c *CPU6502) bitZeroPage() (uint64, bool) {
 	return 3, false
 }
 
+func (c *CPU6502) bitZeroPageX() (uint64, bool) {
+	oper := c.Mem.Load(c.getAddrZeroPageX())
+	c.bitBase(oper)
+	c.PC++
+
+	return 4, false
+}
+
+func (c *CPU6502) bitImmediate() (uint64, bool) {
+	oper := c.Mem.Load(c.PC)
+	c.bitBase(oper)
+	c.PC++
+
+	return 2, false
+}
+
 func (c *CPU6502) bitAbsolute() (uint64, bool) {
 	oper := c.Mem.Load(c.getAddrAbsolute())
 	c.bitBase(oper)
 	c.PC++
 
 	return 4, false
+}
+
+func (c *CPU6502) bitAbsoluteX() (uint64, bool) {
+	addr, additionalCycles := c.getAddrAbsoluteX()
+	oper := c.Mem.Load(addr)
+	c.bitBase(oper)
+	c.PC++
+
+	return 4 + additionalCycles, false
 }
 
 // -------- TRB --------

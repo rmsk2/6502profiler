@@ -342,6 +342,10 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0xd7] = (*CPU6502).smb5
 		res.opCodes[0xe7] = (*CPU6502).smb6
 		res.opCodes[0xf7] = (*CPU6502).smb7
+
+		res.opCodes[0x89] = (*CPU6502).bitImmediate
+		res.opCodes[0x34] = (*CPU6502).bitZeroPageX
+		res.opCodes[0x3C] = (*CPU6502).bitAbsoluteX
 	}
 
 	return res

@@ -2390,6 +2390,77 @@ func TestBITZeroPage(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestBITImmediate(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		//c.Mem.Store(0x0012, 0xF0)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_V) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// bit #$F0
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x89, 0xF0, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BIT Immediate",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestBITZeroPageX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.X = 0x02
+		c.Mem.Store(0x0012, 0xF0)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_V) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// bit $10,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x34, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BIT zero page index X",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestBITAbsolute(t *testing.T) {
 	arranger := func(c *CPU6502) {
 		c.A = 0x0F
@@ -2420,6 +2491,42 @@ func TestBITAbsolute(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "BIT absolute",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestBITAbsoluteX(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0x0F
+		c.X = 0x02
+		c.Mem.Store(0x1012, 0xF0)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_V) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// bit $1010,x
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x3C, 0x10, 0x10, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "BIT absolute X",
 	}
 
 	testSingleInstructionWithCase(t, c)
