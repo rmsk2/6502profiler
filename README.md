@@ -238,7 +238,7 @@ message in case the test has failed.
 
 The `set_memory` and `get_memory` functions can be used to get and set emulator memory. Memory contents is always represented as a
 hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `load_address`
-and `prog_len`. A single test can be run by `./6502profiler verify -c config.json -t test1.json`. The following functions can be used in 
+and `prog_len`. A specific test can be run by `./6502profiler verify -c config.json -t test1.json`. The following functions can be used in 
 Lua to query and manipulate the processor state:
 
 |Function Name| Description |
@@ -255,6 +255,18 @@ Lua to query and manipulate the processor state:
 | `set_xreg(val)` | Stores `val` in the X register | 
 | `get_yreg()` | Returns the value stored in the Y register | 
 | `set_yreg(val)` | Stores `val` in the Y register | 
+
+On top of that the following two variables are injected into the Lua script from the Go host program:
+
+|Variable Name| Description |
+|-|-|
+| `load_address` | Address to which the test driver has been laoded and from which it is run | 
+| `prog_len` | Length in bytes of the loaded test driver | 
+| `test_dir` | Path to the test dir which can be used with `require` to load additional scripts | 
+
+
+Assiging a value to these variables remains local to Lua test script and does not influence what is happening in the golang
+host application.
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
 config file. It has the following syntax:

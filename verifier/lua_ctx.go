@@ -4,27 +4,38 @@ import (
 	"6502profiler/cpu"
 	"encoding/hex"
 	"fmt"
+	"os"
 
 	lua "github.com/yuin/gopher-lua"
 )
 
 type LuaCtx struct {
-	cpu *cpu.CPU6502
-	L   *lua.LState
+	cpu     *cpu.CPU6502
+	L       *lua.LState
+	testDir string
 }
 
-func NewLuaCtx(cpu *cpu.CPU6502, l *lua.LState) *LuaCtx {
+func NewLuaCtx(cpu *cpu.CPU6502, testDir string, l *lua.LState) *LuaCtx {
+	strBytes := ([]byte(testDir))
+	length := len(strBytes)
+
+	if length > 0 {
+		if strBytes[length-1:][0] != os.PathSeparator {
+			strBytes = append(strBytes, os.PathSeparator)
+			testDir = string(strBytes)
+		}
+	}
+
 	return &LuaCtx{
-		cpu: cpu,
-		L:   l,
+		cpu:     cpu,
+		L:       l,
+		testDir: testDir,
 	}
 }
 
 func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint16) error {
 	L.SetGlobal("get_memory", L.NewFunction(c.GetMemory))
 	L.SetGlobal("set_memory", L.NewFunction(c.SetMemory))
-	L.SetGlobal("load_address", lua.LNumber(loadAddress))
-	L.SetGlobal("prog_len", lua.LNumber(progLen))
 	L.SetGlobal("get_flags", L.NewFunction(c.GetFlagsLua))
 	L.SetGlobal("set_flags", L.NewFunction(c.SetFlagsLua))
 	L.SetGlobal("get_sp", L.NewFunction(c.GetSP))
@@ -35,6 +46,10 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("set_accu", L.NewFunction(c.SetAccu))
 	L.SetGlobal("set_xreg", L.NewFunction(c.SetX))
 	L.SetGlobal("set_yreg", L.NewFunction(c.SetY))
+
+	L.SetGlobal("load_address", lua.LNumber(loadAddress))
+	L.SetGlobal("prog_len", lua.LNumber(progLen))
+	L.SetGlobal("test_dir", lua.LString(c.testDir))
 
 	return nil
 }

@@ -62,16 +62,16 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir st
 	L := lua.NewState()
 	defer L.Close()
 
-	ctx := NewLuaCtx(cpu, L)
-
-	err = L.DoFile(scriptPath)
-	if err != nil {
-		return fmt.Errorf("unable to load test script: %v", err)
-	}
+	ctx := NewLuaCtx(cpu, testDir, L)
 
 	err = ctx.RegisterGlobals(L, loadAdress, progLen)
 	if err != nil {
 		return fmt.Errorf("unable to register Lua functions: %v", err)
+	}
+
+	err = L.DoFile(scriptPath)
+	if err != nil {
+		return fmt.Errorf("unable to load test script: %v", err)
 	}
 
 	fmt.Printf("Executing test case '%s' ... ", t.Name)

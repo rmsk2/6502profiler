@@ -1,0 +1,5 @@
+{
+    "Name": "Mul 16 bit test 2",
+    "TestDriverSource": "test2.a",
+    "TestScript": "test3.lua"
+}

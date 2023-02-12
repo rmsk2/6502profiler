@@ -1,11 +1,13 @@
+test_vector = "10203040"
+
 function arrange()
-    set_memory("10203040", load_address+3)
+    set_memory(test_vector, load_address+3)
 end
 
 function assert()
     d = get_memory(load_address+7, 4)
     fl = get_flags()
-    data_ok = (d == "10203040")
+    data_ok = (d == test_vector)
     negative_is_set = (string.find(fl, "N", 0, true) ~= nil)
     error_msg = " \n"
 

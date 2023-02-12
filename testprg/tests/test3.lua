@@ -1,5 +1,5 @@
 require(test_dir .. "mul_test")
 
-val1 = 72
-val2 = 75
+val1 = 34
+val2 = 45
 
