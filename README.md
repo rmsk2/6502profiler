@@ -126,7 +126,7 @@ to the assembly source code. This may serve as an example:
 The first number is the line number in the source file. The second number is the address to which the machine language
 instruction has been written in the output.
 
-## The `verify` and `verifyall`commands
+## The `verify` and `verifyall` commands
 
 These commands are intended to facilitate the testing of assembler subroutines. The `verify` command can be used to run one specific 
 test case and its command line syntax is as follows:
