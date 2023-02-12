@@ -346,6 +346,12 @@ func New6502(m CpuModel) *CPU6502 {
 		res.opCodes[0x89] = (*CPU6502).bitImmediate
 		res.opCodes[0x34] = (*CPU6502).bitZeroPageX
 		res.opCodes[0x3C] = (*CPU6502).bitAbsoluteX
+
+		res.opCodes[0x72] = (*CPU6502).addIndirect
+		res.opCodes[0xF2] = (*CPU6502).subIndirect
+		res.opCodes[0x32] = (*CPU6502).andIndirect
+		res.opCodes[0x52] = (*CPU6502).eorIndirect
+		res.opCodes[0x12] = (*CPU6502).oraIndirect
 	}
 
 	return res

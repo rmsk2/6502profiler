@@ -972,6 +972,49 @@ func TestADCIndirectIdxY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestADCIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags &= (^Flag_C)
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0x01 {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// adc ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x72, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ADC indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestADCIdxXIndirect(t *testing.T) {
 	arranger := func(c *CPU6502) {
 		c.A = 0xF0
@@ -1343,6 +1386,49 @@ func TestSBCIndirectIdxY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestSBCIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF0
+		c.Y = 0x02
+		c.Flags |= Flag_C
+		c.Mem.Store(0x0012, 0x00)
+		c.Mem.Store(0x0013, 0x10)
+		c.Mem.Store(0x1000, 0x11)
+	}
+
+	verifier := func(c *CPU6502) bool {
+		if c.A != 0xDF {
+			return false
+		}
+
+		if (c.Flags & Flag_Z) != 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_N) == 0 {
+			return false
+		}
+
+		if (c.Flags & Flag_C) == 0 {
+			return false
+		}
+
+		return true
+	}
+
+	// sbc ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0xF2, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "SBC indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 func TestSBCIdxXIndirect(t *testing.T) {
 	arranger := func(c *CPU6502) {
 		c.A = 0xF0
@@ -1580,6 +1666,32 @@ func TestEORIndirectY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestEORIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF3
+		c.Mem.Store(0x1543, 1)
+		c.Mem.Store(0x0012, 0x43)
+		c.Mem.Store(0x0013, 0x15)
+		c.Y = 3
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0xF2
+	}
+
+	// eor ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x52, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "EOR indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- ORA --------
 
 func TestORAImmediate(t *testing.T) {
@@ -1774,6 +1886,32 @@ func TestORAIndirectY(t *testing.T) {
 	testSingleInstructionWithCase(t, c)
 }
 
+func TestORAIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF3
+		c.Mem.Store(0x1543, 4)
+		c.Mem.Store(0x0012, 0x43)
+		c.Mem.Store(0x0013, 0x15)
+		c.Y = 3
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0xF7
+	}
+
+	// ora ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x12, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "ORA indirect",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
 // -------- AND --------
 
 func TestANDImmediate(t *testing.T) {
@@ -1963,6 +2101,32 @@ func TestANDIndirectY(t *testing.T) {
 		arranger:        arranger,
 		verifier:        verifier,
 		instructionName: "AND indirect Y",
+	}
+
+	testSingleInstructionWithCase(t, c)
+}
+
+func TestANDIndirect(t *testing.T) {
+	arranger := func(c *CPU6502) {
+		c.A = 0xF3
+		c.Mem.Store(0x1543, 1)
+		c.Mem.Store(0x0012, 0x43)
+		c.Mem.Store(0x0013, 0x15)
+		c.Y = 3
+	}
+
+	verifier := func(c *CPU6502) bool {
+		return c.A == 0x01
+	}
+
+	// and ($12)
+	// brk
+	c := InstructionTestCase{
+		model:           Model65C02,
+		testProg:        []byte{0x32, 0x12, 0x00},
+		arranger:        arranger,
+		verifier:        verifier,
+		instructionName: "AND indirect",
 	}
 
 	testSingleInstructionWithCase(t, c)

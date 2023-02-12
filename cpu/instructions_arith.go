@@ -305,6 +305,26 @@ func (c *CPU6502) subAbsoluteY() (uint64, bool) {
 	return 4 + additionalCycles + moreCycles, false
 }
 
+func (c *CPU6502) addIndirect() (uint64, bool) {
+	addr := c.getAddrZp65C02()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.addBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 5 + additionalCycles, false
+}
+
+func (c *CPU6502) subIndirect() (uint64, bool) {
+	addr := c.getAddrZp65C02()
+	operand := c.Mem.Load(addr)
+	res, additionalCycles := c.subBase(c.A, operand)
+	c.A = res
+	c.PC++
+
+	return 5 + additionalCycles, false
+}
+
 func (c *CPU6502) addIndirectIdxY() (uint64, bool) {
 	addr, moreCycles := c.getAddrIndirectIdxY()
 	operand := c.Mem.Load(addr)
@@ -438,6 +458,16 @@ func logicalIndirectIdxY(c *CPU6502, op LogicalOp) (uint64, bool) {
 	return 5 + additionalCycles, false
 }
 
+func logicalIndirect(c *CPU6502, op LogicalOp) (uint64, bool) {
+	address := c.getAddrZp65C02()
+	operand := c.Mem.Load(address)
+	c.A = op(c.A, operand)
+	c.nzFlags(c.A)
+	c.PC++
+
+	return 5, false
+}
+
 // -------- EOR --------
 
 func (c *CPU6502) eorImmediate() (uint64, bool) {
@@ -470,6 +500,10 @@ func (c *CPU6502) eorIdxIndirect() (uint64, bool) {
 
 func (c *CPU6502) eorIndirectIdxY() (uint64, bool) {
 	return logicalIndirectIdxY(c, Xor)
+}
+
+func (c *CPU6502) eorIndirect() (uint64, bool) {
+	return logicalIndirect(c, Xor)
 }
 
 // -------- ORA --------
@@ -506,6 +540,10 @@ func (c *CPU6502) oraIndirectIdxY() (uint64, bool) {
 	return logicalIndirectIdxY(c, Or)
 }
 
+func (c *CPU6502) oraIndirect() (uint64, bool) {
+	return logicalIndirect(c, Or)
+}
+
 // -------- AND --------
 
 func (c *CPU6502) andImmediate() (uint64, bool) {
@@ -538,6 +576,10 @@ func (c *CPU6502) andIdxIndirect() (uint64, bool) {
 
 func (c *CPU6502) andIndirectIdxY() (uint64, bool) {
 	return logicalIndirectIdxY(c, And)
+}
+
+func (c *CPU6502) andIndirect() (uint64, bool) {
+	return logicalIndirect(c, And)
 }
 
 // -------- Modifier operations --------
