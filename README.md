@@ -139,7 +139,9 @@ Usage of 6502profiler verify:
     	Test case file
 ```
 
-The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry.
+The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. The
+`verify` command can be used to run one specific test case. In order to run all test cases see the `verifyall` command as described
+below.
 
 The general idea is to have a source file which contains the subroutine to test in one directory (the source directory as given in 
 `AcmeSrcDir`) and an additional separate test driver program in a test directory (named by `AcmeTestDir`) which calls the routines
@@ -265,7 +267,7 @@ On top of that the following three variables are injected into the Lua script fr
 | `test_dir` | Path to the test dir which can be used with `require` to load additional scripts | 
 
 
-Assiging a value to these variables remains local to Lua test script and does not influence what is happening in the golang
+Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
