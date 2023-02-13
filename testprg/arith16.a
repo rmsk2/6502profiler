@@ -1,0 +1,374 @@
+USE_MUL_TABLE = 1
+
+; --------------------------------------------------
+; load16BitImmediate loads the 16 bit value given in .val into the memory location given
+; by .addr 
+; --------------------------------------------------
+!macro load16BitImmediate .val, .addr {
+    lda #<.val
+    sta .addr
+    lda #>.val
+    sta .addr+1
+}
+
+; --------------------------------------------------
+; move16Bit copies the 16 bit value stored at .memAddr1 to .memAddr2
+; --------------------------------------------------
+!macro move16Bit .memAddr1, .memAddr2 {
+    ; copy lo byte
+    lda .memAddr1
+    sta .memAddr2
+    ; copy hi byte
+    lda .memAddr1+1
+    sta .memAddr2+1
+}
+
+; --------------------------------------------------
+; double16Bit multiplies the 16 bit value stored at .memAddr by 2
+; --------------------------------------------------
+!macro double16Bit .memAddr {
+    asl .memAddr+1
+    asl .memAddr                     
+    bcc .noCarry                     ; no carry set => we are already done
+    ; carry set => set least significant bit in hi byte. No add or inc is required as bit 0 
+    ; of .memAddr+1 has to be zero due to previous left shift
+    lda #$01
+    ora .memAddr+1                   
+    sta .memAddr+1
+.noCarry    
+}
+
+; --------------------------------------------------
+; halve16Bit divides the 16 bit value stored at .memAddr by 2
+; --------------------------------------------------
+!macro halve16Bit .memAddr {
+    clc
+    lda .memAddr+1
+    ror
+    sta .memAddr+1
+    lda .memAddr
+    ror
+    sta .memAddr
+}
+
+
+; --------------------------------------------------
+; sub16Bit subtracts the value stored at .memAddr1 from the value stored at the
+; address .memAddr2. The result is stored in .memAddr2
+; --------------------------------------------------
+!macro sub16Bit .memAddr1, .memAddr2 {
+    sec
+    lda .memAddr2
+    sbc .memAddr1
+    sta .memAddr2
+    lda .memAddr2+1
+    sbc .memAddr1+1
+    sta .memAddr2+1
+}
+
+; --------------------------------------------------
+; sub16BitImmediate subtracts the value .value from the value stored at the
+; address .memAddr2. The result is stored in .memAddr2
+; --------------------------------------------------
+!macro sub16BitImmediate .value, .memAddr2 {
+    sec
+    lda .memAddr2
+    sbc #<.value
+    sta .memAddr2
+    lda .memAddr2+1
+    sbc #>.value
+    sta .memAddr2+1
+}
+
+; --------------------------------------------------
+; add16Bit implements a 16 bit add of the values stored at memAddr1 and memAddr2 
+; The result is stored in .memAddr2
+; --------------------------------------------------
+!macro add16Bit .memAddr1, .memAddr2 {
+    clc
+    ; add lo bytes
+    lda .memAddr1
+    adc .memAddr2
+    sta .memAddr2
+    ; add hi bytes
+    lda .memAddr1+1
+    adc .memAddr2+1
+    sta .memAddr2+1
+}
+
+; --------------------------------------------------
+; add16BitImmediate implements a 16 bit add of an immediate value to value stored at memAddr2 
+; The result is stored in .memAddr2
+; --------------------------------------------------
+!macro add16BitImmediate .value, .memAddr2 {
+    clc
+    ; add lo bytes
+    lda #<.value
+    adc .memAddr2
+    sta .memAddr2
+    ; add hi bytes
+    lda #>.value
+    adc .memAddr2+1
+    sta .memAddr2+1
+}
+
+
+; --------------------------------------------------
+; inc16Bit implements a 16 bit increment of the 16 bit value stored at .memAddr 
+; --------------------------------------------------
+!macro inc16Bit .memAddr {
+    clc
+    lda #1
+    adc .memAddr
+    sta .memAddr
+    bcc .noCarryInc
+    inc .memAddr+1
+.noCarryInc
+}
+
+; --------------------------------------------------
+; dec16Bit implements a 16 bit decrement of the 16 bit value stored at .memAddr 
+; --------------------------------------------------
+!macro dec16Bit .memAddr {
+    lda .memAddr
+    sec
+    sbc #1
+    sta .memAddr
+    lda .memAddr+1
+    sbc #0
+    sta .memAddr+1
+}
+
+
+; --------------------------------------------------
+; cmp16Bit compares the 16 bit values stored at memAddr1 and memAddr2 
+; Z  flag is set in case these values are equal
+; --------------------------------------------------
+!macro cmp16Bit .memAddr1, .memAddr2 {
+    lda .memAddr1+1
+    cmp .memAddr2+1
+    bne .unequal
+    lda .memAddr1
+    cmp .memAddr2
+.unequal
+}
+
+; --------------------------------------------------
+; cmp16BitImmediate compares the 16 bit value stored at memAddr with
+; the immediate value given in .value.
+; 
+; Z  flag is set in case these values are equal. Carry is set
+; if .value is greater or equal than the value stored at .memAddr
+; --------------------------------------------------
+!macro cmp16BitImmediate .value, .memAddr {
+    lda #>.value
+    cmp .memAddr+1
+    bne .unequal2
+    lda #<.value
+    cmp .memAddr
+.unequal2
+}
+
+; xy = (x^2 + y^2 - (x-y)^2)/2
+; The following tables contain the LSB and MSB of i^2 where i=0, ..., 255
+SQ_TAB_LSB
+!byte $00, $01, $04, $09, $10, $19, $24, $31, $40, $51, $64, $79, $90, $A9, $C4, $E1
+!byte $00, $21, $44, $69, $90, $B9, $E4, $11, $40, $71, $A4, $D9, $10, $49, $84, $C1
+!byte $00, $41, $84, $C9, $10, $59, $A4, $F1, $40, $91, $E4, $39, $90, $E9, $44, $A1
+!byte $00, $61, $C4, $29, $90, $F9, $64, $D1, $40, $B1, $24, $99, $10, $89, $04, $81
+!byte $00, $81, $04, $89, $10, $99, $24, $B1, $40, $D1, $64, $F9, $90, $29, $C4, $61
+!byte $00, $A1, $44, $E9, $90, $39, $E4, $91, $40, $F1, $A4, $59, $10, $C9, $84, $41
+!byte $00, $C1, $84, $49, $10, $D9, $A4, $71, $40, $11, $E4, $B9, $90, $69, $44, $21
+!byte $00, $E1, $C4, $A9, $90, $79, $64, $51, $40, $31, $24, $19, $10, $09, $04, $01
+!byte $00, $01, $04, $09, $10, $19, $24, $31, $40, $51, $64, $79, $90, $A9, $C4, $E1
+!byte $00, $21, $44, $69, $90, $B9, $E4, $11, $40, $71, $A4, $D9, $10, $49, $84, $C1
+!byte $00, $41, $84, $C9, $10, $59, $A4, $F1, $40, $91, $E4, $39, $90, $E9, $44, $A1
+!byte $00, $61, $C4, $29, $90, $F9, $64, $D1, $40, $B1, $24, $99, $10, $89, $04, $81
+!byte $00, $81, $04, $89, $10, $99, $24, $B1, $40, $D1, $64, $F9, $90, $29, $C4, $61
+!byte $00, $A1, $44, $E9, $90, $39, $E4, $91, $40, $F1, $A4, $59, $10, $C9, $84, $41
+!byte $00, $C1, $84, $49, $10, $D9, $A4, $71, $40, $11, $E4, $B9, $90, $69, $44, $21
+!byte $00, $E1, $C4, $A9, $90, $79, $64, $51, $40, $31, $24, $19, $10, $09, $04, $01
+
+SQ_TAB_MSB
+!byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+!byte $01, $01, $01, $01, $01, $01, $01, $02, $02, $02, $02, $02, $03, $03, $03, $03
+!byte $04, $04, $04, $04, $05, $05, $05, $05, $06, $06, $06, $07, $07, $07, $08, $08
+!byte $09, $09, $09, $0A, $0A, $0A, $0B, $0B, $0C, $0C, $0D, $0D, $0E, $0E, $0F, $0F
+!byte $10, $10, $11, $11, $12, $12, $13, $13, $14, $14, $15, $15, $16, $17, $17, $18
+!byte $19, $19, $1A, $1A, $1B, $1C, $1C, $1D, $1E, $1E, $1F, $20, $21, $21, $22, $23
+!byte $24, $24, $25, $26, $27, $27, $28, $29, $2A, $2B, $2B, $2C, $2D, $2E, $2F, $30
+!byte $31, $31, $32, $33, $34, $35, $36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E, $3F
+!byte $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F
+!byte $51, $52, $53, $54, $55, $56, $57, $59, $5A, $5B, $5C, $5D, $5F, $60, $61, $62
+!byte $64, $65, $66, $67, $69, $6A, $6B, $6C, $6E, $6F, $70, $72, $73, $74, $76, $77
+!byte $79, $7A, $7B, $7D, $7E, $7F, $81, $82, $84, $85, $87, $88, $8A, $8B, $8D, $8E
+!byte $90, $91, $93, $94, $96, $97, $99, $9A, $9C, $9D, $9F, $A0, $A2, $A4, $A5, $A7
+!byte $A9, $AA, $AC, $AD, $AF, $B1, $B2, $B4, $B6, $B7, $B9, $BB, $BD, $BE, $C0, $C2
+!byte $C4, $C5, $C7, $C9, $CB, $CC, $CE, $D0, $D2, $D4, $D5, $D7, $D9, $DB, $DD, $DF
+!byte $E1, $E2, $E4, $E6, $E8, $EA, $EC, $EE, $F0, $F2, $F4, $F6, $F8, $FA, $FC, $FE
+
+; --------------------------------------------------
+; mul16BitFast mutiplies the bytes contained in accu and x register 
+; The high byte of the result is returned in accu, the lo byte in the x register.
+; The three macro parameters specify temporary memory to use by the calculation.
+;
+; The basis for the speedup is the formula xy = (x^2 + y^ 2 - (x-y)^2)/2
+; where the squares are read from the lookup tables above. This routine seems to be
+; twice as fast as the simple multiplication routine mul16BitShiftAdd which uses shift and add
+; --------------------------------------------------
+!macro mul16BitLookup .addr1, .addr2, .addr3 {
+	sta .addr1
+	cpx .addr1
+	bcc .sorted
+	txa
+	ldx .addr1
+.sorted
+	sta .addr3
+	stx .addr1
+	sec
+	sbc .addr1
+	tay
+	ldx .addr3
+	lda SQ_TAB_LSB,x
+	sbc SQ_TAB_LSB,y
+	sta .addr2
+	lda SQ_TAB_MSB,x
+	sbc SQ_TAB_MSB,y
+	sta .addr3
+	clc
+	ldx .addr1
+	lda .addr2
+	adc SQ_TAB_LSB,x
+	sta .addr2
+	lda .addr3
+	adc SQ_TAB_MSB,x
+	ror
+	ror .addr2
+	ldx .addr2	
+}
+
+!ifdef USE_MUL_TABLE {
+
+!macro mul16BitBankedRAM {
+    sta TEMP_VAL_A
+    and #%00000111                   ; bank num for lo byte is lower 3 bits of value a and a 0
+    asl                              ; make room for lower bit for hi byte bank
+    eor #%00010000                   ; make sure bank number 0 is not used as it is utilized by the kernal
+    sta 0                            ; make selected 8K bank appear at $A000
+    
+    ; determine offset in bank
+    lda TEMP_VAL_A
+    lsr
+    lsr
+    lsr
+    ;clc
+    ;adc #$A0
+    ora #$A0                         ; adc and ora are equivalent in this case as the lower 5 bits of $A0 are zero
+    sta PRE_PTR_HI
+    txa
+    tay
+    lda (PRE_PTR), y
+    tax
+    lda 0
+    eor #$01                        ; hi bytes are stored in the bank where bit 0 is set
+    sta 0
+    lda (PRE_PTR), y    
+}
+
+; --------------------------------------------------
+; This subroutine takes its two operands in X and A and multiplies them. This is achieved
+; by a multiplication table that is stored in banked RAM.
+;
+; The high byte of the result is returned in accu, the lo byte in the X register.
+; --------------------------------------------------
+mul16Bit
+    +mul16BitBankedRAM
+    rts
+
+; --------------------------------------------------
+; This subroutine takes its two operands in X and A and returns the result
+; The high byte of the result is returned in accu, the lo byte in the X register.
+; It is intended to be used for the precalculation step.
+; --------------------------------------------------
+mul16BitPre
+    +mul16BitLookup ARITH_SCRATCH1, ARITH_SCRATCH2, ARITH_SCRATCH3
+    rts
+
+
+.COUNT_VAL_A
+!byte 0
+.COUNT_VAL_B
+!byte 0
+.BANK_NUM_HI
+!byte 0
+.TEMP_LO
+!byte 0
+.TEMP_HI
+!byte 0
+
+
+; --------------------------------------------------
+; This routine precalculates a multiplication table for a*b
+; where a*b are bytes. The result is store in the banked memory
+; that can be mapped to $A000-$BFFF.‚
+; --------------------------------------------------
+preCalcMulTable
+    stz PRE_PTR
+.preCalcLoop
+    ; precalculate multiplication value
+    lda .COUNT_VAL_A
+    ldx .COUNT_VAL_B
+    jsr mul16BitPre
+    sta .TEMP_HI
+    stx .TEMP_LO
+
+    ; determine bank num for lo and hi byte
+    lda .COUNT_VAL_A
+    and #%00000111                   ; bank num for lo byte is lower 3 bits of value a and a 0
+    asl                              ; make room for lower bit for hi byte bank
+    eor #%00010000                   ; set bit 5 to avoid bank 0 which is used by the kernal
+    sta 0                            ; make selected 8K bank appear at $A000
+    
+    ; calculate offset in bank
+    lda .COUNT_VAL_A
+    lsr
+    lsr
+    lsr                              ; discard lower three bits
+    clc
+    adc #$A0                         ; add hi byte of banking area start address which gives the offset
+    sta PRE_PTR_HI
+    ldy .COUNT_VAL_B
+
+    ; store lo byte    
+    lda .TEMP_LO
+    sta (PRE_PTR), y
+
+    ; change bank and store hi byte
+    lda 0
+    eor #$01                         ; hi bytes go into the bank where bit 0 is set
+    sta 0                            ; make selected 8K bank appear at $A000
+    lda .TEMP_HI
+    sta (PRE_PTR), y
+
+    ; update loop variables
+    inc .COUNT_VAL_B
+    bne .preCalcLoop    
+    inc .COUNT_VAL_A
+    bne .preCalcLoop 
+
+    rts
+
+initArithmetic
+    jsr preCalcMulTable
+    rts
+
+} else {
+    
+mul16Bit
+    +mul16BitLookup ARITH_SCRATCH1, ARITH_SCRATCH2, ARITH_SCRATCH3
+    rts
+
+initArithmetic
+    rts
+}
+

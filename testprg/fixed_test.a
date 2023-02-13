@@ -1,6 +1,7 @@
 !to "fixed", cbm
 ;ITER_COUNT = 1
 FAST_MUL = 1
+;X16 = 1
 
 *=$0800
 
@@ -10,7 +11,16 @@ RES_Y = 200
 jmp mandelLoop
 
 !zone arith
+!ifdef X16 {
+!cpu 65C02
+!source "zeropage.a"
+!source "arith16.a"
+!source "arith32.a"
+} else {
 !source "fixed_point.a"
+}
+
+
 
 RESET_PARAMS_VECTOR
 !byte <resetParametersHires, >resetParametersHires
@@ -333,6 +343,9 @@ nextMandel
 ; This routine visualizes the Mandelbrot set 
 ; --------------------------------------------------
 mandelLoop
+!ifdef X16 {
+    jsr initArithmetic
+}
     jsr initMandel
     ;jsr bitMapOn
 

@@ -1,8 +1,8 @@
 {
-    "Model": 1,
-    "MemSpec": "XSixteen512K",
+    "Model": 0,
+    "MemSpec": "Linear16K",
     "IoMask": 45,
-    "IoAddrConfig": {   
+    "IoAddrConfig": {
     },
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
