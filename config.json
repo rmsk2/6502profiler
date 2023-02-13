@@ -1,10 +1,10 @@
 {
     "Model": 1,
-    "MemSpec": "Linear16K",
+    "MemSpec": "XSixteen512K",
     "IoMask": 45,
     "IoAddrConfig": {   
     },
-    "AcmeBinary": "/Users/martin/data/acme/acme",
+    "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
     "AcmeTestDir": "./testprg/tests"

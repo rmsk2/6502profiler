@@ -4,15 +4,15 @@
 
 This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
-and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on these old computers. 
-To state this again: No graphics or sound capabilities of any of the old computers are emulated and therefore routines like that can not be optimized
-by using `6502profiler`.
+and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on old or new
+machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and therefore 
+routines like that can not be optimized by using `6502profiler`.
 
 `6502profiler` reads a binary as for instance created by the `ACME` macro assembler and executes it inside the emulator. While running the program
-it counts the number of clock cycles that are used up during execution. On top of that it can be used to identify "hot spots" in the program because
-it keeps track of how many times each memory cell is accessed (i.e. read and/or written). 
+the number of clock cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the 
+program because also it keeps track of how many times each memory cell is accessed (i.e. read and/or written). 
 
-On top of that `6502profiler` offers the possibility to implement tests for assembler subroutines where arranging the test data and evaluating the
+On top of that `6502profiler` offers the possibility to implement tests for assembly subroutines where arranging the test data and evaluating the
 results is offloaded to a Lua script.
 
 **Caution: This is work in pogress, things will change and maybe even break.**
@@ -128,7 +128,7 @@ instruction has been written in the output.
 
 ## The `verify` and `verifyall` commands
 
-These commands are intended to facilitate the testing of assembler subroutines. The `verify` command can be used to run one specific 
+These commands are intended to facilitate the testing of assembly subroutines. The `verify` command can be used to run one specific 
 test case and its command line syntax is as follows:
 
 ```
@@ -209,14 +209,16 @@ binary (as usual lo byte first). The emulator stops when it encounters a `BRK` i
 implemented and also stored (as `test1.lua` ) in the test directory.
 
 ```
+test_vector = "10203040"
+
 function arrange()
-    set_memory("10203040", load_address+3)
+    set_memory(load_address+3, test_vector)
 end
 
 function assert()
     d = get_memory(load_address+7, 4)
     fl = get_flags()
-    data_ok = (d == "10203040")
+    data_ok = (d == test_vector)
     negative_is_set = (string.find(fl, "N", 0, true) ~= nil)
     error_msg = " \n"
 
@@ -245,7 +247,7 @@ Lua to query and manipulate the processor state:
 
 |Function Name| Description |
 |-|-|
-| `set_memory(hex_data, address)` | Store the data given in `hex_data` at address `address`| 
+| `set_memory(address, hex_data)` | Store the data given in `hex_data` at address `address`| 
 | `get_memory(address, length)` | Return `length` bytes from the emulator beginning with the byte at address `address` as a hex string| 
 | `read_byte(address)`| Returns a single byte from memory at the given address|
 | `write_byte(address, value)`| Writes a single byte to memory at the given address|

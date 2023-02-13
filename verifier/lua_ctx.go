@@ -223,8 +223,8 @@ func (c *LuaCtx) ReadSingleByte(L *lua.LState) int {
 }
 
 func (c *LuaCtx) SetMemory(L *lua.LState) int {
-	dataStr := L.ToString(1)
-	addr := L.ToInt(2)
+	addr := L.ToInt(1)
+	dataStr := L.ToString(2)
 
 	data, err := hex.DecodeString(dataStr)
 	if err != nil {

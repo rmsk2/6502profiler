@@ -1,7 +1,7 @@
 test_vector = "10203040"
 
 function arrange()
-    set_memory(test_vector, load_address+3)
+    set_memory(load_address+3, test_vector)
 end
 
 function assert()

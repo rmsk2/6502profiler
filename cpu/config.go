@@ -36,11 +36,11 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
 
 	allowedMemModels := map[string]bool{
-		L16: true,
-		L32: true,
-		L64: true,
-		//X16_512:  true,
-		//X16_2048: true,
+		L16:      true,
+		L32:      true,
+		L64:      true,
+		X16_512:  true,
+		X16_2048: true,
 	}
 
 	allowedCpuModels := map[CpuModel]bool{
@@ -133,6 +133,10 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 		mem = memory.NewLinearMemory(16384)
 	case L32:
 		mem = memory.NewLinearMemory(32768)
+	case X16_512:
+		mem = memory.NewX16Memory(memory.X512K)
+	case X16_2048:
+		mem = memory.NewX16Memory(memory.X2048K)
 	default:
 		mem = memory.NewLinearMemory(65536)
 	}
