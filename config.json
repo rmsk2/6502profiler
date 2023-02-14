@@ -4,6 +4,8 @@
     "IoMask": 45,
     "IoAddrConfig": {
     },
+    "PreLoad": {
+    },
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",

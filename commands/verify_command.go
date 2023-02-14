@@ -65,6 +65,7 @@ func executeOneTest(testCaseName string, config *cpu.Config) error {
 	if err != nil {
 		return fmt.Errorf("unable to create cpu for test case: %v", err)
 	}
+	defer func() { cpu.Mem.Close() }()
 
 	err = testCase.Execute(cpu, config.GetAssembler(), config.AcmeTestDir)
 	if err != nil {

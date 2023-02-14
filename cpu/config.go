@@ -13,6 +13,7 @@ type Config struct {
 	MemSpec      string
 	IoMask       uint8
 	IoAddrConfig map[uint8]string
+	PreLoad      map[uint16]string
 	AcmeBinary   string
 	AcmeSrcDir   string
 	AcmeBinDir   string
@@ -77,6 +78,7 @@ func DefaultConfig() *Config {
 		MemSpec:      L32,
 		IoMask:       0,
 		IoAddrConfig: map[uint8]string{},
+		PreLoad:      map[uint16]string{},
 		AcmeBinary:   "acme",
 		AcmeSrcDir:   "./",
 		AcmeBinDir:   "./test/bin",
@@ -162,6 +164,18 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 	}
 
 	cpu.Init(mem)
+
+	for i, j := range c.PreLoad {
+		data, err := os.ReadFile(j)
+		if err != nil {
+			return nil, fmt.Errorf("unable to preload file: %v", err)
+		}
+
+		err = cpu.CopyToMem(data, i)
+		if err != nil {
+			return nil, fmt.Errorf("unable to copy preloaded file '%s' to $%04X: %v", j, i, err)
+		}
+	}
 
 	return cpu, nil
 }

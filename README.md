@@ -24,11 +24,15 @@ The config is stored in a JSON file and can be used through the `-c` option. The
 ```
 {
     "Model": 1,
-    "MemSpec": "Linear16K",
+    "MemSpec": "Linear64K",
     "IoMask": 45,
     "IoAddrConfig": {
         "221": "file:output.bin"   
     },
+    "PreLoad": {
+        "40960": "/home/martin/data/vice_roms/C64/basic",
+        "57344": "/home/martin/data/vice_roms/C64/kernal"
+    },    
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
@@ -49,6 +53,11 @@ corresponding lo byte of one special address as well as a name of a file to whic
 in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
 the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
 remaining string specifies the file name. If no such special addresses are needed then `IoAddrConfig` should be empty.
+
+If you want to load binaries into the emulator's RAM before your program is run you can list these binaries in the `PreLoad`
+property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
+the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
+though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
 
 The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
 the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
