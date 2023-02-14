@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 )
 
 func VerifyAllCommand(arguments []string) error {
@@ -55,6 +56,10 @@ func VerifyAllCommand(arguments []string) error {
 
 func executeOneTest(testCaseName string, config *cpu.Config) error {
 	caseFileName := path.Join(config.AcmeTestDir, testCaseName)
+
+	if !strings.HasSuffix(caseFileName, ".json") {
+		caseFileName += ".json"
+	}
 
 	testCase, err := verifier.NewTestCaseFromFile(caseFileName)
 	if err != nil {
