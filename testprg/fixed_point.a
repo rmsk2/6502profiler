@@ -438,9 +438,9 @@ mul32BitUnsigned
     bcc .noExtraCarry
 .carryLoop
     iny
-    cpy #8                        
-    beq .noExtraCarry             ; we are beyond the final byte. In this case ignore carry
-    lda #1                        ; add carry to intermediate result
+    ;cpy #8                        
+    ;beq .noExtraCarry             ; we are beyond the final byte. In this case ignore carry
+    lda #0                         ; add carry to intermediate result
     adc TEMP_MUL, y
     sta TEMP_MUL, y
     bcs .carryLoop
