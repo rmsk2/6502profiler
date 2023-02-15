@@ -315,4 +315,5 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
+- Add command to create a test case skeleton
 - Maybe implement a single stepping mode
