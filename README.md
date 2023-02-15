@@ -152,8 +152,8 @@ Usage of 6502profiler verify:
     	Test case file
 ```
 
-The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. In 
-order to run all test cases in that directory see the `verifyall` command as described below.
+The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. The `.json` 
+suffix of the filename can be omitted. In order to run all test cases in that directory see the `verifyall` command as described below.
 
 The general idea is to have a source file which contains the subroutine to test in one directory (the source directory as given in 
 `AcmeSrcDir`) and an additional separate test driver program in a test directory (named by `AcmeTestDir`) which calls the routines
