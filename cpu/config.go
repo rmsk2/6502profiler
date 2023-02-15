@@ -119,6 +119,7 @@ func (c *Config) Save(fileName string) error {
 type Assembler interface {
 	Assemble(fileName string) (string, error)
 	ParseLabelFile(fileName string) (map[uint16][]string, error)
+	GetErrorMessage() string
 }
 
 func (c *Config) GetAssembler() Assembler {

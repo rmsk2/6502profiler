@@ -55,19 +55,25 @@ func (a *ACME) ParseLabelFile(fileName string) (map[uint16][]string, error) {
 }
 
 type ACME struct {
-	binPath string
-	srcDir  string
-	binDir  string
-	testDir string
+	binPath      string
+	srcDir       string
+	binDir       string
+	testDir      string
+	errorMessage string
 }
 
 func NewACME(path string, srcDir string, binDir string, testDir string) *ACME {
 	return &ACME{
-		binPath: path,
-		srcDir:  srcDir,
-		binDir:  binDir,
-		testDir: testDir,
+		binPath:      path,
+		srcDir:       srcDir,
+		binDir:       binDir,
+		testDir:      testDir,
+		errorMessage: "",
 	}
+}
+
+func (a *ACME) GetErrorMessage() string {
+	return a.errorMessage
 }
 
 func (a *ACME) Assemble(fileName string) (string, error) {
@@ -75,8 +81,9 @@ func (a *ACME) Assemble(fileName string) (string, error) {
 	mlSrc := path.Join(a.testDir, fileName)
 	cmd := exec.Command(a.binPath, "-I", a.srcDir, "-o", mlProg, "-f", "cbm", mlSrc)
 
-	err := cmd.Run()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
+		a.errorMessage = string(out)
 		return "", fmt.Errorf("unable to assemble '%s'", fileName)
 	}
 
