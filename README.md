@@ -66,8 +66,17 @@ stored in the directory referenced by `AcmeBinDir`.
 
 # How to use `6502profiler`
 
-`6502profiler` has a command line interface. The first parameter is a so called command. Currently the `profile` and the 
-`verify` commands are implemented.
+`6502profiler` has a command line interface. The first parameter is a so called command. Currently the following
+commands are implemented.
+
+```
+The following commands are available: 
+     info: Return info about program
+     newcase: Create a new test case skeleton
+     profile: Record data about program executions
+     verify: Run a test on an assembler program
+     verifyall: Run all tests
+```
 
 ## The `profile` command
 
@@ -295,6 +304,24 @@ Usage of 6502profiler verifyall:
     	Config file name
 ```
 
+# The `newcase` command
+
+This command can be used to create a JSON test case file, a lua script and a test driver file in the test directory. It
+uses the following command line options.  
+
+```
+Usage of 6502profiler newcase:
+  -c string
+    	Config file name
+  -n string
+    	Test name
+  -p string
+    	File name prefix
+```
+
+The prefix is used to generate the file names of all three files by appending the corresponding file endings `.json`, `.a` and
+`.lua`.
+
 # Performance
 
 I have used `6502profiler` to further optimize the calculation routines for my [C64](https://github.com/rmsk2/c64_mandelbrot) 
@@ -315,5 +342,4 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
-- Add command to create a test case skeleton
 - Maybe implement a single stepping mode

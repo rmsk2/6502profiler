@@ -16,6 +16,59 @@ type TestCase struct {
 	TestScript       string
 }
 
+func NewTestCase(testName string, fileNamePrefix string) *TestCase {
+	return &TestCase{
+		Name:             testName,
+		TestDriverSource: fileNamePrefix + ".a",
+		TestScript:       fileNamePrefix + ".lua",
+	}
+}
+
+func (t *TestCase) WriteSekeleton(fileNamePrefix string, testDir string) error {
+	scriptPath := path.Join(testDir, t.TestScript)
+	testDriverPath := path.Join(testDir, t.TestDriverSource)
+	jsonPath := path.Join(testDir, fileNamePrefix+".json")
+
+	_, err := os.Stat(jsonPath)
+	if err == nil {
+		return fmt.Errorf("json file '%s' already exists", jsonPath)
+	}
+
+	_, err = os.Stat(scriptPath)
+	if err == nil {
+		return fmt.Errorf("script file '%s' already exists", scriptPath)
+	}
+
+	_, err = os.Stat(testDriverPath)
+	if err == nil {
+		return fmt.Errorf("test driver file '%s' already exists", testDriverPath)
+	}
+
+	data, err := json.MarshalIndent(t, "", "    ")
+	if err != nil {
+		return fmt.Errorf("unable to save testcase file %s: %v", jsonPath, err)
+	}
+
+	err = os.WriteFile(jsonPath, data, 0600)
+	if err != nil {
+		return fmt.Errorf("unable to save config testcase file %s: %v", jsonPath, err)
+	}
+
+	f, err := os.Create(scriptPath)
+	if err != nil {
+		return fmt.Errorf("unable to create lua script '%s'", scriptPath)
+	}
+	defer func() { f.Close() }()
+
+	f2, err := os.Create(testDriverPath)
+	if err != nil {
+		return fmt.Errorf("unable to create test driver '%s'", testDriverPath)
+	}
+	defer func() { f2.Close() }()
+
+	return nil
+}
+
 func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	var res *TestCase = &TestCase{}
 
@@ -30,20 +83,6 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	}
 
 	return res, nil
-}
-
-func (t *TestCase) Save(fileName string) error {
-	data, err := json.MarshalIndent(t, "", "    ")
-	if err != nil {
-		return fmt.Errorf("unable to save testcase file %s: %v", fileName, err)
-	}
-
-	err = os.WriteFile(fileName, data, 0600)
-	if err != nil {
-		return fmt.Errorf("unable to save config testcase file %s: %v", fileName, err)
-	}
-
-	return nil
 }
 
 func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir string) error {
