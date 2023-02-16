@@ -306,7 +306,7 @@ Usage of 6502profiler verifyall:
 
 # The `newcase` command
 
-This command can be used to create a JSON test case file, a lua script and a test driver file in the test directory. It
+This command can be used to create a JSON test case file, a Lua script and a test driver file in the test directory. It
 uses the following command line options.  
 
 ```
