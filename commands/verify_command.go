@@ -42,14 +42,20 @@ func VerifyAllCommand(arguments []string) error {
 		return err
 	}
 
+	testCount := 0
+
 	for _, j := range names {
 		if r.MatchString(j) {
 			err := executeOneTest(j, config)
 			if err != nil {
 				return err
 			}
+
+			testCount++
 		}
 	}
+
+	fmt.Printf("%d tests successfully executed\n", testCount)
 
 	return nil
 }

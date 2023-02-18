@@ -17,6 +17,8 @@ func NewCaseCommand(arguments []string) error {
 	configName := newCaseFlags.String("c", "", "Config file name")
 	prefixName := newCaseFlags.String("p", "", "File name prefix")
 	testName := newCaseFlags.String("n", "", "Test name")
+	testDriverName := newCaseFlags.String("t", "", "Full name of test driver file in test dir (optional)")
+	var testCase *verifier.TestCase
 
 	if err := newCaseFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -39,9 +41,13 @@ func NewCaseCommand(arguments []string) error {
 		return fmt.Errorf("error loading config: %v", err)
 	}
 
-	testCase := verifier.NewTestCase(*testName, *prefixName)
+	if *testDriverName == "" {
+		testCase = verifier.NewTestCase(*testName, *prefixName)
+	} else {
+		testCase = verifier.NewTestCaseWithDriver(*testName, *prefixName, *testDriverName)
+	}
 
-	err = testCase.WriteSekeleton(*prefixName, config.AcmeTestDir)
+	err = testCase.WriteSekeleton(*prefixName, config.AcmeTestDir, *testDriverName == "")
 	if err != nil {
 		return fmt.Errorf("error writing skeleton: %v", err)
 	}

@@ -24,7 +24,15 @@ func NewTestCase(testName string, fileNamePrefix string) *TestCase {
 	}
 }
 
-func (t *TestCase) WriteSekeleton(fileNamePrefix string, testDir string) error {
+func NewTestCaseWithDriver(testName string, fileNamePrefix string, testDriverName string) *TestCase {
+	return &TestCase{
+		Name:             testName,
+		TestDriverSource: testDriverName,
+		TestScript:       fileNamePrefix + ".lua",
+	}
+}
+
+func (t *TestCase) WriteSekeleton(fileNamePrefix string, testDir string, createDriver bool) error {
 	scriptPath := path.Join(testDir, t.TestScript)
 	testDriverPath := path.Join(testDir, t.TestDriverSource)
 	jsonPath := path.Join(testDir, fileNamePrefix+".json")
@@ -39,9 +47,11 @@ func (t *TestCase) WriteSekeleton(fileNamePrefix string, testDir string) error {
 		return fmt.Errorf("script file '%s' already exists", scriptPath)
 	}
 
-	_, err = os.Stat(testDriverPath)
-	if err == nil {
-		return fmt.Errorf("test driver file '%s' already exists", testDriverPath)
+	if createDriver {
+		_, err = os.Stat(testDriverPath)
+		if err == nil {
+			return fmt.Errorf("test driver file '%s' already exists", testDriverPath)
+		}
 	}
 
 	data, err := json.MarshalIndent(t, "", "    ")
@@ -60,11 +70,13 @@ func (t *TestCase) WriteSekeleton(fileNamePrefix string, testDir string) error {
 	}
 	defer func() { f.Close() }()
 
-	f2, err := os.Create(testDriverPath)
-	if err != nil {
-		return fmt.Errorf("unable to create test driver '%s'", testDriverPath)
+	if createDriver {
+		f2, err := os.Create(testDriverPath)
+		if err != nil {
+			return fmt.Errorf("unable to create test driver '%s'", testDriverPath)
+		}
+		defer func() { f2.Close() }()
 	}
-	defer func() { f2.Close() }()
 
 	return nil
 }
