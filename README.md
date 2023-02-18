@@ -149,8 +149,9 @@ instruction has been written in the output.
 
 ## The `verify` and `verifyall` commands
 
-These commands are intended to facilitate the testing of assembly subroutines. The `verify` command can be used to run one specific 
-test case and its command line syntax is as follows:
+These commands are intended to facilitate the testing of assembly subroutines. You can see `6502profiler`
+in action for this purpose in my 6502 arithmetic library [project](https://github.com/rmsk2/6502-Arithmetic).
+The `verify` command can be used to run one specific test case and its command line syntax is as follows:
 
 ```
 ./6502profiler verify -h
