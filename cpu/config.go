@@ -29,6 +29,7 @@ var confParsers []ConfParser = []ConfParser{
 
 const L16 = "Linear16K"
 const L32 = "Linear32K"
+const L48 = "Linear48K"
 const L64 = "Linear64K"
 const X16_512 = "XSixteen512K"
 const X16_2048 = "XSixteen2048K"
@@ -39,6 +40,7 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 	allowedMemModels := map[string]bool{
 		L16:      true,
 		L32:      true,
+		L48:      true,
 		L64:      true,
 		X16_512:  true,
 		X16_2048: true,
@@ -136,6 +138,8 @@ func (c *Config) NewCpu() (*CPU6502, error) {
 		mem = memory.NewLinearMemory(16384)
 	case L32:
 		mem = memory.NewLinearMemory(32768)
+	case L48:
+		mem = memory.NewLinearMemory(49152)
 	case X16_512:
 		mem = memory.NewX16Memory(memory.X512K)
 	case X16_2048:

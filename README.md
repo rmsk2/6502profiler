@@ -41,9 +41,9 @@ The config is stored in a JSON file and can be used through the `-c` option. The
 ```
 
 `Model` can be 0 or 1. The number 0 encodes a standard 6502/6510 and 1 stands for a 65C02. At the moment `MemSpec` can be 
-`Linear16K`, `Linear32K`, `Linear64K`, `XSixteen512K` or `XSixteen2048K`. The linear memory specifications denote a contiguous
-chunk of memory starting at address 0 with a length of 16, 32 or 64 kilobytes. The `XSixteen` memory specifications
-configure the emulator to use the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
+`Linear16K`, `Linear32K`, `Linear48K`, `Linear64K`, `XSixteen512K` or `XSixteen2048K`. The linear memory specifications 
+denote a contiguous chunk of memory starting at address 0 with a length of 16, 32 or 64 kilobytes. The `XSixteen` memory 
+specifications configure the emulator to use the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
 
 `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
 from the emulator by means of writing to a special I/O address. 
