@@ -317,10 +317,13 @@ Usage of 6502profiler newcase:
     	Test name
   -p string
     	File name prefix
+  -t string
+    	Full name of test driver file in test dir (optional)
 ```
 
 The prefix is used to generate the file names of all three files by appending the corresponding file endings `.json`, `.a` and
-`.lua`.
+`.lua`. If `-t` is specified the test driver name in the newly created test case is set to the value of `-t`. This value has
+to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
 
 # Performance
 

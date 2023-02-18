@@ -55,6 +55,7 @@ func VerifyAllCommand(arguments []string) error {
 		}
 	}
 
+	fmt.Println()
 	fmt.Printf("%d tests successfully executed\n", testCount)
 
 	return nil
