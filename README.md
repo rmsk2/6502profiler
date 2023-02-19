@@ -154,12 +154,13 @@ in action for this purpose in my 6502 arithmetic library [project](https://githu
 The `verify` command can be used to run one specific test case and its command line syntax is as follows:
 
 ```
-./6502profiler verify -h
 Usage of 6502profiler verify:
   -c string
     	Config file name
   -t string
     	Test case file
+  -verbose
+    	Give more information
 ```
 
 The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. The `.json` 
@@ -304,6 +305,8 @@ config file. It has the following syntax:
 Usage of 6502profiler verifyall:
   -c string
     	Config file name
+  -verbose
+    	Give more information
 ```
 
 # The `newcase` command
