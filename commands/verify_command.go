@@ -92,7 +92,7 @@ func executeOneTest(testCaseName string, config *cpu.Config, verboseOutput bool)
 		fmt.Printf("Test script: %s\n", testCase.TestScript)
 		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
 	} else {
-		fmt.Printf("Executing test case '%s ... ", testCase.Name)
+		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
 	}
 
 	err = testCase.Execute(cpu, assembler, config.AcmeTestDir)
