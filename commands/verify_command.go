@@ -80,6 +80,9 @@ func executeOneTest(testCaseName string, config *cpu.Config) error {
 	defer func() { cpu.Mem.Close() }()
 
 	assembler := config.GetAssembler()
+
+	fmt.Printf("Executing test case '%s' (%s) ... ", testCase.Name, testCaseName)
+
 	err = testCase.Execute(cpu, assembler, config.AcmeTestDir)
 	if err != nil {
 		errMsg := assembler.GetErrorMessage()
@@ -88,6 +91,8 @@ func executeOneTest(testCaseName string, config *cpu.Config) error {
 		}
 		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
 	}
+
+	fmt.Printf("(%d clock cycles) ... OK \n", cpu.NumCycles())
 
 	return nil
 }

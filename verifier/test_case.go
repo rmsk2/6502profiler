@@ -125,8 +125,6 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir st
 		return fmt.Errorf("unable to load test script: %v", err)
 	}
 
-	fmt.Printf("Executing test case '%s' ... ", t.Name)
-
 	err = ctx.callArrange()
 	if err != nil {
 		return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
@@ -145,8 +143,6 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir st
 	if !testRes {
 		return fmt.Errorf("test failed: %s", testMsg)
 	}
-
-	fmt.Printf("(%d clock cycles) ... OK \n", cpu.NumCycles())
 
 	return nil
 }
