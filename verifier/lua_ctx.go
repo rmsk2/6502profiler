@@ -40,6 +40,7 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("read_byte", L.NewFunction(c.ReadSingleByte))
 	L.SetGlobal("get_flags", L.NewFunction(c.GetFlagsLua))
 	L.SetGlobal("set_flags", L.NewFunction(c.SetFlagsLua))
+	L.SetGlobal("get_cycles", L.NewFunction(c.GetCycles))
 	L.SetGlobal("get_sp", L.NewFunction(c.GetSP))
 	L.SetGlobal("get_pc", L.NewFunction(c.GetPC))
 	L.SetGlobal("get_accu", L.NewFunction(c.GetAccu))
@@ -102,6 +103,12 @@ func (c *LuaCtx) SetRegister(L *lua.LState, reg *uint8) int {
 	*reg = newValue
 
 	return 0
+}
+
+func (c *LuaCtx) GetCycles(L *lua.LState) int {
+	L.Push(lua.LNumber(c.cpu.NumCycles()))
+
+	return 1
 }
 
 func (c *LuaCtx) GetFlags() string {

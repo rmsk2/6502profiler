@@ -283,6 +283,7 @@ Lua to query and manipulate the processor state:
 | `set_xreg(val)` | Stores `val` in the X register | 
 | `get_yreg()` | Returns the value stored in the Y register | 
 | `set_yreg(val)` | Stores `val` in the Y register | 
+| `get_cycles()` | Returns the number of clock cycles used for executing the test |
 
 On top of that the following three variables are injected into the Lua script from the Go host program:
 

@@ -146,7 +146,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler cpu.Assembler, testDir st
 		return fmt.Errorf("test failed: %s", testMsg)
 	}
 
-	fmt.Println("OK")
+	fmt.Printf("(%d clock cycles) ... OK \n", cpu.NumCycles())
 
 	return nil
 }
