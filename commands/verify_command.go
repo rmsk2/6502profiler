@@ -55,6 +55,7 @@ func VerifyAllCommand(arguments []string) error {
 		}
 	}
 
+	fmt.Println("--------------------------------------------")
 	fmt.Println()
 	fmt.Printf("%d tests successfully executed\n", testCount)
 
@@ -81,7 +82,11 @@ func executeOneTest(testCaseName string, config *cpu.Config) error {
 
 	assembler := config.GetAssembler()
 
-	fmt.Printf("Executing test case '%s' (%s) ... ", testCase.Name, testCaseName)
+	fmt.Println("--------------------------------------------")
+	fmt.Printf("Executing test case '%s'\n", testCase.Name)
+	fmt.Printf("Test case file: %s\n", testCaseName)
+	fmt.Printf("Test script: %s\n", testCase.TestScript)
+	fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
 
 	err = testCase.Execute(cpu, assembler, config.AcmeTestDir)
 	if err != nil {
@@ -92,7 +97,8 @@ func executeOneTest(testCaseName string, config *cpu.Config) error {
 		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
 	}
 
-	fmt.Printf("(%d clock cycles) ... OK \n", cpu.NumCycles())
+	fmt.Printf("Clock cycles used: %d\n", cpu.NumCycles())
+	fmt.Println("Test result: OK")
 
 	return nil
 }
@@ -119,5 +125,8 @@ func VerifyCommand(arguments []string) error {
 		return fmt.Errorf("test case path has to be specified")
 	}
 
-	return executeOneTest(*testCasePath, config)
+	res := executeOneTest(*testCasePath, config)
+	fmt.Println("--------------------------------------------")
+
+	return res
 }
