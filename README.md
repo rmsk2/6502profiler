@@ -309,6 +309,19 @@ Usage of 6502profiler verifyall:
     	Give more information
 ```
 
+Here an example what kind of output `6502profiler verifyall -c config.json` generates
+
+```
+Executing test case '32 bit multiplication 1' ... (3180 clock cycles) OK
+Executing test case '16 Bit multiplication 5' ... (98 clock cycles) OK
+Executing test case '32 Bit is zero 3' ... (67 clock cycles) OK
+Executing test case '32 Bit compare 5' ... (132 clock cycles) OK
+Executing test case '32 bit multiplication 4' ... (3052 clock cycles) OK
+Executing test case '32 Bit addition test 1' ... (166 clock cycles) OK
+Executing test case '32 Bit is equal 2' ... (162 clock cycles) OK
+Executing test case '32 Bit is zero 4' ... (34 clock cycles) OK
+```
+
 # The `newcase` command
 
 This command can be used to create a JSON test case file, a Lua script and a test driver file in the test directory. It
