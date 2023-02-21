@@ -15,12 +15,12 @@ func NewLinearMemory(size uint32) *LinearMemory {
 		accessCount: make([]uint64, size),
 	}
 
-	res.ClearPerformanceData()
+	res.ClearStatistics()
 
 	return res
 }
 
-func (l *LinearMemory) ClearPerformanceData() {
+func (l *LinearMemory) ClearStatistics() {
 	for count := 0; count < len(l.memory); count++ {
 		l.accessCount[count] = 0
 	}

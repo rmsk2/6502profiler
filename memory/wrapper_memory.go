@@ -57,6 +57,10 @@ func (p *WrappingMemory) GetStatistics(address uint16) uint64 {
 	return p.mem.GetStatistics(address)
 }
 
+func (p *WrappingMemory) ClearStatistics() {
+	p.mem.ClearStatistics()
+}
+
 func (p *WrappingMemory) Close() {
 	for _, j := range p.wrappers {
 		j.Close()

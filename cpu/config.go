@@ -124,6 +124,14 @@ type Assembler interface {
 	GetErrorMessage() string
 }
 
+type CpuProvider interface {
+	NewCpu() (*CPU6502, error)
+}
+
+type AsmProvider interface {
+	GetAssembler() Assembler
+}
+
 func (c *Config) GetAssembler() Assembler {
 	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 }

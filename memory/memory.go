@@ -9,6 +9,7 @@ type Memory interface {
 	Load(address uint16) uint8
 	Store(address uint16, b uint8)
 	GetStatistics(address uint16) uint64
+	ClearStatistics()
 	Close()
 }
 

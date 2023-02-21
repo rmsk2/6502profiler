@@ -6,7 +6,8 @@
     },
     "PreLoad": {
     },
-    "AcmeBinary": "/Users/martin/data/acme/acme",
+    "TestSetup": "",
+    "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
     "AcmeTestDir": "./testprg/tests"

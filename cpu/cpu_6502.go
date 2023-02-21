@@ -372,6 +372,17 @@ func New6502(m CpuModel) *CPU6502 {
 	return res
 }
 
+func (c *CPU6502) Reset() {
+	c.cycleCount = 0
+	c.Flags = 0
+	c.X = 0
+	c.A = 0
+	c.Y = 0
+	c.PC = 0
+	c.SP = 0xFF
+	c.Mem.ClearStatistics()
+}
+
 func (c *CPU6502) NumCycles() uint64 {
 	return c.cycleCount
 }
