@@ -305,6 +305,8 @@ config file. It has the following syntax:
 Usage of 6502profiler verifyall:
   -c string
     	Config file name
+  -prexec string
+    	Program to run before first test
   -verbose
     	Give more information
 ```
@@ -321,6 +323,9 @@ Executing test case '32 Bit addition test 1' ... (166 clock cycles) OK
 Executing test case '32 Bit is equal 2' ... (162 clock cycles) OK
 Executing test case '32 Bit is zero 4' ... (34 clock cycles) OK
 ```
+
+The `-prexec` command line option can be used to specify an assembly program that is run before the first test in order to
+perform a global test setup. The program name is interpreted relative to the `AcmeTestDir` defined in the config file.
 
 # The `newcase` command
 
