@@ -10,6 +10,8 @@ type Memory interface {
 	Store(address uint16, b uint8)
 	GetStatistics(address uint16) uint64
 	ClearStatistics()
+	TakeSnaphot()
+	RestoreSnapshot()
 	Close()
 }
 

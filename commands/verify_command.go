@@ -18,6 +18,7 @@ type ClonedCpuProvider struct {
 
 func NewCloneProvider(cpu *cpu.CPU6502) (*ClonedCpuProvider, error) {
 	cpu.Reset()
+	cpu.Mem.TakeSnaphot()
 
 	return &ClonedCpuProvider{
 		cpu: cpu,
@@ -26,6 +27,7 @@ func NewCloneProvider(cpu *cpu.CPU6502) (*ClonedCpuProvider, error) {
 
 func (c *ClonedCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	c.cpu.Reset()
+	c.cpu.Mem.RestoreSnapshot()
 	return c.cpu, nil
 }
 

@@ -4,11 +4,16 @@ const X512K uint8 = 0
 const X2048K uint8 = 1
 
 type X16Memory struct {
-	ramSelector  *uint8
-	romSelector  *uint8
+	ramSelector *uint8
+	romSelector *uint8
+
 	baseMem      []byte
 	bankedRAM8K  []byte
 	bankedROM16K []byte
+
+	baseMemSnapshot      []byte
+	bankedRAM8KSnaphot   []byte
+	bankedROM16KSnapshot []byte
 
 	statBase      []uint64
 	statBankedRam []uint64
@@ -25,11 +30,17 @@ func NewX16Memory(model uint8) *X16Memory {
 	lowMem := make([]byte, 40*1024)
 
 	res := &X16Memory{
-		ramSelector:   &lowMem[0],
-		romSelector:   &lowMem[1],
-		baseMem:       lowMem,
-		bankedRAM8K:   make([]byte, ramBlocks*8192),
-		bankedROM16K:  make([]byte, 32*16384),
+		ramSelector: &lowMem[0],
+		romSelector: &lowMem[1],
+
+		baseMem:      lowMem,
+		bankedRAM8K:  make([]byte, ramBlocks*8192),
+		bankedROM16K: make([]byte, 32*16384),
+
+		baseMemSnapshot:      make([]byte, 40*1024),
+		bankedRAM8KSnaphot:   make([]byte, ramBlocks*8192),
+		bankedROM16KSnapshot: make([]byte, 32*16384),
+
 		statBase:      make([]uint64, 40*1024),
 		statBankedRam: make([]uint64, ramBlocks*8192),
 		statBankedRom: make([]uint64, 32*16384),
@@ -68,6 +79,18 @@ func (x *X16Memory) calcIndex(address uint16) (*uint8, *uint64) {
 		i := uint32(address-0xA000) + (uint32(*x.ramSelector) * 8192)
 		return &x.bankedRAM8K[i], &x.statBankedRam[i]
 	}
+}
+
+func (x *X16Memory) TakeSnaphot() {
+	copy(x.baseMemSnapshot, x.baseMem)
+	copy(x.bankedRAM8KSnaphot, x.bankedRAM8K)
+	copy(x.bankedROM16KSnapshot, x.bankedROM16K)
+}
+
+func (x *X16Memory) RestoreSnapshot() {
+	copy(x.baseMem, x.baseMemSnapshot)
+	copy(x.bankedRAM8K, x.bankedRAM8KSnaphot)
+	copy(x.bankedROM16K, x.bankedROM16KSnapshot)
 }
 
 func (x *X16Memory) Load(address uint16) uint8 {

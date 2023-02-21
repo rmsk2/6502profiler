@@ -1,8 +1,9 @@
 package memory
 
 type LinearMemory struct {
-	memory      []byte
-	accessCount []uint64
+	memory         []byte
+	accessCount    []uint64
+	memorySnapshot []byte
 }
 
 func NewLinearMemory(size uint32) *LinearMemory {
@@ -11,13 +12,22 @@ func NewLinearMemory(size uint32) *LinearMemory {
 	}
 
 	res := &LinearMemory{
-		memory:      make([]byte, size),
-		accessCount: make([]uint64, size),
+		memory:         make([]byte, size),
+		accessCount:    make([]uint64, size),
+		memorySnapshot: make([]byte, size),
 	}
 
 	res.ClearStatistics()
 
 	return res
+}
+
+func (l *LinearMemory) TakeSnaphot() {
+	copy(l.memorySnapshot, l.memory)
+}
+
+func (l *LinearMemory) RestoreSnapshot() {
+	copy(l.memory, l.memorySnapshot)
 }
 
 func (l *LinearMemory) ClearStatistics() {
