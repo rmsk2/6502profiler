@@ -97,10 +97,9 @@ func VerifyAllCommand(arguments []string) error {
 }
 
 func setupTests(config *cpu.Config, setupPrgName string) (cpu.CpuProvider, error) {
-	setupPrgPath := path.Join(config.AcmeTestDir, setupPrgName)
 	asm := config.GetAssembler()
 
-	binaryName, err := asm.Assemble(setupPrgPath)
+	binaryName, err := asm.Assemble(setupPrgName)
 	if err != nil {
 		errMsg := asm.GetErrorMessage()
 		if errMsg != "" {
