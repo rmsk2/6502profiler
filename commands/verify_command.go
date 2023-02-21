@@ -26,8 +26,8 @@ func NewCloneProvider(cpu *cpu.CPU6502) (*ClonedCpuProvider, error) {
 }
 
 func (c *ClonedCpuProvider) NewCpu() (*cpu.CPU6502, error) {
-	c.cpu.Reset()
 	c.cpu.Mem.RestoreSnapshot()
+	c.cpu.Reset()
 	return c.cpu, nil
 }
 
