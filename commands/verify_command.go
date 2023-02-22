@@ -12,20 +12,20 @@ import (
 	"strings"
 )
 
-type ClonedCpuProvider struct {
+type SnapshotCpuProvider struct {
 	cpu *cpu.CPU6502
 }
 
-func NewCloneProvider(cpu *cpu.CPU6502) (*ClonedCpuProvider, error) {
+func NewSnapshotProvider(cpu *cpu.CPU6502) (*SnapshotCpuProvider, error) {
 	cpu.Reset()
 	cpu.Mem.TakeSnaphot()
 
-	return &ClonedCpuProvider{
+	return &SnapshotCpuProvider{
 		cpu: cpu,
 	}, nil
 }
 
-func (c *ClonedCpuProvider) NewCpu() (*cpu.CPU6502, error) {
+func (c *SnapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	c.cpu.Mem.RestoreSnapshot()
 	c.cpu.Reset()
 	return c.cpu, nil
@@ -121,7 +121,7 @@ func setupTests(config *cpu.Config, setupPrgName string) (cpu.CpuProvider, error
 		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
 	}
 
-	res, err := NewCloneProvider(cpu)
+	res, err := NewSnapshotProvider(cpu)
 	if err != nil {
 		return nil, fmt.Errorf("unable to perform global test setup: %v", err)
 	}
