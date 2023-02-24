@@ -13,7 +13,7 @@ possibility to implement tests for assembly subroutines where arranging the test
 When used for performance analysis `6502profiler` executes an existing binary inside the emulator. While running the program the number of clock 
 cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
 
-**Caution: This is work in pogress, things will change and maybe even break.**
+**Caution: This is work in progress, things will change and maybe even break.**
 
 ## How to use `6502profiler`
 
@@ -142,7 +142,7 @@ format:
 The file names in this file are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. 
 
 Here an example for a test driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` 
-in the source directory. This routine is exepcted to copy a four byte vector stored at the load addres plus three bytes to the memory 
+in the source directory. This routine is expected to copy a four byte vector stored at the load addres plus three bytes to the memory 
 starting a the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
 
 ```
