@@ -5,19 +5,17 @@
 This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on old or new
-machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and `6502profiler`
-works an a purely logical level.
+machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and `6502profiler` works an a purely logical level.
 
 The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
 possibility to implement tests for assembly subroutines where arranging the test data and evaluating the results is offloaded to a Lua script.
 
-When used for performance analysis `6502profiler` executes an existing  binary inside the emulator. While running the program the number of clock 
-cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it also 
-keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
+When used for performance analysis `6502profiler` executes an existing binary inside the emulator. While running the program the number of clock 
+cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
 
 **Caution: This is work in pogress, things will change and maybe even break.**
 
-# How to use `6502profiler`
+## How to use `6502profiler`
 
 `6502profiler` has a command line interface. The first parameter is a so called command. Currently the following
 commands are implemented.
@@ -79,18 +77,18 @@ at the end of the execution of the program. This in turn is follwed by the numbe
 by the running program. When an address line starts with `###` the corresponding address has been accessed "more often" than is usual during 
 program execution. The meaning of "more often" is defined by the options `-strategy` and `-prcnt`. 
 
-`6502profiler`counts how often each byte is accessed during program execution and stores these so called access numbers so that they
+`6502profiler` counts how often each byte is accessed during program execution and stores these so called access numbers so that they
 can be evaluated after the program has teminated. If an access number for a byte in memory where a machine language program resides
 is high then this means that the corresponding code is executed often and therefore optmizing these parts of the program has potentially 
 a big effect on overall performance.
 
-The option `-prcnt` has to be a number between 0 and 100 and denotes a percentage. Any value `p` results in those addresses
+The option `-prcnt` has to be a number between 0 and 100 and denotes a percentage. Specifying any value `p` results in those addresses
 in the output to be flagged with `###` that have access numbers which are in the top `p` percent of all access numbers.
 
-The `-strategy` option determines what *all* access numbers are. `median` sorts all access numbers and uses the lowest value in the top `p`% 
-(`p` being the value of the `-prcnt` option) as a threshold. Any other value for the `-strategy` option sorts the access values after 
-removing all duplicate values and after that determines the threshold. In first experiments no significant differences between the two strategies 
-have been found. 
+The `-strategy` option determines what *all* access numbers are. When the value `median` is used all access numbers are 
+sorted and and the lowest value in the top `p`% (`p` being the value of the `-prcnt` option) is selected as a threshold. Any 
+other value for the `-strategy` option sorts the access values after removing all duplicate values and after that determines 
+the threshold. In first experiments no significant differences between the two strategies have been found. 
 
 If `-out` is used, then `-label` also has to be specified. `-prcnt` and `-strategy` are optional. The default values for these options
 are 10 and `median`. The report file created by `ACME` when specifying its `-r` option can be used to more precisely link the output of 
@@ -116,7 +114,7 @@ The name of the test case file is interpreted relative to the directory specifie
 The `.json` suffix of the filename can be omitted. In order to run all test cases in that directory see the `verifyall` command as 
 described below.
 
-The general idea is to have a collection of source file which contain the assembly subroutines to test in one directory (the source 
+The general idea is to have a collection of source files which contain the assembly subroutines to test in one directory (the source 
 directory as given in `AcmeSrcDir`) and additional separate assembly test driver programs in a test directory (named by `AcmeTestDir`) 
 which call the routines that are to be tested in an appropriate fashion. The test drivers use the `!source` pseudo opcode of `acme` to
 access routines from the source directory. The test drivers are automatically assembled (or compiled) into the test binary directory.
@@ -125,8 +123,8 @@ This directory is specified by `AcmeBinDir`.
 The `verify` command then loads the test driver binary and a corresponding Lua test script. This script has to define at least
 two functions `arrange` and `assert`. Before running the test driver in the emulator the `verify` command calls the `arrange`
 function in the Lua script which can modify the emulator state before the test driver is run (for instance to arrange test data). 
-Then the test driver is run by the emulator and when that is done the `assert`function of the test script evaluates whether
-the program returned the expected result. The test is successfull if the `assert` script returns `true`.
+Then the test driver is run by the emulator and after it finishes the `assert` function of the test script is called to evaluate 
+whether the program returned the expected results. The test is successfull if the `assert` script returns `true`.
 
 The source files for the test driver and the Lua test script have to be referenced in a JSON test case file which has the following
 format:
@@ -140,10 +138,11 @@ format:
 
 ```
 
-The file names are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. Here an example for a test 
-driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory. This
-routine is exepcted to copy a four byte vector stored at the load addres plus three bytes to the memory starting a the load address
-plus seven bytes. The test driver looks as follows and is store as `test1.a` in the test directory.
+The file names in this file are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. 
+
+Here an example for a test driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` 
+in the source directory. This routine is exepcted to copy a four byte vector stored at the load addres plus three bytes to the memory 
+starting a the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
 
 ```
 * = $0800
@@ -192,15 +191,14 @@ end
 
 The `arrange` function copies the test vector into the emulator's memory before the test driver is run. After the test driver has finished the
 `assert` function is called to evaluate the results. In this example it is tested whether the test vector has been copied to the correct address
-and if the negative flag was set at the end of the test driver. If these conditions are not met corresponding error messages are returned.
+and if the negative flag is set at the end of the test driver. If these conditions are not met corresponding error messages are returned.
 
-# Structure of test scripts
+## Structure of test scripts
 
 Test scripts have to implement an `assert` and an `arrange` function. `arrange` is expected to take no arguments and return no value. `assert` 
 also takes no arguments but has to return two values. The first one is a boolean and is set to true if the test was successfull. The second 
 return value is a string and should contain some helpful message in case the test has failed. The following functions can be used in Lua to 
-query and manipulate the emulator's memory nd processor state:
-
+query and manipulate the emulator's memory and processor state:
 
 |Function Name| Description |
 |-|-|
@@ -221,8 +219,8 @@ query and manipulate the emulator's memory nd processor state:
 | `get_cycles()` | Returns the number of clock cycles used for executing the test |
 
 
-The `set_memory` and `get_memory` functions can be used to get and set blocks of emulator memory. These memory blocks are always represented as a hex string. 
-On top of that the following three variables are injected into the Lua script from the Go host program:
+The `set_memory` and `get_memory` functions can be used to get and set blocks of emulator memory. These memory blocks are always 
+represented as a hex string. On top of that the following three variables are injected into the Lua script from the Go host program:
 
 |Variable Name| Description |
 |-|-|
@@ -230,11 +228,10 @@ On top of that the following three variables are injected into the Lua script fr
 | `prog_len` | Length in bytes of the loaded test driver | 
 | `test_dir` | Path to the test dir which can be used with `require` to load additional scripts | 
 
-
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
 
-# The verifyall comand
+## The verifyall comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
 config file. It has the following syntax:
@@ -265,7 +262,7 @@ Executing test case '32 Bit is zero 4' ... (34 clock cycles) OK
 The `-prexec` command line option can be used to specify an assembly program that is run before the first test in order to
 perform a global test setup. The program name is interpreted relative to the `AcmeTestDir` defined in the config file.
 
-# The `newcase` command
+## The `newcase` command
 
 This command can be used to create a JSON test case file, a Lua script and a test driver file in the test directory. It
 uses the following command line options.  
@@ -288,7 +285,7 @@ value of `-t`. This value has to include the file ending (typically `.a`) and is
 
 ## Emulator configuration
 
-The config is stored in a JSON file and can be referenced  through the `-c` option. The config file is structured as follows
+The config is stored in a JSON file and can be referenced through the `-c` option. The config file is structured as follows
 
 ```
 {
@@ -333,24 +330,24 @@ the assembler source files (which do not implement the tests themselves) are sto
 the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
 stored in the directory referenced by `AcmeBinDir`.
 
-# Performance
+## Performance
 
 I have used `6502profiler` to further optimize the calculation routines for my [C64](https://github.com/rmsk2/c64_mandelbrot) 
 and [Commander X16](https://github.com/rmsk2/X16_mandelbrot) Mandelbrot set viewers. A C64 needs about 75 minutes to create 
 the default visualization in hires mode using a program of 1827 bytes length. `6502profiler` executes this program in about
 a minute. The corresponding assembler source code can be found in `testprg/fixed_test.a` and `testprg/fixed_point.a`
 
-# Limitations
+## Limitations
 
 Currently all 6502/6510 addressing modes and all but one instruction are emulated. The missing instruction is `RTI` as I do not
 see any use for this instruction on the purely logical level on which `6502profiler` operates. Furthermore the 65C02 instructions
 `STP` and `WAI` are also not implemented for the same reason.
 
-# Building `6502profiler`
+## Building `6502profiler`
 
 The software is written in Go and therefore it can be built by the usual `go build` command. Tests are provided for all
 6502 instructions and can be executed through `go test ./...`.
 
-# Upcoming
+## Upcoming
 
 - Maybe implement a single stepping mode
