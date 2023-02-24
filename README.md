@@ -283,7 +283,7 @@ The value of `-p` is used to generate the file names of all three files in the t
 file endings `.json`, `.a` and `.lua`. If `-t` is specified the test driver name in the newly created test case is set to the 
 value of `-t`. This value has to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
 
-## Emulator configuration
+# Emulator configuration
 
 The config is stored in a JSON file and can be referenced through the `-c` option. The config file is structured as follows
 
@@ -330,24 +330,24 @@ the assembler source files (which do not implement the tests themselves) are sto
 the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
 stored in the directory referenced by `AcmeBinDir`.
 
-## Performance
+# Performance
 
 I have used `6502profiler` to further optimize the calculation routines for my [C64](https://github.com/rmsk2/c64_mandelbrot) 
 and [Commander X16](https://github.com/rmsk2/X16_mandelbrot) Mandelbrot set viewers. A C64 needs about 75 minutes to create 
 the default visualization in hires mode using a program of 1827 bytes length. `6502profiler` executes this program in about
 a minute. The corresponding assembler source code can be found in `testprg/fixed_test.a` and `testprg/fixed_point.a`
 
-## Limitations
+# Limitations
 
 Currently all 6502/6510 addressing modes and all but one instruction are emulated. The missing instruction is `RTI` as I do not
 see any use for this instruction on the purely logical level on which `6502profiler` operates. Furthermore the 65C02 instructions
 `STP` and `WAI` are also not implemented for the same reason.
 
-## Building `6502profiler`
+# Building `6502profiler`
 
 The software is written in Go and therefore it can be built by the usual `go build` command. Tests are provided for all
 6502 instructions and can be executed through `go test ./...`.
 
-## Upcoming
+# Upcoming
 
 - Maybe implement a single stepping mode
