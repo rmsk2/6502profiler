@@ -1,15 +1,17 @@
-package cpu
+package emuconfig
 
 import (
 	"6502profiler/acmeassembler"
+	"6502profiler/cpu"
 	"6502profiler/memory"
+	"6502profiler/verifier"
 	"encoding/json"
 	"fmt"
 	"os"
 )
 
 type Config struct {
-	Model        CpuModel
+	Model        string
 	MemSpec      string
 	IoMask       uint8
 	IoAddrConfig map[uint8]string
@@ -33,6 +35,8 @@ const L48 = "Linear48K"
 const L64 = "Linear64K"
 const X16_512 = "XSixteen512K"
 const X16_2048 = "XSixteen2048K"
+const Proc6502 = "6502"
+const Proc65C02 = "65C02"
 
 func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
@@ -46,9 +50,9 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 		X16_2048: true,
 	}
 
-	allowedCpuModels := map[CpuModel]bool{
-		Model6502:  true,
-		Model65C02: true,
+	allowedCpuModels := map[string]bool{
+		Proc6502:  true,
+		Proc65C02: true,
 	}
 
 	configData, err := os.ReadFile(fileName)
@@ -76,7 +80,7 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 
 func DefaultConfig() *Config {
 	res := &Config{
-		Model:        Model6502,
+		Model:        Proc6502,
 		MemSpec:      L32,
 		IoMask:       0,
 		IoAddrConfig: map[uint8]string{},
@@ -118,26 +122,41 @@ func (c *Config) Save(fileName string) error {
 	return nil
 }
 
-type Assembler interface {
-	Assemble(fileName string) (string, error)
-	ParseLabelFile(fileName string) (map[uint16][]string, error)
-	GetErrorMessage() string
-}
-
 type CpuProvider interface {
-	NewCpu() (*CPU6502, error)
+	NewCpu() (*cpu.CPU6502, error)
 }
 
 type AsmProvider interface {
-	GetAssembler() Assembler
+	GetAssembler() acmeassembler.Assembler
 }
 
-func (c *Config) GetAssembler() Assembler {
+type RepoProvider interface {
+	GetCaseRepo() (verifier.CaseRepo, error)
+}
+
+func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
+	var repo verifier.CaseRepo
+
+	repo, err := verifier.NewCaseRepo(c.AcmeTestDir)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo, nil
+}
+
+func (c *Config) GetAssembler() acmeassembler.Assembler {
 	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 }
 
-func (c *Config) NewCpu() (*CPU6502, error) {
-	cpu := New6502(c.Model)
+func (c *Config) NewCpu() (*cpu.CPU6502, error) {
+	var model cpu.CpuModel = cpu.Model6502
+
+	if c.Model != Proc6502 {
+		model = cpu.Model65C02
+	}
+
+	cpu := cpu.New6502(model)
 	var mem memory.Memory
 	var wrapper *memory.WrappingMemory = nil
 

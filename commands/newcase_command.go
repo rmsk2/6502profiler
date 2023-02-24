@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"6502profiler/cpu"
+	"6502profiler/emuconfig"
 	"6502profiler/util"
 	"6502profiler/verifier"
 	"flag"
@@ -12,11 +12,11 @@ import (
 func NewCaseCommand(arguments []string) error {
 	newCaseFlags := flag.NewFlagSet("6502profiler newcase", flag.ContinueOnError)
 	var err error = nil
-	var config *cpu.Config = cpu.DefaultConfig()
+	var config *emuconfig.Config = emuconfig.DefaultConfig()
 
 	configName := newCaseFlags.String("c", "", "Config file name")
-	prefixName := newCaseFlags.String("p", "", "File name prefix")
-	testName := newCaseFlags.String("n", "", "Test name")
+	testCaseName := newCaseFlags.String("p", "", "Test case file name")
+	testDescription := newCaseFlags.String("d", "", "Test description")
 	testDriverName := newCaseFlags.String("t", "", "Full name of test driver file in test dir (optional)")
 	var testCase *verifier.TestCase
 
@@ -28,28 +28,33 @@ func NewCaseCommand(arguments []string) error {
 		return fmt.Errorf("a config file name has to be specified")
 	}
 
-	if *prefixName == "" {
-		return fmt.Errorf("a prefix has to be specified")
+	if *testCaseName == "" {
+		return fmt.Errorf("a test case file name has to be specified")
 	}
 
-	if *testName == "" {
-		return fmt.Errorf("a test name has to be specified")
+	if *testDescription == "" {
+		return fmt.Errorf("a test description has to be specified")
 	}
 
-	config, err = cpu.NewConfigFromFile(*configName)
+	config, err = emuconfig.NewConfigFromFile(*configName)
 	if err != nil {
 		return fmt.Errorf("error loading config: %v", err)
 	}
 
-	if *testDriverName == "" {
-		testCase = verifier.NewTestCase(*testName, *prefixName)
-	} else {
-		testCase = verifier.NewTestCaseWithDriver(*testName, *prefixName, *testDriverName)
+	repo, err := config.GetCaseRepo()
+	if err != nil {
+		return err
 	}
 
-	err = testCase.WriteSekeleton(*prefixName, config.AcmeTestDir, *testDriverName == "")
+	if *testDriverName == "" {
+		testCase = verifier.NewTestCase(*testDescription, *testCaseName)
+	} else {
+		testCase = verifier.NewTestCaseWithDriver(*testDescription, *testCaseName, *testDriverName)
+	}
+
+	err = repo.New(*testCaseName, testCase, *testDriverName == "")
 	if err != nil {
-		return fmt.Errorf("error writing skeleton: %v", err)
+		return fmt.Errorf("error creating new test case: %v", err)
 	}
 
 	return nil

@@ -5,64 +5,17 @@
 This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on old or new
-machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and therefore 
-routines like that can not be optimized by using `6502profiler`.
+machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and `6502profiler`
+works an a purely logical level.
 
-`6502profiler` reads a binary as for instance created by the `ACME` macro assembler and executes it inside the emulator. While running the program
-the number of clock cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the 
-program because also it keeps track of how many times each memory cell is accessed (i.e. read and/or written). 
+The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
+possibility to implement tests for assembly subroutines where arranging the test data and evaluating the results is offloaded to a Lua script.
 
-On top of that `6502profiler` offers the possibility to implement tests for assembly subroutines where arranging the test data and evaluating the
-results is offloaded to a Lua script.
+When used for performance analysis `6502profiler` executes an existing  binary inside the emulator. While running the program the number of clock 
+cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it also 
+keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
 
 **Caution: This is work in pogress, things will change and maybe even break.**
-
-## Emulator configuration
-
-The config is stored in a JSON file and can be used through the `-c` option. The config file is structured as follows
-
-```
-{
-    "Model": 1,
-    "MemSpec": "Linear64K",
-    "IoMask": 45,
-    "IoAddrConfig": {
-        "221": "file:output.bin"   
-    },
-    "PreLoad": {
-        "40960": "/home/martin/data/vice_roms/C64/basic",
-        "57344": "/home/martin/data/vice_roms/C64/kernal"
-    },    
-    "AcmeBinary": "acme",
-    "AcmeSrcDir": "./testprg",
-    "AcmeBinDir": "./testprg/tests/bin",
-    "AcmeTestDir": "./testprg/tests"
-}
-```
-
-`Model` can be 0 or 1. The number 0 encodes a standard 6502/6510 and 1 stands for a 65C02. At the moment `MemSpec` can be 
-`Linear16K`, `Linear32K`, `Linear48K`, `Linear64K`, `XSixteen512K` or `XSixteen2048K`. The linear memory specifications 
-denote a contiguous chunk of memory starting at address 0 with a length of 16, 32 or 64 kilobytes. The `XSixteen` memory 
-specifications configure the emulator to use the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
-
-`IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
-from the emulator by means of writing to a special I/O address. 
-
-The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
-corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
-in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
-the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
-remaining string specifies the file name. If no such special addresses are needed then `IoAddrConfig` should be empty.
-
-If you want to load binaries into the emulator's RAM before your program is run you can list these binaries in the `PreLoad`
-property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
-the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
-though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
-
-The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
-the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
-the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
-stored in the directory referenced by `AcmeBinDir`.
 
 # How to use `6502profiler`
 
@@ -72,11 +25,14 @@ commands are implemented.
 ```
 The following commands are available: 
      info: Return info about program
+     list: List all test cases and their descriptions
      newcase: Create a new test case skeleton
      profile: Record data about program executions
      verify: Run a test on an assembler program
      verifyall: Run all tests
 ```
+
+`6502profiler` expects an installed `acme` macro assembler for most of the functionality it implements. 
 
 ## The `profile` command
 
@@ -114,38 +70,31 @@ SQ_TAB_LSB
 ###  0805: 8A 5591244
 ``` 
 
-Label lines are created through the data contained in the symbol list file generated by the `ACME` macro assember when it is called with the 
-`-l` option. The path to this file has to be provided through the `-label` option of `6502profiler`. Label lines serve as a basic
-link between the output of `6502profiler` and the source code of the program that is evaluated. An address line contains an address 
-followed by a colon. This address is followed by the byte stored at this memory location at the end of the execution of the program. This in 
-turn is follwed by the number of times the address has been accessed (read and written) by the running program. When an address line 
-starts with `###` the corresponding address has been accessed "more often" than is usual during program execution. 
+Label lines are created from the data contained in the symbol list file generated by the `acme` macro assember when it is called with the 
+`-l` option. The path to this file can be provided through the `-label` option of `6502profiler`. Label lines serve as a basic
+link between the output of `6502profiler` and the source code of the program that is evaluated. 
 
-The condition what "more often" actually is, is determined by the options `-strategy` and `-prcnt`. `-prcnt` has to be a number between
-0 and 100. The value 25 for instance means that all addresses in the output are flagged which are in the top 25% percent of all access
-numbers. The `-strategy` option determines what constitiutes the overall set of numbers. `median` sorts all access values and uses
-the lowest value in the top `n%` (n being the value of the `-prcnt` option) as a threshold. Any other value for the `-strategy` option
-sorts the access values after removing all duplicate values. In first experiments no significant differences between the two strategies
-have been found. If `-out` is used, then `-label` also has to be specified. `-prcnt` and `-strategy` are optional. The default values 
-are 10 and `median`.
+An address line contains a 16 bit hex address followed by a colon. This address is followed by the byte stored at this memory location 
+at the end of the execution of the program. This in turn is follwed by the number of times the address has been accessed (read and written) 
+by the running program. When an address line starts with `###` the corresponding address has been accessed "more often" than is usual during 
+program execution. The meaning of "more often" is defined by the options `-strategy` and `-prcnt`. 
 
-The report file created by `ACME` when specifying its `-r` option can be used to more precisely link the output of `6502profiler`
-to the assembly source code. This may serve as an example:
+`6502profiler`counts how often each byte is accessed during program execution and stores these so called access numbers so that they
+can be evaluated after the program has teminated. If an access number for a byte in memory where a machine language program resides
+is high then this means that the corresponding code is executed often and therefore optmizing these parts of the program has potentially 
+a big effect on overall performance.
 
-```
-     5  0800 a922               lda #34
-     6  0802 a22d               ldx #45
-     7  0804 20080a             jsr mul16BitFast
-     8  0807 00                 brk
-     9                          
-    10                          ; xy = (x^2 + y^2 - (x-y)^2)/2
-    11                          ; The following tables contain the LSB and MSB of i^2 where i=0, ..., 255
-    12                          SQ_TAB_LSB
-    13  0808 0001040910192431...!byte $00, $01, $04, $09, $10, $19, $24, $31, $40, $51, $64, $79, $90, $A9, $C4, $E1
-```
+The option `-prcnt` has to be a number between 0 and 100 and denotes a percentage. Any value `p` results in those addresses
+in the output to be flagged with `###` that have access numbers which are in the top `p` percent of all access numbers.
 
-The first number is the line number in the source file. The second number is the address to which the machine language
-instruction has been written in the output.
+The `-strategy` option determines what *all* access numbers are. `median` sorts all access numbers and uses the lowest value in the top `p`% 
+(`p` being the value of the `-prcnt` option) as a threshold. Any other value for the `-strategy` option sorts the access values after 
+removing all duplicate values and after that determines the threshold. In first experiments no significant differences between the two strategies 
+have been found. 
+
+If `-out` is used, then `-label` also has to be specified. `-prcnt` and `-strategy` are optional. The default values for these options
+are 10 and `median`. The report file created by `ACME` when specifying its `-r` option can be used to more precisely link the output of 
+`6502profiler` to the assembly source code.
 
 ## The `verify` and `verifyall` commands
 
@@ -163,13 +112,14 @@ Usage of 6502profiler verify:
     	Give more information
 ```
 
-The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. The `.json` 
-suffix of the filename can be omitted. In order to run all test cases in that directory see the `verifyall` command as described below.
+The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry (see below). 
+The `.json` suffix of the filename can be omitted. In order to run all test cases in that directory see the `verifyall` command as 
+described below.
 
-The general idea is to have a source file which contains the subroutine to test in one directory (the source directory as given in 
-`AcmeSrcDir`) and an additional separate test driver program in a test directory (named by `AcmeTestDir`) which calls the routines
-that are to be tested in an appropriate fashion. The test driver includes the files which contain the subroutines to test (using 
-the `!source` pseudo opcode) from the source directory. Then the test driver is assembled (or compiled) into the test binary directory.
+The general idea is to have a collection of source file which contain the assembly subroutines to test in one directory (the source 
+directory as given in `AcmeSrcDir`) and additional separate assembly test driver programs in a test directory (named by `AcmeTestDir`) 
+which call the routines that are to be tested in an appropriate fashion. The test drivers use the `!source` pseudo opcode of `acme` to
+access routines from the source directory. The test drivers are automatically assembled (or compiled) into the test binary directory.
 This directory is specified by `AcmeBinDir`.
 
 The `verify` command then loads the test driver binary and a corresponding Lua test script. This script has to define at least
@@ -178,7 +128,7 @@ function in the Lua script which can modify the emulator state before the test d
 Then the test driver is run by the emulator and when that is done the `assert`function of the test script evaluates whether
 the program returned the expected result. The test is successfull if the `assert` script returns `true`.
 
-The source files for the test driver and the test script have to be referenced in a JSON test case file which has the following
+The source files for the test driver and the Lua test script have to be referenced in a JSON test case file which has the following
 format:
 
 ```
@@ -191,29 +141,9 @@ format:
 ```
 
 The file names are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. Here an example for a test 
-driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory:
-
-```
-.DATA_IN
-!byte 0x40,0x30,0x20,0x10
-.DATA_OUT
-!byte 0,0,0,0
-
-simpleLoop
-    ldy #3
-    lda #<.DATA_IN
-    sta $12
-    lda #>.DATA_IN
-    sta $13
-.loop
-    lda ($12), y
-    sta .DATA_OUT,y
-    dey
-    bpl .loop
-    rts
-```
-
-We then write the test driver and store it as `test1.a` in the test directory.
+driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` in the source directory. This
+routine is exepcted to copy a four byte vector stored at the load addres plus three bytes to the memory starting a the load address
+plus seven bytes. The test driver looks as follows and is store as `test1.a` in the test directory.
 
 ```
 * = $0800
@@ -227,9 +157,10 @@ testStart
     brk
 ```
 
-It is assumed that the test driver starts its execution at the load address which has to be contained in the first two bytes of the
-binary (as usual lo byte first). The emulator stops when it encounters a `BRK` instruction. Finally the corresponding test script is 
-implemented and also stored (as `test1.lua` ) in the test directory.
+It is assumed that the test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). The test 
+driver is assembled into a binary by `acme` in such a way that its load address is contained in the first two bytes (as usual lo byte 
+first). The emulator stops when it encounters a `BRK` instruction. The corresponding Lua test script is also stored  (as `test1.lua` ) 
+in the test directory:
 
 ```
 test_vector = "10203040"
@@ -259,14 +190,17 @@ function assert()
 end
 ```
 
-`arrange` is expected to take no arguments and return no value. `assert` also takes no arguments but has to return two values. The first
-one is a boolean and is set to true if the test was successfull. The second return value is a string and should contain some helpful
-message in case the test has failed.
+The `arrange` function copies the test vector into the emulator's memory before the test driver is run. After the test driver has finished the
+`assert` function is called to evaluate the results. In this example it is tested whether the test vector has been copied to the correct address
+and if the negative flag was set at the end of the test driver. If these conditions are not met corresponding error messages are returned.
 
-The `set_memory` and `get_memory` functions can be used to get and set emulator memory. Memory contents is always represented as a
-hex string. On top of that the load address and the length of the test driver can be referenced in Lua by the variables `load_address`
-and `prog_len`. A specific test can be run by `./6502profiler verify -c config.json -t test1.json`. The following functions can be used in 
-Lua to query and manipulate the processor state:
+# Structure of test scripts
+
+Test scripts have to implement an `assert` and an `arrange` function. `arrange` is expected to take no arguments and return no value. `assert` 
+also takes no arguments but has to return two values. The first one is a boolean and is set to true if the test was successfull. The second 
+return value is a string and should contain some helpful message in case the test has failed. The following functions can be used in Lua to 
+query and manipulate the emulator's memory nd processor state:
+
 
 |Function Name| Description |
 |-|-|
@@ -286,6 +220,8 @@ Lua to query and manipulate the processor state:
 | `set_yreg(val)` | Stores `val` in the Y register | 
 | `get_cycles()` | Returns the number of clock cycles used for executing the test |
 
+
+The `set_memory` and `get_memory` functions can be used to get and set blocks of emulator memory. These memory blocks are always represented as a hex string. 
 On top of that the following three variables are injected into the Lua script from the Go host program:
 
 |Variable Name| Description |
@@ -297,6 +233,8 @@ On top of that the following three variables are injected into the Lua script fr
 
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
+
+# The verifyall comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
 config file. It has the following syntax:
@@ -336,17 +274,64 @@ uses the following command line options.
 Usage of 6502profiler newcase:
   -c string
     	Config file name
-  -n string
-    	Test name
+  -d string
+    	Test description
   -p string
-    	File name prefix
+    	Test case file name
   -t string
     	Full name of test driver file in test dir (optional)
 ```
 
-The prefix is used to generate the file names of all three files by appending the corresponding file endings `.json`, `.a` and
-`.lua`. If `-t` is specified the test driver name in the newly created test case is set to the value of `-t`. This value has
-to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
+The value of `-p` is used to generate the file names of all three files in the test directory by appending the corresponding 
+file endings `.json`, `.a` and `.lua`. If `-t` is specified the test driver name in the newly created test case is set to the 
+value of `-t`. This value has to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
+
+## Emulator configuration
+
+The config is stored in a JSON file and can be referenced  through the `-c` option. The config file is structured as follows
+
+```
+{
+    "Model": "6502",
+    "MemSpec": "Linear64K",
+    "IoMask": 45,
+    "IoAddrConfig": {
+        "221": "file:output.bin"   
+    },
+    "PreLoad": {
+        "40960": "/home/martin/data/vice_roms/C64/basic",
+        "57344": "/home/martin/data/vice_roms/C64/kernal"
+    },    
+    "AcmeBinary": "acme",
+    "AcmeSrcDir": "./testprg",
+    "AcmeBinDir": "./testprg/tests/bin",
+    "AcmeTestDir": "./testprg/tests"
+}
+```
+
+`Model` can be `6502` or `65C02`. At the moment `MemSpec` can be `Linear16K`, `Linear32K`, `Linear48K`, `Linear64K`, 
+`XSixteen512K` or `XSixteen2048K`. The linear memory specifications denote a contiguous chunk of memory starting at 
+address 0 with a length of 16, 32 or 64 kilobytes. The `XSixteen` memory specifications configure the emulator to use 
+the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
+
+`IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
+from the emulator by means of writing to a special I/O address. 
+
+The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
+corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
+in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. In the example above 
+the resulting special address is `$2ddd` ($2d=45, $dd=221). Entries for such file store addresses start with `file:` and the 
+remaining string specifies the file name. If no such special addresses are needed then `IoAddrConfig` should be empty.
+
+If you want to load binaries into the emulator's RAM before your program is run you can list these binaries in the `PreLoad`
+property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
+the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
+though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
+
+The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
+the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
+the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
+stored in the directory referenced by `AcmeBinDir`.
 
 # Performance
 

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"6502profiler/cpu"
+	"6502profiler/emuconfig"
 	"6502profiler/memory"
 	"6502profiler/profiler"
 	"6502profiler/util"
@@ -32,7 +33,7 @@ func ProfileCommand(arguments []string) error {
 	var p float64
 	var labels map[uint16][]string
 	var err error = nil
-	var config *cpu.Config = cpu.DefaultConfig()
+	var config *emuconfig.Config = emuconfig.DefaultConfig()
 	var processor *cpu.CPU6502
 
 	profileFlags := flag.NewFlagSet("6502profiler profile", flag.ContinueOnError)
@@ -48,7 +49,7 @@ func ProfileCommand(arguments []string) error {
 	}
 
 	if *configName != "" {
-		config, err = cpu.NewConfigFromFile(*configName)
+		config, err = emuconfig.NewConfigFromFile(*configName)
 		if err != nil {
 			return fmt.Errorf("error loading config: %v", err)
 		}

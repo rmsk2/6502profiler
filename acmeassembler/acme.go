@@ -10,6 +10,12 @@ import (
 	"strconv"
 )
 
+type Assembler interface {
+	Assemble(fileName string) (string, error)
+	ParseLabelFile(fileName string) (map[uint16][]string, error)
+	GetErrorMessage() string
+}
+
 func parseOneLine(line string) (uint16, string, error) {
 	r := regexp.MustCompile(`^\s+([[:word:]]+)\s+= [$]([[:xdigit:]]{1,4})(\s.*)?$`)
 

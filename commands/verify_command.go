@@ -2,13 +2,12 @@ package commands
 
 import (
 	"6502profiler/cpu"
+	"6502profiler/emuconfig"
 	"6502profiler/util"
 	"6502profiler/verifier"
 	"flag"
 	"fmt"
 	"os"
-	"path"
-	"regexp"
 	"strings"
 )
 
@@ -31,10 +30,74 @@ func (c *SnapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	return c.cpu, nil
 }
 
-func VerifyAllCommand(arguments []string) error {
-	r := regexp.MustCompile(`^(.+)\.json$`)
+type caseExec struct {
+	cpuProv     emuconfig.CpuProvider
+	asmProv     emuconfig.AsmProvider
+	repo        verifier.CaseRepo
+	verboseFlag bool
+}
 
-	var config *cpu.Config = cpu.DefaultConfig()
+func newCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier.CaseRepo, v bool) *caseExec {
+	return &caseExec{
+		cpuProv:     c,
+		asmProv:     a,
+		repo:        repo,
+		verboseFlag: v,
+	}
+}
+
+func (t *caseExec) executeCase(testCaseName string) error {
+	caseFileName := testCaseName
+
+	if !strings.HasSuffix(caseFileName, ".json") {
+		caseFileName += ".json"
+	}
+
+	testCase, err := t.repo.Get(caseFileName)
+	if err != nil {
+		return fmt.Errorf("unable to load test case file: %v", err)
+	}
+
+	cpu, err := t.cpuProv.NewCpu()
+	if err != nil {
+		return fmt.Errorf("unable to create cpu for test case: %v", err)
+	}
+	defer func() { cpu.Mem.Close() }()
+
+	assembler := t.asmProv.GetAssembler()
+
+	if t.verboseFlag {
+		fmt.Println("--------------------------------------------")
+		fmt.Printf("Executing test case '%s'\n", testCase.Name)
+		fmt.Printf("Test case file: %s\n", testCaseName)
+		fmt.Printf("Test script: %s\n", testCase.TestScript)
+		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
+	} else {
+		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
+	}
+
+	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath())
+	if err != nil {
+		errMsg := assembler.GetErrorMessage()
+		if errMsg != "" {
+			fmt.Println(errMsg)
+		}
+		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
+	}
+
+	if t.verboseFlag {
+		fmt.Printf("Clock cycles used: %d\n", cpu.NumCycles())
+		fmt.Println("Test result: OK")
+	} else {
+		fmt.Printf("(%d clock cycles) OK\n", cpu.NumCycles())
+	}
+
+	return nil
+
+}
+
+func VerifyAllCommand(arguments []string) error {
+	var config *emuconfig.Config = emuconfig.DefaultConfig()
 	var err error
 	verifierFlags := flag.NewFlagSet("6502profiler verifyall", flag.ContinueOnError)
 	configName := verifierFlags.String("c", "", "Config file name")
@@ -46,7 +109,7 @@ func VerifyAllCommand(arguments []string) error {
 	}
 
 	if *configName != "" {
-		config, err = cpu.NewConfigFromFile(*configName)
+		config, err = emuconfig.NewConfigFromFile(*configName)
 		if err != nil {
 			return fmt.Errorf("error loading config: %v", err)
 		}
@@ -56,7 +119,12 @@ func VerifyAllCommand(arguments []string) error {
 		return fmt.Errorf("special IO addresses are incompatible with verifyall")
 	}
 
-	var cpuProv cpu.CpuProvider = config
+	repo, err := config.GetCaseRepo()
+	if err != nil {
+		return err
+	}
+
+	var cpuProv emuconfig.CpuProvider = config
 
 	if *preExecName != "" {
 		cpuProv, err = setupTests(config, *preExecName)
@@ -65,28 +133,9 @@ func VerifyAllCommand(arguments []string) error {
 		}
 	}
 
-	file, err := os.Open(config.AcmeTestDir)
+	testCount, err := repo.IterateTestCases(newCaseExec(cpuProv, config, repo, *verboseFlag).executeCase)
 	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	names, err := file.Readdirnames(0)
-	if err != nil {
-		return err
-	}
-
-	testCount := 0
-
-	for _, j := range names {
-		if r.MatchString(j) {
-			err := executeOneTest(j, cpuProv, config, config.AcmeTestDir, *verboseFlag)
-			if err != nil {
-				return err
-			}
-
-			testCount++
-		}
+		return fmt.Errorf("unable to iterate test cases: %v", err)
 	}
 
 	if *verboseFlag {
@@ -98,7 +147,7 @@ func VerifyAllCommand(arguments []string) error {
 	return nil
 }
 
-func setupTests(config *cpu.Config, setupPrgName string) (cpu.CpuProvider, error) {
+func setupTests(config *emuconfig.Config, setupPrgName string) (emuconfig.CpuProvider, error) {
 	asm := config.GetAssembler()
 
 	binaryName, err := asm.Assemble(setupPrgName)
@@ -129,57 +178,8 @@ func setupTests(config *cpu.Config, setupPrgName string) (cpu.CpuProvider, error
 	return res, nil
 }
 
-func executeOneTest(testCaseName string, cpuProv cpu.CpuProvider, asmProv cpu.AsmProvider, testDir string, verboseOutput bool) error {
-	caseFileName := path.Join(testDir, testCaseName)
-
-	if !strings.HasSuffix(caseFileName, ".json") {
-		caseFileName += ".json"
-	}
-
-	testCase, err := verifier.NewTestCaseFromFile(caseFileName)
-	if err != nil {
-		return fmt.Errorf("unable to load test case file: %v", err)
-	}
-
-	cpu, err := cpuProv.NewCpu()
-	if err != nil {
-		return fmt.Errorf("unable to create cpu for test case: %v", err)
-	}
-	defer func() { cpu.Mem.Close() }()
-
-	assembler := asmProv.GetAssembler()
-
-	if verboseOutput {
-		fmt.Println("--------------------------------------------")
-		fmt.Printf("Executing test case '%s'\n", testCase.Name)
-		fmt.Printf("Test case file: %s\n", testCaseName)
-		fmt.Printf("Test script: %s\n", testCase.TestScript)
-		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
-	} else {
-		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
-	}
-
-	err = testCase.Execute(cpu, assembler, testDir)
-	if err != nil {
-		errMsg := assembler.GetErrorMessage()
-		if errMsg != "" {
-			fmt.Println(errMsg)
-		}
-		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
-	}
-
-	if verboseOutput {
-		fmt.Printf("Clock cycles used: %d\n", cpu.NumCycles())
-		fmt.Println("Test result: OK")
-	} else {
-		fmt.Printf("(%d clock cycles) OK\n", cpu.NumCycles())
-	}
-
-	return nil
-}
-
 func VerifyCommand(arguments []string) error {
-	var config *cpu.Config = cpu.DefaultConfig()
+	var config *emuconfig.Config = emuconfig.DefaultConfig()
 	var err error
 	verifierFlags := flag.NewFlagSet("6502profiler verify", flag.ContinueOnError)
 	configName := verifierFlags.String("c", "", "Config file name")
@@ -191,7 +191,7 @@ func VerifyCommand(arguments []string) error {
 	}
 
 	if *configName != "" {
-		config, err = cpu.NewConfigFromFile(*configName)
+		config, err = emuconfig.NewConfigFromFile(*configName)
 		if err != nil {
 			return fmt.Errorf("error loading config: %v", err)
 		}
@@ -201,7 +201,12 @@ func VerifyCommand(arguments []string) error {
 		return fmt.Errorf("test case path has to be specified")
 	}
 
-	res := executeOneTest(*testCasePath, config, config, config.AcmeTestDir, *verboseFlag)
+	repo, err := config.GetCaseRepo()
+	if err != nil {
+		return err
+	}
+
+	res := newCaseExec(config, config, repo, *verboseFlag).executeCase(*testCasePath)
 	if *verboseFlag {
 		fmt.Println("--------------------------------------------")
 	}

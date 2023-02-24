@@ -13,5 +13,6 @@ func main() {
 	subcommParser.AddCommand("verifyall", commands.VerifyAllCommand, "Run all tests")
 	subcommParser.AddCommand("info", commands.InfoCommand, "Return info about program")
 	subcommParser.AddCommand("newcase", commands.NewCaseCommand, "Create a new test case skeleton")
+	subcommParser.AddCommand("list", commands.ListCommand, "List all test cases and their descriptions")
 	subcommParser.Execute()
 }
