@@ -30,7 +30,8 @@ The following commands are available:
      verifyall: Run all tests
 ```
 
-`6502profiler` expects an installed `acme` macro assembler for most of the functionality it implements. 
+`6502profiler` expects an installed `acme` macro assembler for most of the functionality it implements. Its location can be configured
+through the `AcmeBinary` configuration entry.
 
 ## The `profile` command
 
@@ -231,7 +232,7 @@ represented as a hex string. On top of that the following three variables are in
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
 
-## The verifyall comand
+## The `verifyall` comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
 config file. It has the following syntax:
@@ -282,6 +283,17 @@ Usage of 6502profiler newcase:
 The value of `-p` is used to generate the file names of all three files in the test directory by appending the corresponding 
 file endings `.json`, `.a` and `.lua`. If `-t` is specified the test driver name in the newly created test case is set to the 
 value of `-t`. This value has to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
+
+## The `list` command
+
+The list command can be used to list the descriptions and the test case file names of all tests in the test directory. It has
+the following syntax:
+
+```
+Usage of 6502profiler list:
+  -c string
+    	Config file name
+```
 
 # Emulator configuration
 
