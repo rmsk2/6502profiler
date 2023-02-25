@@ -142,8 +142,8 @@ format:
 The file names in this file are interpreted relative to the directory specified by the `AcmeTestDir` configuration entry. 
 
 Here an example for a test driver and a test script. Let's say we want to test the subroutine `simpleLoop` defined in `test_loop.a` 
-in the source directory. This routine is expected to copy a four byte vector stored at the load addres plus three bytes to the memory 
-starting a the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
+in the source directory. This routine is expected to copy a four byte vector stored at the load address plus three bytes to the memory 
+starting at the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
 
 ```
 * = $0800
@@ -157,10 +157,9 @@ testStart
     brk
 ```
 
-It is assumed that the test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). The test 
-driver is assembled into a binary by `acme` in such a way that its load address is contained in the first two bytes (as usual lo byte 
-first). The emulator stops when it encounters a `BRK` instruction. The corresponding Lua test script is also stored  (as `test1.lua` ) 
-in the test directory:
+It is always assumed that a test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). When executing
+the test case the test driver is automatically assembled into a binary by `acme` and then run by the emulator. The emulator stops when it encounters a 
+`BRK` instruction. The corresponding Lua test script is also stored  (as `test1.lua` ) in the test directory:
 
 ```
 test_vector = "10203040"
@@ -221,11 +220,11 @@ query and manipulate the emulator's memory and processor state:
 
 
 The `set_memory` and `get_memory` functions can be used to get and set blocks of emulator memory. These memory blocks are always 
-represented as a hex string. On top of that the following three variables are injected into the Lua script from the Go host program:
+represented as hex strings. On top of that the following three variables are injected into the Lua script from the Go host program:
 
 |Variable Name| Description |
 |-|-|
-| `load_address` | Address to which the test driver has been laoded and from which it is run | 
+| `load_address` | Address to which the test driver has been loaded and from which it is run | 
 | `prog_len` | Length in bytes of the loaded test driver | 
 | `test_dir` | Path to the test dir which can be used with `require` to load additional scripts | 
 
