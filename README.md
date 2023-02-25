@@ -6,7 +6,7 @@ This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 mic
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of algorithms on old or new
 machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and 
-`6502profiler` works an a purely logical level.
+`6502profiler` works at a purely logical level.
 
 The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
 possibility to implement tests where arranging the test data and evaluating the results is offloaded to a Lua script.
