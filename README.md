@@ -4,14 +4,16 @@
 
 This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
-and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of pure algorithms on old or new
-machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and `6502profiler` works an a purely logical level.
+and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of algorithms on old or new
+machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and 
+`6502profiler` works an a purely logical level.
 
 The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
-possibility to implement tests for assembly subroutines where arranging the test data and evaluating the results is offloaded to a Lua script.
+possibility to implement tests where arranging the test data and evaluating the results is offloaded to a Lua script.
 
 When used for performance analysis `6502profiler` executes an existing binary inside the emulator. While running the program the number of clock 
-cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
+cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it 
+also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
 
 **Caution: This is work in progress, things will change and maybe even break.**
 
@@ -30,7 +32,7 @@ The following commands are available:
      verifyall: Run all tests
 ```
 
-`6502profiler` expects an installed `acme` macro assembler for most of the functionality it implements. Its location can be configured
+`6502profiler` expects an installed `acme` macro assembler for most of its functionality to work. Its location can be configured
 through the `AcmeBinary` configuration entry.
 
 ## The `profile` command
@@ -55,9 +57,9 @@ Usage of 6502profiler profile:
     	Strategy to determine cutoff value (default "median")
 ```
 
-The most important option is the `-prg` option which can be used to specify the binary to run. It is expected that the first two bytes
+The most important option is the `-prg` option which is used to specify the binary to run. It is expected that the first two bytes
 of the binary contain the load address in the usual form (lo byte first). It is also expected that execution of the program will start at
-this address. The final instruction in a program that is run by `6502profiler` has to be `BRK` and not `RTS` as `BRK` halts the emulator.
+this address. The final instruction in a program that is run by `6502profiler` has to be `BRK`. `BRK` halts the emulator.
 
 If the `-out` option is specified `6502profiler` outputs statistical data about the current program execution. The output contains two
 types of lines. Label lines and address lines. The following example illustrates a label line followed by three address lines.
@@ -73,7 +75,7 @@ Label lines are created from the data contained in the symbol list file generate
 `-l` option. The path to this file can be provided through the `-label` option of `6502profiler`. Label lines serve as a basic
 link between the output of `6502profiler` and the source code of the program that is evaluated. 
 
-An address line contains a 16 bit hex address followed by a colon. This address is followed by the byte stored at this memory location 
+An address line contains a 16 bit hex address followed by a colon. The address is followed by the byte stored at this memory location 
 at the end of the execution of the program. This in turn is follwed by the number of times the address has been accessed (read and written) 
 by the running program. When an address line starts with `###` the corresponding address has been accessed "more often" than is usual during 
 program execution. The meaning of "more often" is defined by the options `-strategy` and `-prcnt`. 
@@ -86,10 +88,10 @@ a big effect on overall performance.
 The option `-prcnt` has to be a number between 0 and 100 and denotes a percentage. Specifying any value `p` results in those addresses
 in the output to be flagged with `###` that have access numbers which are in the top `p` percent of all access numbers.
 
-The `-strategy` option determines what *all* access numbers are. When the value `median` is used all access numbers are 
-sorted and and the lowest value in the top `p`% (`p` being the value of the `-prcnt` option) is selected as a threshold. Any 
-other value for the `-strategy` option sorts the access values after removing all duplicate values and after that determines 
-the threshold. In first experiments no significant differences between the two strategies have been found. 
+The `-strategy` option determines what *all* access numbers are. When the value `median` is used all access numbers (including duplicates) 
+are sorted and and the lowest value in the top `p`% (`p` being the value of the `-prcnt` option) is selected as a threshold. Any 
+other value for the `-strategy` option sorts the access values after removing all duplicates and after that determines the threshold. 
+In first experiments no significant differences between the two strategies have been found. 
 
 If `-out` is used, then `-label` also has to be specified. `-prcnt` and `-strategy` are optional. The default values for these options
 are 10 and `median`. The report file created by `ACME` when specifying its `-r` option can be used to more precisely link the output of 
@@ -121,7 +123,7 @@ which call the routines that are to be tested in an appropriate fashion. The tes
 access routines from the source directory. The test drivers are automatically assembled (or compiled) into the test binary directory.
 This directory is specified by `AcmeBinDir`.
 
-The `verify` command then loads the test driver binary and a corresponding Lua test script. This script has to define at least
+The `verify` command loads the test driver binary and a corresponding Lua test script. This script has to define at least
 two functions `arrange` and `assert`. Before running the test driver in the emulator the `verify` command calls the `arrange`
 function in the Lua script which can modify the emulator state before the test driver is run (for instance to arrange test data). 
 Then the test driver is run by the emulator and after it finishes the `assert` function of the test script is called to evaluate 
@@ -157,9 +159,8 @@ testStart
     brk
 ```
 
-It is always assumed that a test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). When executing
-the test case the test driver is automatically assembled into a binary by `acme` and then run by the emulator. The emulator stops when it encounters a 
-`BRK` instruction. The corresponding Lua test script is also stored  (as `test1.lua` ) in the test directory:
+It is always assumed that a test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). The corresponding 
+Lua test script is also stored  (as `test1.lua` ) in the test directory:
 
 ```
 test_vector = "10203040"
@@ -259,8 +260,8 @@ Executing test case '32 Bit is equal 2' ... (162 clock cycles) OK
 Executing test case '32 Bit is zero 4' ... (34 clock cycles) OK
 ```
 
-The `-prexec` command line option can be used to specify an assembly program that is run before the first test in order to
-perform a global test setup. The program name is interpreted relative to the `AcmeTestDir` defined in the config file.
+The `-prexec` command line option can be used to specify the source code of an assembly program that is run before the first test in 
+order to perform a global test setup. The program name is interpreted relative to the `AcmeTestDir` defined in the config file.
 
 ## The `newcase` command
 
@@ -282,6 +283,7 @@ Usage of 6502profiler newcase:
 The value of `-p` is used to generate the file names of all three files in the test directory by appending the corresponding 
 file endings `.json`, `.a` and `.lua`. If `-t` is specified the test driver name in the newly created test case is set to the 
 value of `-t`. This value has to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
+The `-d` option is used to add a description to the test case file which is printed when the test is run.
 
 ## The `list` command
 
@@ -319,11 +321,11 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
 
 `Model` can be `6502` or `65C02`. At the moment `MemSpec` can be `Linear16K`, `Linear32K`, `Linear48K`, `Linear64K`, 
 `XSixteen512K` or `XSixteen2048K`. The linear memory specifications denote a contiguous chunk of memory starting at 
-address 0 with a length of 16, 32 or 64 kilobytes. The `XSixteen` memory specifications configure the emulator to use 
+address 0 with a length of 16, 32, 48 or 64 kilobytes. The `XSixteen` memory specifications configure the emulator to use 
 the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
 
-`IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data 
-from the emulator by means of writing to a special I/O address. 
+`IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data from the emulator by 
+means of writing to a special virtual I/O address. 
 
 The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
 corresponding lo byte of one special address as well as a name of a file to which bytes are written each time data is stored 
@@ -361,4 +363,4 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
-- Maybe implement a single stepping mode
+We will see ... .
