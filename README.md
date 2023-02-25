@@ -192,7 +192,8 @@ end
 
 The `arrange` function copies the test vector into the emulator's memory before the test driver is run. After the test driver has finished the
 `assert` function is called to evaluate the results. In this example it is tested whether the test vector has been copied to the correct address
-and if the negative flag is set at the end of the test driver. If these conditions are not met corresponding error messages are returned.
+and if the negative flag is set at the end of the test driver. If these conditions are not met corresponding error messages are returned. Have a
+look in the `testprg/tests`directory in this repo for additional examples.
 
 ## Structure of test scripts
 
