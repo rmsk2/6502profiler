@@ -162,7 +162,7 @@ testStart
 It is always assumed that a test driver starts its execution at the load address (specified above by the `* = $xxxx` expression). The corresponding 
 Lua test script is also stored  (as `test1.lua` ) in the test directory:
 
-```
+```lua
 test_vector = "10203040"
 
 function arrange()
