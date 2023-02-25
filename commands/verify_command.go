@@ -46,7 +46,7 @@ func newCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 	}
 }
 
-func (t *caseExec) executeCase(testCaseName string) error {
+func (t *caseExec) loadAndExecuteCase(testCaseName string) error {
 	caseFileName := testCaseName
 
 	if !strings.HasSuffix(caseFileName, ".json") {
@@ -58,6 +58,10 @@ func (t *caseExec) executeCase(testCaseName string) error {
 		return fmt.Errorf("unable to load test case file: %v", err)
 	}
 
+	return t.executeCase(testCaseName, testCase)
+}
+
+func (t *caseExec) executeCase(testCaseName string, testCase *verifier.TestCase) error {
 	cpu, err := t.cpuProv.NewCpu()
 	if err != nil {
 		return fmt.Errorf("unable to create cpu for test case: %v", err)
@@ -206,7 +210,7 @@ func VerifyCommand(arguments []string) error {
 		return err
 	}
 
-	res := newCaseExec(config, config, repo, *verboseFlag).executeCase(*testCasePath)
+	res := newCaseExec(config, config, repo, *verboseFlag).loadAndExecuteCase(*testCasePath)
 	if *verboseFlag {
 		fmt.Println("--------------------------------------------")
 	}

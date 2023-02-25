@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-type IterProcFunc func(testCaseName string) error
+type IterProcFunc func(testCaseName string, tCase *TestCase) error
 
 type CaseRepo interface {
 	IterateTestCases(iterProcessor IterProcFunc) (uint, error)
@@ -103,7 +103,12 @@ func (s *simpleCaseRepo) IterateTestCases(iterProcessor IterProcFunc) (uint, err
 
 	for _, j := range names {
 		if r.MatchString(j) {
-			err := iterProcessor(j)
+			tCase, err := s.Get(j)
+			if err != nil {
+				return testCount, err
+			}
+
+			err = iterProcessor(j, tCase)
 			if err != nil {
 				return testCount, err
 			}

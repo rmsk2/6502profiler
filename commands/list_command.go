@@ -3,6 +3,7 @@ package commands
 import (
 	"6502profiler/emuconfig"
 	"6502profiler/util"
+	"6502profiler/verifier"
 	"flag"
 	"fmt"
 	"os"
@@ -33,14 +34,8 @@ func ListCommand(arguments []string) error {
 		return err
 	}
 
-	_, err = repo.IterateTestCases(func(caseName string) error {
-		testCase, err := repo.Get(caseName)
-		if err != nil {
-			return err
-		}
-
+	_, err = repo.IterateTestCases(func(caseName string, testCase *verifier.TestCase) error {
 		fmt.Printf("'%s'   =>   %s\n", testCase.Name, caseName)
-
 		return nil
 	})
 	if err != nil {
