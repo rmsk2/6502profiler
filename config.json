@@ -3,7 +3,6 @@
     "MemSpec": "Linear16K",
     "IoMask": 45,
     "IoAddrConfig": {
-        "221":"stdout:16"        
     },
     "PreLoad": {
     },
