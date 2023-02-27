@@ -329,7 +329,7 @@ the memory model of the Commander X16 with either 512K oder 2048K of banked RAM.
 `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data from the emulator by 
 means of writing to a special virtual I/O address. 
 
-The value in `IoMask` spcifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
+The value in `IoMask` specifies the hi byte of all such special addresses and each entry in `IoAddrConfig` specifies the 
 corresponding lo byte of one special address. In the example above the first resulting special address is `$2ddd` 
 ($2d=45, $dd=221). Each entry  in `IoAddrConfig` also has to contain a specification of what should happen each time data is 
 stored in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. If no such 
@@ -338,7 +338,7 @@ special addresses are needed then `IoAddrConfig` should be empty.
 Currently two types of special IO addresses are defined. One stores the data written to the corresponding address in a file. 
 Such an address is defined by an entry that start with `file:` and the remaining string specifies the file name. The second 
 type of special IO address outputs the data hex encoded to stdout. Such entries start with `sdtdout:`and the remaining part of
-the entry specifies the line length as a decimal number.
+the entry specifies the the number of bytes to be printed on one line as a decimal number.
 
 If you want to load binaries into the emulator's RAM before your program is run you can list these binaries in the `PreLoad`
 property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
