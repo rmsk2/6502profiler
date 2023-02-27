@@ -340,7 +340,7 @@ Such an address is defined by an entry that start with `file:` and the remaining
 type of special IO address outputs the data hex encoded to stdout. Such entries start with `sdtdout:`and the remaining part of
 the entry specifies the number of bytes to be printed on one line as a decimal number.
 
-If you want to load binaries into the emulator's RAM before your program is run you can list these binaries in the `PreLoad`
+If you want to load binaries into the emulator's RAM before any program is run you can list these binaries in the `PreLoad`
 property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
 the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
 though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
