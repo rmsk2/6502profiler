@@ -28,6 +28,7 @@ var confParsers []ConfParser = []ConfParser{
 	memory.NewFileProcFromConfig,
 	memory.NewPicProcFromConfig,
 	memory.NewStdOutProcessorFromConfig,
+	memory.NewPrinterProcessorFromConfig,
 }
 
 const L16 = "Linear16K"

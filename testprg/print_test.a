@@ -1,0 +1,25 @@
+!to "print_test",cbm
+* = $0800
+
+
+    ldy #193
+loopPrint
+    tya
+    sta $2DDD
+    iny
+    cpy #218
+    bne loopPrint
+    lda #10
+    sta $2DDD
+
+    ldy #32
+loopPrint2
+    tya
+    sta $2DDD
+    iny
+    cpy #90
+    bne loopPrint2
+    lda #10
+    sta $2DDD
+
+    brk
