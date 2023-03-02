@@ -13,6 +13,10 @@ func init() {
 		petsciiTable[i] = i - 96
 	}
 
+	for i = 97; i <= 122; i++ {
+		petsciiTable[i] = i
+	}
+
 	petsciiTable[0x0A] = 0x0A
 	petsciiTable[0x0D] = 0x0D
 }

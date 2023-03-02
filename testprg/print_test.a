@@ -1,25 +1,22 @@
 !to "print_test",cbm
 * = $0800
 
-
-    ldy #193
-loopPrint
-    tya
+    ldy #0
+    lda #<TEXT
+    sta $80
+    lda #>TEXT
+    sta $81
+.loopPrint
+    lda ($80), y
+    beq .finished
     sta $2DDD
     iny
-    cpy #218
-    bne loopPrint
-    lda #10
-    sta $2DDD
-
-    ldy #32
-loopPrint2
-    tya
-    sta $2DDD
-    iny
-    cpy #90
-    bne loopPrint2
-    lda #10
-    sta $2DDD
-
+    jmp .loopPrint
+.finished
     brk
+
+TEXT
+!tx "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-()"
+!byte $0d
+!byte $0a
+!byte 0
