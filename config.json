@@ -1,6 +1,6 @@
 {
     "Model": "6502",
-    "MemSpec": "Linear16K",
+    "MemSpec": "GeoRam_512K",
     "IoMask": 45,
     "IoAddrConfig": {
     },
