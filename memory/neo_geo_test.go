@@ -42,9 +42,9 @@ func TestMaskBits(t *testing.T) {
 func TestNeoGeo1(t *testing.T) {
 	var neo Memory = NewNeoGeo(testTrack, 5)
 
-	// testSector == 0, testTrack == 0
+	// testTrack == 0, testSector == 0
 	neo.Store(NeoGeoRamPage+1, 42)
-	// testSector == 0, testTrack == 1
+	// testTrack == 1, testSector == 0
 	neo.Store(testTrack, 1)
 	neo.Store(NeoGeoRamPage+1, 43)
 
