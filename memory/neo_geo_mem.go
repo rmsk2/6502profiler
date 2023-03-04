@@ -30,10 +30,11 @@ func NewNeoGeo(trackPtrAddress uint16, sectorBits uint) *NeoGeoRam {
 	baseRam := make([]byte, 65536)
 
 	res := &NeoGeoRam{
-		sectorMask:      calcSectorMask(sectorBits),
-		sectorBits:      checkSectorBits(sectorBits),
-		trackPtr:        &baseRam[trackPtrAddress],
-		sectorPtr:       &baseRam[trackPtrAddress+1],
+		sectorMask: calcSectorMask(sectorBits),
+		sectorBits: checkSectorBits(sectorBits),
+		trackPtr:   &baseRam[trackPtrAddress],
+		sectorPtr:  &baseRam[trackPtrAddress+1],
+
 		baseMem:         baseRam,
 		baseMemSnapshot: make([]byte, 65536),
 
