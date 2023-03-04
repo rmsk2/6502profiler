@@ -7,7 +7,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
+
+type listHelper struct {
+	description  string
+	caseFileName string
+}
 
 func ListCommand(arguments []string) error {
 	newCaseFlags := flag.NewFlagSet("6502profiler list", flag.ContinueOnError)
@@ -34,12 +40,38 @@ func ListCommand(arguments []string) error {
 		return err
 	}
 
+	caseList := []listHelper{}
+	maxDescLen := 0
+
 	_, err = repo.IterateTestCases(func(caseName string, testCase *verifier.TestCase) error {
-		fmt.Printf("'%s'   =>   %s\n", testCase.Name, caseName)
+		n := listHelper{
+			description:  testCase.Name,
+			caseFileName: caseName,
+		}
+		caseList = append(caseList, n)
+
+		if len(n.description) > maxDescLen {
+			maxDescLen = len(n.description)
+		}
+
 		return nil
 	})
 	if err != nil {
 		return fmt.Errorf("unable to iterate over test cases: %v", err)
+	}
+
+	filler := strings.Repeat(" ", maxDescLen)
+
+	for _, j := range caseList {
+		fmt.Print(j.description)
+
+		l := len(j.description)
+		if l < maxDescLen {
+			fmt.Print(filler[l:])
+		}
+
+		fmt.Print(" => ")
+		fmt.Println(j.caseFileName)
 	}
 
 	return nil
