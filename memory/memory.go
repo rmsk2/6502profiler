@@ -3,6 +3,7 @@ package memory
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Memory interface {
@@ -56,7 +57,7 @@ func Dump(m Memory, start uint16, end uint16) {
 	}
 
 	if !crlfWritten {
-		maxSpaces := "                                              "
+		maxSpaces := strings.Repeat(" ", 46)
 
 		plusOneSpace := 0
 		if byteCount <= 8 {
