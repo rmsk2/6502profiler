@@ -27,7 +27,7 @@ The following commands are available:
      info: Return info about program
      list: List all test cases and their descriptions
      newcase: Create a new test case skeleton
-     profile: Record data about program executions
+     profile: Run program, record and evaulute performance data
      verify: Run a test on an assembler program
      verifyall: Run all tests
 ```
