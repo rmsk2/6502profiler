@@ -1,4 +1,4 @@
-package acmeassembler
+package assembler
 
 import (
 	"testing"

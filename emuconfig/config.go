@@ -1,7 +1,7 @@
 package emuconfig
 
 import (
-	"6502profiler/acmeassembler"
+	"6502profiler/assembler"
 	"6502profiler/cpu"
 	"6502profiler/memory"
 	"6502profiler/verifier"
@@ -133,7 +133,7 @@ type CpuProvider interface {
 }
 
 type AsmProvider interface {
-	GetAssembler() acmeassembler.Assembler
+	GetAssembler() assembler.Assembler
 }
 
 type RepoProvider interface {
@@ -151,8 +151,8 @@ func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
 	return repo, nil
 }
 
-func (c *Config) GetAssembler() acmeassembler.Assembler {
-	return acmeassembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+func (c *Config) GetAssembler() assembler.Assembler {
+	return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 }
 
 func (c *Config) NewCpu() (*cpu.CPU6502, error) {

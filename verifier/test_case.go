@@ -1,7 +1,7 @@
 package verifier
 
 import (
-	"6502profiler/acmeassembler"
+	"6502profiler/assembler"
 	"6502profiler/cpu"
 	"encoding/json"
 	"fmt"
@@ -49,8 +49,8 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	return res, nil
 }
 
-func (t *TestCase) Execute(cpu *cpu.CPU6502, assembler acmeassembler.Assembler, scriptPath string) error {
-	binaryToTest, err := assembler.Assemble(t.TestDriverSource)
+func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string) error {
+	binaryToTest, err := asm.Assemble(t.TestDriverSource)
 	if err != nil {
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 	}
