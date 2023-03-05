@@ -168,7 +168,11 @@ func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
 }
 
 func (c *Config) GetAssembler() assembler.Assembler {
-	return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+	if c.AsmType == AsmDefault {
+		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+	} else {
+		return assembler.NewTass64(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+	}
 }
 
 func (c *Config) NewCpu() (*cpu.CPU6502, error) {
