@@ -106,6 +106,7 @@ func DefaultConfig() *Config {
 		IoMask:       0,
 		IoAddrConfig: map[uint8]string{},
 		PreLoad:      map[uint16]string{},
+		AsmType:      AsmAcme,
 		AcmeBinary:   "acme",
 		AcmeSrcDir:   "./",
 		AcmeBinDir:   "./test/bin",
