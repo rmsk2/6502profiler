@@ -16,6 +16,7 @@ type Config struct {
 	IoMask       uint8
 	IoAddrConfig map[uint8]string
 	PreLoad      map[uint16]string
+	AsmType      string
 	AcmeBinary   string
 	AcmeSrcDir   string
 	AcmeBinDir   string
@@ -41,6 +42,9 @@ const GEO_512 = "GeoRam_512K"
 const GEO_2048 = "GeoRam_2048K"
 const Proc6502 = "6502"
 const Proc65C02 = "65C02"
+const AsmDefault = ""
+const AsmAcme = "acme"
+const Asm64Tass = "64tass"
 
 func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
@@ -61,6 +65,12 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 		Proc65C02: true,
 	}
 
+	allowedAsmTypes := map[string]bool{
+		AsmDefault: true,
+		AsmAcme:    true,
+		Asm64Tass:  true,
+	}
+
 	configData, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("unable to load config file %s: %v", fileName, err)
@@ -79,6 +89,11 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 	_, ok = allowedCpuModels[res.Model]
 	if !ok {
 		return nil, fmt.Errorf("unknown CPU model: %v", res.MemSpec)
+	}
+
+	_, ok = allowedAsmTypes[res.AsmType]
+	if !ok {
+		return nil, fmt.Errorf("unknown Assembler type: %v", res.AsmType)
 	}
 
 	return res, nil
