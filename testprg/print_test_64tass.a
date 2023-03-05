@@ -1,0 +1,21 @@
+* = $0800
+
+    ldy #0
+    lda #<TEXT
+    sta $80
+    lda #>TEXT
+    sta $81
+loopPrint
+    lda ($80), y
+    beq finished
+    sta $2DDD
+    iny
+    jmp loopPrint
+finished
+    brk
+
+TEXT
+.text "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-()"
+.byte $0d
+.byte $0a
+.byte 0
