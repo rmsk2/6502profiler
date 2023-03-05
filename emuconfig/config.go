@@ -168,7 +168,7 @@ func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
 }
 
 func (c *Config) GetAssembler() assembler.Assembler {
-	if c.AsmType == AsmDefault {
+	if (c.AsmType == AsmDefault) || (c.AsmType == AsmAcme) {
 		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	} else {
 		return assembler.NewTass64(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
