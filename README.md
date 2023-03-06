@@ -33,7 +33,7 @@ The following commands are available:
 ```
 
 `6502profiler` expects an installed `acme` macro assembler for most of its functionality to work. Its location can be configured
-through the `AcmeBinary` configuration entry.
+through the `AcmeBinary` configuration entry. Alternatively `64tass` can be used when the `AsmType` entry is set to the value `64tass`.
 
 ## The `profile` command
 
@@ -320,7 +320,8 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
     "PreLoad": {
         "40960": "/home/martin/data/vice_roms/C64/basic",
         "57344": "/home/martin/data/vice_roms/C64/kernal"
-    },    
+    },
+    "AsmType": "acme",    
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
