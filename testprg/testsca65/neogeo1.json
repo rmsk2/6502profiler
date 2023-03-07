@@ -1,0 +1,5 @@
+{
+    "Name": "Test GeoRAM 1",
+    "TestDriverSource": "neogeo1.s",
+    "TestScript": "neogeo1.lua"
+}

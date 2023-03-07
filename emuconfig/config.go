@@ -45,6 +45,7 @@ const Proc65C02 = "65C02"
 const AsmDefault = ""
 const AsmAcme = "acme"
 const Asm64Tass = "64tass"
+const AsmCa65 = "ca65"
 
 func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
@@ -69,6 +70,7 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 		AsmDefault: true,
 		AsmAcme:    true,
 		Asm64Tass:  true,
+		AsmCa65:    true,
 	}
 
 	configData, err := os.ReadFile(fileName)
@@ -168,10 +170,13 @@ func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
 }
 
 func (c *Config) GetAssembler() assembler.Assembler {
-	if (c.AsmType == AsmDefault) || (c.AsmType == AsmAcme) {
-		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
-	} else {
+	switch {
+	case c.AsmType == Asm64Tass:
 		return assembler.NewTass64(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+	case c.AsmType == AsmCa65:
+		return assembler.NewCa65(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+	default:
+		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	}
 }
 
