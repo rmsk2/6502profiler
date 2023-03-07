@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
+	"path"
 )
 
 type Assembler interface {
@@ -13,6 +15,7 @@ type Assembler interface {
 }
 
 type LineParseFunc func(string) (uint16, string, error)
+type GenCommandFunc func(asmBin string, sourceDir string, outName string, progName string) *exec.Cmd
 
 func ParseLabelFile(fileName string, parseOneLine LineParseFunc) (map[uint16][]string, error) {
 	result := make(map[uint16][]string)
@@ -41,4 +44,36 @@ func ParseLabelFile(fileName string, parseOneLine LineParseFunc) (map[uint16][]s
 	}
 
 	return result, nil
+}
+
+type SimpleAsmImpl struct {
+	binPath      string
+	srcDir       string
+	binDir       string
+	testDir      string
+	errorMessage string
+	parseLine    LineParseFunc
+	genCmd       GenCommandFunc
+}
+
+func (s *SimpleAsmImpl) ParseLabelFile(fileName string) (map[uint16][]string, error) {
+	return ParseLabelFile(fileName, s.parseLine)
+}
+
+func (s *SimpleAsmImpl) GetErrorMessage() string {
+	return s.errorMessage
+}
+
+func (s *SimpleAsmImpl) Assemble(fileName string) (string, error) {
+	mlProg := path.Join(s.binDir, fmt.Sprintf("%s.bin", fileName))
+	mlSrc := path.Join(s.testDir, fileName)
+	cmd := s.genCmd(s.binPath, s.srcDir, mlProg, mlSrc)
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		s.errorMessage = string(out)
+		return "", fmt.Errorf("unable to assemble '%s'", fileName)
+	}
+
+	return mlProg, nil
 }

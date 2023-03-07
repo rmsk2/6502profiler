@@ -3,30 +3,23 @@ package assembler
 import (
 	"fmt"
 	"os/exec"
-	"path"
 	"regexp"
 	"strconv"
 )
 
-type Tass64 struct {
-	binPath      string
-	srcDir       string
-	binDir       string
-	testDir      string
-	errorMessage string
-}
-
-func NewTass64(path string, srcDir string, binDir string, testDir string) *Tass64 {
-	return &Tass64{
+func NewTass64(path string, srcDir string, binDir string, testDir string) *SimpleAsmImpl {
+	return &SimpleAsmImpl{
 		binPath:      path,
 		srcDir:       srcDir,
 		binDir:       binDir,
 		testDir:      testDir,
 		errorMessage: "",
+		parseLine:    parseOneLineTass,
+		genCmd:       makeTassCmd,
 	}
 }
 
-func (t *Tass64) parseOneLine(line string) (uint16, string, error) {
+func parseOneLineTass(line string) (uint16, string, error) {
 	r := regexp.MustCompile(`^\s*([[:word:]]+)\s+= [$]([[:xdigit:]]{1,4})(\s.*)?$`)
 
 	matches := r.FindStringSubmatch(line)
@@ -41,24 +34,6 @@ func (t *Tass64) parseOneLine(line string) (uint16, string, error) {
 	return uint16(res), matches[1], nil
 }
 
-func (t *Tass64) ParseLabelFile(fileName string) (map[uint16][]string, error) {
-	return ParseLabelFile(fileName, t.parseOneLine)
-}
-
-func (t *Tass64) GetErrorMessage() string {
-	return t.errorMessage
-}
-
-func (t *Tass64) Assemble(fileName string) (string, error) {
-	mlProg := path.Join(t.binDir, fmt.Sprintf("%s.bin", fileName))
-	mlSrc := path.Join(t.testDir, fileName)
-	cmd := exec.Command(t.binPath, "-I", t.srcDir, "-o", mlProg, "-a", mlSrc)
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		t.errorMessage = string(out)
-		return "", fmt.Errorf("unable to assemble '%s'", fileName)
-	}
-
-	return mlProg, nil
+func makeTassCmd(asmBin, sourceDir string, outName string, progName string) *exec.Cmd {
+	return exec.Command(asmBin, "-I", sourceDir, "-o", outName, "-a", progName)
 }
