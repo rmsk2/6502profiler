@@ -357,10 +357,11 @@ property. Each entry is a key value pair where the key is the address to which t
 the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
 though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
 
-The `AcmeBinary`entry defines the path to the `acme` program binary. `AcmeSrcDir` has to describe the path to the directory where 
-the assembler source files (which do not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where
-the test case files, the assembler source for the test drivers and the test scripts are located. Assembled test drivers are 
-stored in the directory referenced by `AcmeBinDir`.
+The `AcmeBinary`entry defines the path to the binary of the assembler to use. If the program is in your `PATH` then name
+of the binary suffices.. `AcmeSrcDir` has to describe the path to the directory where the assembler source files (which do 
+not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where the test case files, the assembler 
+source for the test drivers and the test scripts are located. Assembled test drivers are stored in the directory referenced 
+by `AcmeBinDir`. The entry `AsmType` spcifies the assembler to use currently the values `acme`and `64tass` are allowed.
 
 # Performance
 
