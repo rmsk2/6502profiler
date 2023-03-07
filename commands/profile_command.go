@@ -127,17 +127,17 @@ func ProfileCommand(arguments []string) error {
 	}
 
 	if statisticRequested {
-		if *labelFileName == "" {
-			return fmt.Errorf("a label file has to be specified")
+		labels = map[uint16][]string{}
+
+		if *labelFileName != "" {
+			labels, err = assembler.ParseLabelFile(*labelFileName)
+			if err != nil {
+				return fmt.Errorf("a problem occurred: %v", err)
+			}
 		}
 
 		if *percentageCutOff > 100 {
 			return fmt.Errorf("%d is not a valid value for cutoff percentage", *percentageCutOff)
-		}
-
-		labels, err = assembler.ParseLabelFile(*labelFileName)
-		if err != nil {
-			return fmt.Errorf("a problem occurred: %v", err)
 		}
 
 		p = float64(*percentageCutOff) / 100.0
