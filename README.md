@@ -362,7 +362,7 @@ The `AcmeBinary`entry defines the path to the binary of the assembler to use. If
 of the binary suffices. `AcmeSrcDir` has to describe the path to the directory where the assembler source files (which do 
 not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where the test case files, the assembler 
 source for the test drivers and the test scripts are located. Assembled test drivers are stored in the directory referenced 
-by `AcmeBinDir`. The entry `AsmType` spcifies the assembler to use currently the values `acme`, `64tass` and `ca65` are 
+by `AcmeBinDir`. The entry `AsmType` specifies the assembler to use. Currently the values `acme`, `64tass` and `ca65` are 
 allowed.
 
 When using `ca65` then the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
