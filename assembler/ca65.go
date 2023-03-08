@@ -3,31 +3,66 @@ package assembler
 import (
 	"fmt"
 	"os/exec"
+	"path"
 )
 
-func NewCa65(path string, srcDir string, binDir string, testDir string) *SimpleAsmImpl {
-	return &SimpleAsmImpl{
+type Ca65AsmImpl struct {
+	binPath      string
+	srcDir       string
+	binDir       string
+	testDir      string
+	errorMessage string
+}
+
+func NewCa65(path string, srcDir string, binDir string, testDir string) *Ca65AsmImpl {
+	return &Ca65AsmImpl{
 		binPath:      path,
 		srcDir:       srcDir,
 		binDir:       binDir,
 		testDir:      testDir,
 		errorMessage: "",
-		parseLine:    parseOneLineCa65,
-		genCmd:       makeCa65Cmd,
 	}
 }
 
-func parseOneLineCa65(line string) (uint16, string, error) {
-	return 0, "", fmt.Errorf("ca65 does not provide a possibility to create a label file")
+func (c *Ca65AsmImpl) ParseLabelFile(fileName string) (map[uint16][]string, error) {
+	return nil, fmt.Errorf("unsupported: ca65 is unable to create an easily parseable symbol list file")
 }
 
-func makeCa65Cmd(asmBin, sourceDir string, outName string, progName string, binDir string, objFile string) *exec.Cmd {
-	return exec.Command(asmBin,
-		"--asm-include-dir", sourceDir,
-		"--obj-path", binDir,
-		"--obj", objFile,
-		"-o", outName,
+func (c *Ca65AsmImpl) GetErrorMessage() string {
+	return c.errorMessage
+}
+
+func (c *Ca65AsmImpl) Assemble(fileName string) (string, error) {
+	mlProg := path.Join(c.binDir, fmt.Sprintf("%s.bin", fileName))
+	mlObj := path.Join(c.binDir, fmt.Sprintf("%s.obj", fileName))
+	mlSrc := path.Join(c.testDir, fileName)
+	asmCommand := path.Join(c.binPath, "ca65")
+	linkCommand := path.Join(c.binPath, "cl65")
+
+	asmCmd := exec.Command(asmCommand,
+		"-I", c.srcDir,
+		"-o", mlObj,
+		mlSrc,
+	)
+
+	linkCmd := exec.Command(linkCommand,
 		"-C", "c64-asm.cfg",
 		"--start-addr", "0x0800",
-		progName)
+		"-o", mlProg,
+		mlObj,
+	)
+
+	out, err := asmCmd.CombinedOutput()
+	if err != nil {
+		c.errorMessage = string(out)
+		return "", fmt.Errorf("unable to assemble '%s'", fileName)
+	}
+
+	out, err = linkCmd.CombinedOutput()
+	if err != nil {
+		c.errorMessage = string(out)
+		return "", fmt.Errorf("unable to link '%s'", fileName)
+	}
+
+	return mlProg, nil
 }

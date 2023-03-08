@@ -33,8 +33,8 @@ The following commands are available:
 ```
 
 `6502profiler` expects an installed `acme` macro assembler for most of its functionality to work. Its location can be configured
-through the `AcmeBinary` configuration entry. Alternatively `64tass` can be used when the `AsmType` config entry is set to the value 
-`64tass`.
+through the `AcmeBinary` configuration entry. Alternatively `64tass` or  `ca65` can be used when the `AsmType` config entry is set to the value 
+`64tass` or `ca65`.
 
 ## The `profile` command
 
@@ -362,7 +362,12 @@ The `AcmeBinary`entry defines the path to the binary of the assembler to use. If
 of the binary suffices. `AcmeSrcDir` has to describe the path to the directory where the assembler source files (which do 
 not implement the tests themselves) are stored. `AcmeTestDir` holds the directory where the test case files, the assembler 
 source for the test drivers and the test scripts are located. Assembled test drivers are stored in the directory referenced 
-by `AcmeBinDir`. The entry `AsmType` spcifies the assembler to use currently the values `acme`and `64tass` are allowed.
+by `AcmeBinDir`. The entry `AsmType` spcifies the assembler to use currently the values `acme`, `64tass` and `ca65` are 
+allowed.
+
+When using `ca65` then the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
+contain the names of the tools themselves. If for instance `ca65` and `cl65` are located in `/usr/bin` you can set `AcmeBinary`
+to `/usr/bin`. If the tools are in your path then you can simply use `""`. 
 
 # Performance
 

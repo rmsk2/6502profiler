@@ -7,7 +7,7 @@
     "PreLoad": {
     },
     "AsmType": "ca65",
-    "AcmeBinary": "cl65",
+    "AcmeBinary": "",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
     "AcmeTestDir": "./testprg/testsca65"
