@@ -365,7 +365,7 @@ source for the test drivers and the test scripts are located. Assembled test dri
 by `AcmeBinDir`. The entry `AsmType` specifies the assembler to use. Currently the values `acme`, `64tass` and `ca65` are 
 allowed.
 
-When using `ca65` then the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
+When using `ca65` the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
 contain the names of the tools themselves. If for instance `ca65` and `cl65` are located in `/usr/bin` you can set `AcmeBinary`
 to `/usr/bin`. If the tools are in your path then you can simply use `""`. 
 
