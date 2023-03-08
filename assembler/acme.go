@@ -34,6 +34,6 @@ func parseOneLineAcme(line string) (uint16, string, error) {
 	return uint16(res), matches[1], nil
 }
 
-func makeAcmeCmd(asmBin, sourceDir string, outName string, progName string) *exec.Cmd {
+func makeAcmeCmd(asmBin, sourceDir string, outName string, progName string, binDir string, obFile string) *exec.Cmd {
 	return exec.Command(asmBin, "-I", sourceDir, "-o", outName, "-f", "cbm", progName)
 }

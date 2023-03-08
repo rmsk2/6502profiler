@@ -21,6 +21,13 @@ func parseOneLineCa65(line string) (uint16, string, error) {
 	return 0, "", fmt.Errorf("ca65 does not provide a possibility to create a label file")
 }
 
-func makeCa65Cmd(asmBin, sourceDir string, outName string, progName string) *exec.Cmd {
-	return exec.Command(asmBin, "-Wa", fmt.Sprintf("-I,%s", sourceDir), "-o", outName, "-C", "c64-asm.cfg", "--start-addr", "0x0800", progName)
+func makeCa65Cmd(asmBin, sourceDir string, outName string, progName string, binDir string, objFile string) *exec.Cmd {
+	return exec.Command(asmBin,
+		"--asm-include-dir", sourceDir,
+		"--obj-path", binDir,
+		"--obj", objFile,
+		"-o", outName,
+		"-C", "c64-asm.cfg",
+		"--start-addr", "0x0800",
+		progName)
 }

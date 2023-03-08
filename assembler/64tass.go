@@ -34,6 +34,6 @@ func parseOneLineTass(line string) (uint16, string, error) {
 	return uint16(res), matches[1], nil
 }
 
-func makeTassCmd(asmBin, sourceDir string, outName string, progName string) *exec.Cmd {
+func makeTassCmd(asmBin, sourceDir string, outName string, progName string, binDir string, obFile string) *exec.Cmd {
 	return exec.Command(asmBin, "-I", sourceDir, "-o", outName, "-a", progName)
 }

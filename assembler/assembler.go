@@ -15,7 +15,7 @@ type Assembler interface {
 }
 
 type LineParseFunc func(string) (uint16, string, error)
-type GenCommandFunc func(asmBin string, sourceDir string, outName string, progName string) *exec.Cmd
+type GenCommandFunc func(asmBin string, sourceDir string, outName string, progName string, binDir string, obFile string) *exec.Cmd
 
 func ParseLabelFile(fileName string, parseOneLine LineParseFunc) (map[uint16][]string, error) {
 	result := make(map[uint16][]string)
@@ -66,8 +66,9 @@ func (s *SimpleAsmImpl) GetErrorMessage() string {
 
 func (s *SimpleAsmImpl) Assemble(fileName string) (string, error) {
 	mlProg := path.Join(s.binDir, fmt.Sprintf("%s.bin", fileName))
+	mlObj := path.Join(s.binDir, fmt.Sprintf("%s.obj", fileName))
 	mlSrc := path.Join(s.testDir, fileName)
-	cmd := s.genCmd(s.binPath, s.srcDir, mlProg, mlSrc)
+	cmd := s.genCmd(s.binPath, s.srcDir, mlProg, mlSrc, s.binDir, mlObj)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
