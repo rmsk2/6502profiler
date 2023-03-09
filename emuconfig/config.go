@@ -48,6 +48,8 @@ const AsmAcme = "acme"
 const Asm64Tass = "64tass"
 const AsmCa65 = "ca65"
 
+const Ca65DefaultLoadAddr = 0x0800
+
 func NewConfigFromFile(fileName string) (*Config, error) {
 	res := &Config{}
 
@@ -176,7 +178,11 @@ func (c *Config) GetAssembler() assembler.Assembler {
 	case c.AsmType == Asm64Tass:
 		return assembler.NewTass64(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	case c.AsmType == AsmCa65:
-		return assembler.NewCa65(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir, c.Ca65StartAddress)
+		var loadAddress uint16 = Ca65DefaultLoadAddr
+		if c.Ca65StartAddress != 0 {
+			loadAddress = c.Ca65StartAddress
+		}
+		return assembler.NewCa65(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir, loadAddress)
 	default:
 		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	}
