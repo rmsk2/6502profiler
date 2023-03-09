@@ -11,16 +11,17 @@ import (
 )
 
 type Config struct {
-	Model        string
-	MemSpec      string
-	IoMask       uint8
-	IoAddrConfig map[uint8]string
-	PreLoad      map[uint16]string
-	AsmType      string
-	AcmeBinary   string
-	AcmeSrcDir   string
-	AcmeBinDir   string
-	AcmeTestDir  string
+	Model            string
+	MemSpec          string
+	IoMask           uint8
+	IoAddrConfig     map[uint8]string
+	PreLoad          map[uint16]string
+	Ca65StartAddress uint16
+	AsmType          string
+	AcmeBinary       string
+	AcmeSrcDir       string
+	AcmeBinDir       string
+	AcmeTestDir      string
 }
 
 type ConfParser func(cnf string) (memory.MemWrapper, bool)
@@ -103,16 +104,17 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 
 func DefaultConfig() *Config {
 	res := &Config{
-		Model:        Proc6502,
-		MemSpec:      L32,
-		IoMask:       0,
-		IoAddrConfig: map[uint8]string{},
-		PreLoad:      map[uint16]string{},
-		AsmType:      AsmAcme,
-		AcmeBinary:   "acme",
-		AcmeSrcDir:   "./",
-		AcmeBinDir:   "./test/bin",
-		AcmeTestDir:  "./test",
+		Model:            Proc6502,
+		MemSpec:          L32,
+		IoMask:           0,
+		IoAddrConfig:     map[uint8]string{},
+		PreLoad:          map[uint16]string{},
+		Ca65StartAddress: 0x0800,
+		AsmType:          AsmAcme,
+		AcmeBinary:       "acme",
+		AcmeSrcDir:       "./",
+		AcmeBinDir:       "./test/bin",
+		AcmeTestDir:      "./test",
 	}
 
 	return res
@@ -174,7 +176,7 @@ func (c *Config) GetAssembler() assembler.Assembler {
 	case c.AsmType == Asm64Tass:
 		return assembler.NewTass64(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	case c.AsmType == AsmCa65:
-		return assembler.NewCa65(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
+		return assembler.NewCa65(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir, c.Ca65StartAddress)
 	default:
 		return assembler.NewACME(c.AcmeBinary, c.AcmeSrcDir, c.AcmeBinDir, c.AcmeTestDir)
 	}

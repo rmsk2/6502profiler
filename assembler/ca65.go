@@ -12,15 +12,17 @@ type Ca65AsmImpl struct {
 	binDir       string
 	testDir      string
 	errorMessage string
+	startAddress uint16
 }
 
-func NewCa65(path string, srcDir string, binDir string, testDir string) *Ca65AsmImpl {
+func NewCa65(path string, srcDir string, binDir string, testDir string, startAddress uint16) *Ca65AsmImpl {
 	return &Ca65AsmImpl{
 		binPath:      path,
 		srcDir:       srcDir,
 		binDir:       binDir,
 		testDir:      testDir,
 		errorMessage: "",
+		startAddress: startAddress,
 	}
 }
 
@@ -45,9 +47,11 @@ func (c *Ca65AsmImpl) Assemble(fileName string) (string, error) {
 		mlSrc,
 	)
 
+	loadAddress := fmt.Sprintf("0x%04x", c.startAddress)
+
 	linkCmd := exec.Command(linkCommand,
 		"-C", "c64-asm.cfg",
-		"--start-addr", "0x0800",
+		"--start-addr", loadAddress,
 		"-o", mlProg,
 		mlObj,
 	)

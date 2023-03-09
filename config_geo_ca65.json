@@ -10,5 +10,6 @@
     "AcmeBinary": "",
     "AcmeSrcDir": "./testprg",
     "AcmeBinDir": "./testprg/tests/bin",
-    "AcmeTestDir": "./testprg/testsca65"
+    "AcmeTestDir": "./testprg/testsca65",
+    "Ca65StartAddress": 2048
 }
