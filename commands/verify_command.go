@@ -49,8 +49,8 @@ func newCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 func (t *caseExec) loadAndExecuteCase(testCaseName string) error {
 	caseFileName := testCaseName
 
-	if !strings.HasSuffix(caseFileName, ".json") {
-		caseFileName += ".json"
+	if !strings.HasSuffix(caseFileName, verifier.TestCaseExtension) {
+		caseFileName += verifier.TestCaseExtension
 	}
 
 	testCase, err := t.repo.Get(caseFileName)

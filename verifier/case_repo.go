@@ -34,7 +34,7 @@ func (s *simpleCaseRepo) GetScriptPath() string {
 func (s *simpleCaseRepo) New(caseName string, t *TestCase, createDriver bool) error {
 	scriptPath := path.Join(s.testDir, t.TestScript)
 	testDriverPath := path.Join(s.testDir, t.TestDriverSource)
-	jsonPath := path.Join(s.testDir, caseName+".json")
+	jsonPath := path.Join(s.testDir, caseName+TestCaseExtension)
 
 	_, err := os.Stat(jsonPath)
 	if err == nil {
@@ -86,7 +86,7 @@ func (s *simpleCaseRepo) Get(caseName string) (*TestCase, error) {
 }
 
 func (s *simpleCaseRepo) IterateTestCases(iterProcessor IterProcFunc) (uint, error) {
-	r := regexp.MustCompile(`^(.+)\.json$`)
+	r := regexp.MustCompile(fmt.Sprintf(`^(.+)\%s$`, TestCaseExtension))
 
 	file, err := os.Open(s.testDir)
 	if err != nil {

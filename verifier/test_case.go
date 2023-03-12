@@ -11,6 +11,10 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+var TestDriverExtension = ".a"
+var TestScriptExtension = ".lua"
+var TestCaseExtension = ".json"
+
 type TestCase struct {
 	Name             string
 	TestDriverSource string
@@ -20,8 +24,8 @@ type TestCase struct {
 func NewTestCase(description string, caseName string) *TestCase {
 	return &TestCase{
 		Name:             description,
-		TestDriverSource: caseName + ".a",
-		TestScript:       caseName + ".lua",
+		TestDriverSource: caseName + TestDriverExtension,
+		TestScript:       caseName + TestScriptExtension,
 	}
 }
 
@@ -29,7 +33,7 @@ func NewTestCaseWithDriver(description string, caseName string, testDriverName s
 	return &TestCase{
 		Name:             description,
 		TestDriverSource: testDriverName,
-		TestScript:       caseName + ".lua",
+		TestScript:       caseName + TestScriptExtension,
 	}
 }
 
