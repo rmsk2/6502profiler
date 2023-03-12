@@ -18,6 +18,8 @@ func NewCaseCommand(arguments []string) error {
 	testCaseName := newCaseFlags.String("p", "", "Test case file name")
 	testDescription := newCaseFlags.String("d", "", "Test description")
 	testDriverName := newCaseFlags.String("t", "", "Full name of test driver file in test dir (optional)")
+	testDriverExtension := newCaseFlags.String("ext", "", "Extension to use for assembly test driver files (optional)")
+
 	var testCase *verifier.TestCase
 
 	if err := newCaseFlags.Parse(arguments); err != nil {
@@ -39,6 +41,10 @@ func NewCaseCommand(arguments []string) error {
 	config, err = emuconfig.NewConfigFromFile(*configName)
 	if err != nil {
 		return fmt.Errorf("error loading config: %v", err)
+	}
+
+	if *testDriverExtension != "" {
+		verifier.SetExtension(&verifier.TestDriverExtension, *testDriverExtension)
 	}
 
 	repo, err := config.GetCaseRepo()

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	lua "github.com/yuin/gopher-lua"
 )
@@ -14,6 +15,14 @@ import (
 var TestDriverExtension = ".a"
 var TestScriptExtension = ".lua"
 var TestCaseExtension = ".json"
+
+func SetExtension(extVar *string, newVal string) {
+	if !strings.HasPrefix(newVal, ".") {
+		newVal = "." + newVal
+	}
+
+	*extVar = newVal
+}
 
 type TestCase struct {
 	Name             string
