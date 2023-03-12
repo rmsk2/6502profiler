@@ -1,13 +1,20 @@
+.PC02
 
 TRACK_REG = $DFFE
 SECTOR_REG = $DFFF
 GEO_RAM = $DE00
 
-jmp start
+jmp start2
 
 OUT_1:
 .byte 32
 OUT_2:
 .byte 33
+
+start2:
+    lda #$FF
+    sta $3000
+    stz $3000
+    jmp start
 
 .include "ca65_test.s"
