@@ -156,7 +156,7 @@ Here an example for a test driver and a test script. Let's say we want to test t
 in the source directory. This routine is expected to copy a four byte vector stored at the load address plus three bytes to the memory 
 starting at the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
 
-```assembly
+```asm
 * = $0800
 
 jmp testStart
