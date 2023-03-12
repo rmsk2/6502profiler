@@ -188,7 +188,7 @@ func VerifyCommand(arguments []string) error {
 	verifierFlags := flag.NewFlagSet("6502profiler verify", flag.ContinueOnError)
 	configName := verifierFlags.String("c", "", "Config file name")
 	testCasePath := verifierFlags.String("t", "", "Test case file")
-	preExecName := verifierFlags.String("prexec", "", "Program to run before first test")
+	preExecName := verifierFlags.String("prexec", "", "Program to run before test")
 	verboseFlag := verifierFlags.Bool("verbose", false, "Give more information")
 
 	if err = verifierFlags.Parse(arguments); err != nil {
