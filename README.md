@@ -297,7 +297,7 @@ The value of `-p` is used to generate the file names of all three files in the t
 file endings `.json`, `.a` and `.lua`. If `-t` is specified the test driver name in the newly created test case is set to the 
 value of `-t`. This value has to include the file ending (typically `.a`) and is interpreted as a file name relative to `AcmeTestDir`.
 The `-d` option is used to add a description to the test case file which is printed when the test is run. Through the option
-`-ext` an alternative file extension for the assemnly test driverfiles can be specified in case you do not like the default value 
+`-ext` an alternative file extension for the assembly test driverfiles can be specified in case you do not like the default value 
 of `.a`.
 
 ## The `list` command
