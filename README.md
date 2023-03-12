@@ -317,7 +317,7 @@ Usage of 6502profiler list:
 
 The config is stored in a JSON file and can be referenced through the `-c` option. The config file is structured as follows
 
-```
+```json
 {
     "Model": "6502",
     "MemSpec": "Linear64K",
