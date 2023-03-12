@@ -141,7 +141,7 @@ whether the program returned the expected results. The test is successfull if th
 The source files for the test driver and the Lua test script have to be referenced in a JSON test case file which has the following
 format:
 
-```
+```json
 {
     "Name": "Simple loop test",
     "TestDriverSource": "test1.a",
