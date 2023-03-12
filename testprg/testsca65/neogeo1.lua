@@ -2,7 +2,7 @@ function arrange()
 end
 
 function assert() 
-    res = (read_byte(load_address+3) == 42) and ((read_byte(load_address+4) == 43)) and (read_byte(3*4096) == 0)
+    res = (read_byte(load_address+3) == 42) and ((read_byte(load_address+4) == 43)) and (read_byte(0x3000) == 0)
     error_msg = ""
 
     if not res then
