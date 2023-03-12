@@ -188,6 +188,7 @@ func VerifyCommand(arguments []string) error {
 	verifierFlags := flag.NewFlagSet("6502profiler verify", flag.ContinueOnError)
 	configName := verifierFlags.String("c", "", "Config file name")
 	testCasePath := verifierFlags.String("t", "", "Test case file")
+	preExecName := verifierFlags.String("prexec", "", "Program to run before first test")
 	verboseFlag := verifierFlags.Bool("verbose", false, "Give more information")
 
 	if err = verifierFlags.Parse(arguments); err != nil {
@@ -210,7 +211,16 @@ func VerifyCommand(arguments []string) error {
 		return err
 	}
 
-	res := newCaseExec(config, config, repo, *verboseFlag).loadAndExecuteCase(*testCasePath)
+	var cpuProv emuconfig.CpuProvider = config
+
+	if *preExecName != "" {
+		cpuProv, err = setupTests(config, *preExecName)
+		if err != nil {
+			return fmt.Errorf("unable to perform test setup: %v", err)
+		}
+	}
+
+	res := newCaseExec(cpuProv, config, repo, *verboseFlag).loadAndExecuteCase(*testCasePath)
 	if *verboseFlag {
 		fmt.Println("--------------------------------------------")
 	}
