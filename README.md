@@ -128,7 +128,7 @@ described below.
 
 The general idea is to have a collection of source files which contain the assembly subroutines to test in one directory (the source 
 directory as given in `AcmeSrcDir`) and additional separate assembly test driver programs in a test directory (named by `AcmeTestDir`) 
-which call the routines that are to be tested in an appropriate fashion. The test drivers use the `!source` or `.include` pseudo opcode 
+which call the routines that are to be tested in an appropriate fashion. The test drivers can use the `!source` or `.include` pseudo opcode 
 of the chosen assembler to access routines from the source directory. The test drivers are automatically assembled (or compiled) into 
 the test binary directory. This directory is specified by `AcmeBinDir`.
 
@@ -156,7 +156,7 @@ Here an example for a test driver and a test script. Let's say we want to test t
 in the source directory. This routine is expected to copy a four byte vector stored at the load address plus three bytes to the memory 
 starting at the load address plus seven bytes. The test driver looks as follows and is stored as `test1.a` in the test directory.
 
-```
+```assembly
 * = $0800
 
 jmp testStart
@@ -168,8 +168,9 @@ testStart
     brk
 ```
 
-It is always assumed that a test driver starts its execution at the load address (here specified by the `* = $xxxx` expression). The 
-corresponding Lua test script is also stored  (as `test1.lua` ) in the test directory:
+As a default it is assumed that a test driver starts its execution at the load address (here specified by the `* = $xxxx` expression). This
+can be changed though by calling `set_pc()` with the desired start address in the test script's `arrange` function. The  corresponding Lua 
+test script is also stored (here as `test1.lua`) in the test directory:
 
 ```lua
 test_vector = "10203040"
@@ -220,6 +221,7 @@ query and manipulate the emulator's memory and processor state:
 | `get_flags()` | Returns an eight character string that contains the letters `NVBDIZC-`. A letter is in the string if the corresponding flag is set|
 | `set_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
 | `get_pc()` | Returns the program counter |
+| `set_pc(val)` | Sets the program counter to `val`|
 | `get_sp()`| Returns the stack pointer |
 | `get_accu()` | Returns the value stored in the accumulator | 
 | `set_accu(val)` | Stores `val` in the accu | 

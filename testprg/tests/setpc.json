@@ -1,0 +1,5 @@
+{
+    "Name": "Test setting the PC in emulator",
+    "TestDriverSource": "setpc.a",
+    "TestScript": "setpc.lua"
+}

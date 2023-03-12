@@ -85,6 +85,8 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		return fmt.Errorf("unable to register Lua functions: %v", err)
 	}
 
+	cpu.PC = loadAdress
+
 	err = L.DoFile(scriptToRun)
 	if err != nil {
 		return fmt.Errorf("unable to load test script: %v", err)
@@ -95,7 +97,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
 	}
 
-	err = cpu.Run(loadAdress)
+	err = cpu.Run(cpu.PC)
 	if err != nil {
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 	}

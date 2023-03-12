@@ -1,0 +1,8 @@
+* = $0800
+
+RES_BYTE
+!byte 0
+
+    lda #10
+    sta RES_BYTE
+    brk

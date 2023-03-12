@@ -43,6 +43,7 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("get_cycles", L.NewFunction(c.GetCycles))
 	L.SetGlobal("get_sp", L.NewFunction(c.GetSP))
 	L.SetGlobal("get_pc", L.NewFunction(c.GetPC))
+	L.SetGlobal("set_pc", L.NewFunction(c.SetPC))
 	L.SetGlobal("get_accu", L.NewFunction(c.GetAccu))
 	L.SetGlobal("get_xreg", L.NewFunction(c.GetX))
 	L.SetGlobal("get_yreg", L.NewFunction(c.GetY))
@@ -101,6 +102,14 @@ func (c *LuaCtx) SetRegister(L *lua.LState, reg *uint8) int {
 	newValue := uint8(L.ToInt(1))
 
 	*reg = newValue
+
+	return 0
+}
+
+func (c *LuaCtx) SetPC(L *lua.LState) int {
+	newValue := uint16(L.ToInt(1))
+
+	c.cpu.PC = newValue
 
 	return 0
 }
