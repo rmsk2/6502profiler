@@ -15,6 +15,5 @@ start2:
     lda #$FF
     sta $3000
     stz $3000
-    jmp start
 
 .include "ca65_test.s"
