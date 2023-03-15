@@ -15,8 +15,6 @@ When used for performance analysis `6502profiler` executes an existing binary in
 cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it 
 also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
 
-**Caution: This is work in progress, things will change and maybe even break.**
-
 ## How to use `6502profiler`
 
 `6502profiler` has a command line interface. The first parameter is a so called command. Currently the following
