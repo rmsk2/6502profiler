@@ -399,4 +399,6 @@ The software is written in Go and therefore it can be built by the usual `go bui
 
 # Upcoming
 
-We will see ... .
+- Maybe add a possibility to deactivate a test case temporarily
+- Maybe add a feature which allows to feed several sets of test values into one test case, in such a way that the test is 
+automatically executed several times
