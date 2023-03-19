@@ -469,6 +469,10 @@ func (c *CPU6502) CopyAndRun(program []byte, startAddress uint16) (err error) {
 }
 
 func (c *CPU6502) Run(startAddress uint16) (err error) {
+	return c.RunExt(startAddress, true)
+}
+
+func (c *CPU6502) RunExt(startAddress uint16, resetCycleCount bool) (err error) {
 	var cyclesUsed uint64
 	err = nil
 
@@ -481,7 +485,9 @@ func (c *CPU6502) Run(startAddress uint16) (err error) {
 	}()
 
 	c.PC = startAddress
-	c.cycleCount = 0
+	if resetCycleCount {
+		c.cycleCount = 0
+	}
 
 	for halt := false; !halt; {
 		cyclesUsed, halt = c.executeInstruction()

@@ -1,0 +1,5 @@
+{
+    "Name": "Test iteration of test case",
+    "TestDriverSource": "test2.a",
+    "TestScript": "itertest.lua"
+}

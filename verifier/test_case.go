@@ -63,6 +63,9 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 }
 
 func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string) error {
+	var testRes bool
+	var testMsg string
+
 	binaryToTest, err := asm.Assemble(t.TestDriverSource)
 	if err != nil {
 		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
@@ -92,19 +95,28 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		return fmt.Errorf("unable to load test script: %v", err)
 	}
 
-	err = ctx.callArrange()
+	numIters, err := ctx.callNumIterations()
 	if err != nil {
-		return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
+		numIters = 1
 	}
 
-	err = cpu.Run(cpu.PC)
-	if err != nil {
-		return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
-	}
+	var i uint = 0
 
-	testRes, testMsg, err := ctx.callAssert()
-	if err != nil {
-		return fmt.Errorf("unable to assert test case '%s': %v", t.Name, err)
+	for ; i < numIters; i++ {
+		err = ctx.callArrange()
+		if err != nil {
+			return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
+		}
+
+		err = cpu.RunExt(cpu.PC, false)
+		if err != nil {
+			return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
+		}
+
+		testRes, testMsg, err = ctx.callAssert()
+		if err != nil {
+			return fmt.Errorf("unable to assert test case '%s': %v", t.Name, err)
+		}
 	}
 
 	if !testRes {

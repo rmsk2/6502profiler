@@ -301,3 +301,22 @@ func (c *LuaCtx) callAssert() (bool, string, error) {
 
 	return testRes, msg, nil
 }
+
+func (c *LuaCtx) callNumIterations() (uint, error) {
+	numIterLua := lua.P{
+		Fn:      c.L.GetGlobal("num_iterations"),
+		NRet:    1,
+		Protect: true,
+	}
+
+	err := c.L.CallByParam(numIterLua)
+	if err != nil {
+		return 0, fmt.Errorf("unable to call num_iterations function in test script: %v", err)
+	}
+
+	retIter, _ := c.L.Get(-1).(lua.LNumber)
+	numIter := uint(retIter)
+	c.L.Pop(1)
+
+	return numIter, nil
+}
