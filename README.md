@@ -246,6 +246,12 @@ represented as hex strings. On top of that the following three variables are inj
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
 
+Test scripts can optionally implement a `num_iterations()` function which takes no argument and returns an integer. The golang
+host program will call `arrange`, execute the assembly routines under test and then call `assert` as many times as the result 
+value of  `num_iterations` indicates. The number of clock cycles which is reported by `6502profiler` is the total number
+of clock cycles used for all the iterations. When using this feature the Lua test script has to explicitly reset the program 
+counter (using `set_pc()`) in the `arrange` function. A usage example can be found in the file `testprg/tests/itertest.lua`.
+
 ## The `verifyall` comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
@@ -400,5 +406,3 @@ The software is written in Go and therefore it can be built by the usual `go bui
 # Upcoming
 
 - Maybe add a possibility to deactivate a test case temporarily
-- Maybe add a feature which allows to feed several sets of test values into one test case, in such a way that the test is 
-automatically executed several times
