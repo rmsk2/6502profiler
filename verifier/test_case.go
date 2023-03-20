@@ -16,6 +16,8 @@ var TestDriverExtension = ".a"
 var TestScriptExtension = ".lua"
 var TestCaseExtension = ".json"
 
+type SubcaseProcessor func(currentIter uint, maxIter uint)
+
 func SetExtension(extVar *string, newVal string) {
 	if !strings.HasPrefix(newVal, ".") {
 		newVal = "." + newVal
@@ -62,7 +64,7 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	return res, nil
 }
 
-func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string) error {
+func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor) error {
 	var testRes bool
 	var testMsg string
 
@@ -106,6 +108,10 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		err = ctx.callArrange()
 		if err != nil {
 			return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
+		}
+
+		if (numIters > 1) && (subcaseProc != nil) {
+			subcaseProc(i, numIters)
 		}
 
 		err = cpu.RunExt(cpu.PC, false)

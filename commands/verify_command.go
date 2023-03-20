@@ -69,6 +69,7 @@ func (t *caseExec) executeCase(testCaseName string, testCase *verifier.TestCase)
 	defer func() { cpu.Mem.Close() }()
 
 	assembler := t.asmProv.GetAssembler()
+	var subcaseProc verifier.SubcaseProcessor = nil
 
 	if t.verboseFlag {
 		fmt.Println("--------------------------------------------")
@@ -76,11 +77,15 @@ func (t *caseExec) executeCase(testCaseName string, testCase *verifier.TestCase)
 		fmt.Printf("Test case file: %s\n", testCaseName)
 		fmt.Printf("Test script: %s\n", testCase.TestScript)
 		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
+
+		subcaseProc = func(i uint, numIter uint) {
+			fmt.Printf("Subcase %d of %d (%d clock cycles)\n", i+1, numIter, cpu.NumCycles())
+		}
 	} else {
 		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
 	}
 
-	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath())
+	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc)
 	if err != nil {
 		errMsg := assembler.GetErrorMessage()
 		if errMsg != "" {
