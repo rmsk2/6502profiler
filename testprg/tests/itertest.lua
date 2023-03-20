@@ -1,8 +1,8 @@
 test_data = {
-    [0] = {val1 = 17, val2= 34},
-    [1] = {val1 = 234, val2= 178},
-    [2] = {val1 = 254, val2= 255},
-    [3] = {val1 = 0, val2= 255}    
+    [0] = {val1 = 17, val2 = 34},
+    [1] = {val1 = 234, val2 = 178},
+    [2] = {val1 = 254, val2 = 255},
+    [3] = {val1 = 0, val2 = 255}    
 }
 
 function num_iterations() 

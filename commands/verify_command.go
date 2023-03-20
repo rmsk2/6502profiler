@@ -79,7 +79,7 @@ func (t *caseExec) executeCase(testCaseName string, testCase *verifier.TestCase)
 		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
 
 		subcaseProc = func(i uint, numIter uint) {
-			fmt.Printf("Subcase %d of %d (%d clock cycles)\n", i+1, numIter, cpu.NumCycles())
+			fmt.Printf("Executing subcase %d of %d (%d clock cycles already used)\n", i+1, numIter, cpu.NumCycles())
 		}
 	} else {
 		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
