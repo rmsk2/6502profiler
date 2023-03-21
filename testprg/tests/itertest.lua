@@ -1,15 +1,17 @@
 test_data = {
-    [0] = {val1 = 17, val2 = 34},
-    [1] = {val1 = 234, val2 = 178},
-    [2] = {val1 = 254, val2 = 255},
-    [3] = {val1 = 0, val2 = 255}    
+    [1] = {val1 = 17, val2 = 34},
+    [2] = {val1 = 234, val2 = 178},
+    [3] = {val1 = 254, val2 = 255},
+    [4] = {val1 = 0, val2 = 255},
+    [5] = {val1 = 2, val2 = 5},
+    [6] = {val1 = 1, val2 = 189}    
 }
 
 function num_iterations() 
-    return 4
+    return #test_data
 end
 
-iter_count = 0
+iter_count = 1
 
 function arrange()
     set_pc(load_address)
