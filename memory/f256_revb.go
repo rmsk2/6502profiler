@@ -27,25 +27,23 @@ func NewF56JrMemory() *F256RevBMemory {
 	sysMem := make([]byte, 0x140000)
 
 	res := F256RevBMemory{
-		mmuMemCtrl: 0,
-		mmuIoCtrl:  0,
-
-		mmuMemCtrlSnap: 0,
-		mmuIoCtrlSnap:  0,
-
+		mmuMemCtrl:   0,
+		mmuIoCtrl:    0,
 		systemMemory: sysMem,
 		ioMemory:     make([]byte, 32768),
 		mLut:         make([]byte, 4*8),
 
+		mmuMemCtrlSnap:   0,
+		mmuIoCtrlSnap:    0,
 		systemMemorySnap: make([]byte, 0x140000),
 		ioMemorySnap:     make([]byte, 32768),
 		mLutSnap:         make([]byte, 4*8),
 
+		accessMmuMemCtrl: 0,
+		accessMmuIoCtrl:  0,
 		accessSystem:     make([]uint64, 0x140000),
 		accessIo:         make([]uint64, 32768),
 		accessMLut:       make([]uint64, 4*8),
-		accessMmuMemCtrl: 0,
-		accessMmuIoCtrl:  0,
 	}
 
 	return &res
