@@ -65,8 +65,9 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 }
 
 func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor) error {
-	var testRes bool
+	var testRes bool = true
 	var testMsg string
+	var i uint
 
 	binaryToTest, err := asm.Assemble(t.TestDriverSource)
 	if err != nil {
@@ -102,9 +103,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		numIters = 1
 	}
 
-	var i uint = 0
-
-	for ; i < numIters; i++ {
+	for i = 0; (i < numIters) && testRes; i++ {
 		err = ctx.callArrange()
 		if err != nil {
 			return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)

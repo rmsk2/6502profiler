@@ -25,5 +25,5 @@ function assert()
     res = (get_accu() * 256) + get_xreg()
 
     iter_count = iter_count + 1
-    return res == in1 * in2, "Unexpected value"
+    return res == in1 * in2, string.format("Unexpected value: %d * %d is not %d", in1, in2, res)
 end
