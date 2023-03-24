@@ -354,7 +354,7 @@ specifications configure the emulator to use the memory model of the Commander X
 `GeoRam_512K` and `GeoRam_2048K` can be used to emulate the memory model of the GeoRAM or NeoRAM cartridge, where the memory 
 locations `$DFFE` and `$DFFF` select which 256 byte page of extended memory is banked into the address space starting at `$DE00`. 
 `F256_512K` and `F256_768K` implement the memory model of the Foenix F256 Jr. and F256K which are modern retro computers. 
-The 768K option emulates the presence of 256K expanded momory.
+The 768K option emulates the presence of a 256K memory expansion.
 
 `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data from the emulator by 
 means of writing to a special virtual I/O address. 
