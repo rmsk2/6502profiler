@@ -78,9 +78,9 @@ func TestIoAccess(t *testing.T) {
 	// Bank nr.6 has value 16
 	mem.SetMlut(2, []byte{22, 17, 18, 19, 20, 21, 16, 23})
 
-	// Write defines value into IO bank 1
+	// Write defined value into IO bank 1
 	mem.ioMemory[1*bankSize+8] = 0x23
-	// MLUT 2 is acrive
+	// MLUT 2 is active
 	mem.Store(0, 2)
 	// Memory IO page 1 is active
 	mem.Store(1, 1)
