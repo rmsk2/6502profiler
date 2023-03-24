@@ -348,11 +348,13 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
 ```
 
 `Model` can be `6502` or `65C02`. At the moment `MemSpec` can be `Linear16K`, `Linear32K`, `Linear48K`, `Linear64K`, 
-`XSixteen512K`, `XSixteen2048K`, `GeoRam_512K` or `GeoRam_2048K`. The linear memory specifications denote a contiguous 
-chunk of memory starting at address 0 with a length of 16, 32, 48 or 64 kilobytes. The `XSixteen` memory specifications 
-configure the emulator to use the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. `GeoRam_512K` 
-and `GeoRam_2048K` can be used to emulate the memory model of the GeoRAM or NeoRAM cartridge, where the memory locations 
-`$DFFE` and `$DFFF` select which 256 byte page of extended memory is banked into the address space starting at `$DE00`. 
+`XSixteen512K`, `XSixteen2048K`, `GeoRam_512K`, `GeoRam_2048K`, `F256_512K` or `F256_768K`. The linear memory specifications 
+denote a contiguous  chunk of memory starting at address 0 with a length of 16, 32, 48 or 64 kilobytes. The `XSixteen` memory 
+specifications configure the emulator to use the memory model of the Commander X16 with either 512K oder 2048K of banked RAM. 
+`GeoRam_512K` and `GeoRam_2048K` can be used to emulate the memory model of the GeoRAM or NeoRAM cartridge, where the memory 
+locations `$DFFE` and `$DFFF` select which 256 byte page of extended memory is banked into the address space starting at `$DE00`. 
+`F256_512K` and `F256_768K` implement the memory model of the Foenix F256 Jr. and F256K which are modern retro computers. 
+The 768K option emulates the presence of 256K expanded momory.
 
 `IoMask` and `IoAddrConfig` can be used to configure special I/O adresses that allow to exfiltrate data from the emulator by 
 means of writing to a special virtual I/O address. 
