@@ -41,6 +41,8 @@ const X16_512 = "XSixteen512K"
 const X16_2048 = "XSixteen2048K"
 const GEO_512 = "GeoRam_512K"
 const GEO_2048 = "GeoRam_2048K"
+const F256_512 = "F256_512K"
+const F256_768 = "F256_768K"
 const Proc6502 = "6502"
 const Proc65C02 = "65C02"
 const AsmDefault = ""
@@ -62,6 +64,8 @@ func NewConfigFromFile(fileName string) (*Config, error) {
 		X16_2048: true,
 		GEO_512:  true,
 		GEO_2048: true,
+		F256_512: true,
+		F256_768: true,
 	}
 
 	allowedCpuModels := map[string]bool{
@@ -214,6 +218,10 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 		mem = memory.NewNeoGeo(memory.NeoGeoRegisterPage+0xFE, 5)
 	case GEO_2048:
 		mem = memory.NewNeoGeo(memory.NeoGeoRegisterPage+0xFE, 7)
+	case F256_512:
+		mem = memory.NewF56JrMemory(false)
+	case F256_768:
+		mem = memory.NewF56JrMemory(true)
 	default:
 		mem = memory.NewLinearMemory(65536)
 	}
