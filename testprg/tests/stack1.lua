@@ -1,8 +1,19 @@
+function push(data)
+    sp = get_sp()
+    write_byte(0x100+sp, data)
+    if sp == 0 then
+        set_sp(0xFF)
+    else
+        set_sp(sp - 1)
+    end
+
+end
+
 function arrange()
-    write_byte(0x01FF, 2)
-    write_byte(0x01FE, 3)
-    write_byte(0x01FD, 4)
-    set_sp(0xFC)
+    set_sp(0xFF)
+    push(2)
+    push(3)
+    push(4)
 end
 
 function assert()
