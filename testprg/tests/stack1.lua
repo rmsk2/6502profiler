@@ -6,7 +6,6 @@ function push(data)
     else
         set_sp(sp - 1)
     end
-
 end
 
 function arrange()
