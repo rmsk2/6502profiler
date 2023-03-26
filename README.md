@@ -225,6 +225,7 @@ query and manipulate the emulator's memory and processor state:
 | `get_pc()` | Returns the program counter |
 | `set_pc(val)` | Sets the program counter to `val`|
 | `get_sp()`| Returns the stack pointer |
+| `set_sp(value)`| Sets the stack pointer |
 | `get_accu()` | Returns the value stored in the accumulator | 
 | `set_accu(val)` | Stores `val` in the accu | 
 | `get_xreg()` | Returns the value stored in the X register | 
