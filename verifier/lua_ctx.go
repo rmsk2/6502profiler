@@ -50,6 +50,7 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("set_accu", L.NewFunction(c.SetAccu))
 	L.SetGlobal("set_xreg", L.NewFunction(c.SetX))
 	L.SetGlobal("set_yreg", L.NewFunction(c.SetY))
+	L.SetGlobal("set_sp", L.NewFunction(c.SetSP))
 
 	L.SetGlobal("load_address", lua.LNumber(loadAddress))
 	L.SetGlobal("prog_len", lua.LNumber(progLen))
@@ -60,6 +61,10 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 
 func (c *LuaCtx) GetSP(L *lua.LState) int {
 	return c.GetRegister(L, &c.cpu.SP)
+}
+
+func (c *LuaCtx) SetSP(L *lua.LState) int {
+	return c.SetRegister(L, &c.cpu.SP)
 }
 
 func (c *LuaCtx) GetAccu(L *lua.LState) int {

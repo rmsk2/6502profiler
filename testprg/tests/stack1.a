@@ -1,0 +1,16 @@
+* = 0800
+
+jmp start
+
+MEM
+!byte 0,0,0
+
+start
+    ldy #0
+.loop
+    pla
+    sta MEM,y
+    iny
+    cpy #3
+    bne .loop    
+    brk
