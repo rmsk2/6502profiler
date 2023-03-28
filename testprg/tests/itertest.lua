@@ -1,3 +1,5 @@
+require(test_dir .. "tools")
+
 test_data = {
     [1] = {val1 = 17, val2 = 34},
     [2] = {val1 = 234, val2 = 178},
@@ -15,7 +17,7 @@ iter_count = 0
 
 function arrange()
     iter_count = iter_count + 1
-    set_pc(load_address)
+    restart()
     set_accu(test_data[iter_count].val1)
     set_xreg(test_data[iter_count].val2)
 end

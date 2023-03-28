@@ -20,6 +20,10 @@ function pull()
     return read_byte(0x100 + sp)
 end
 
+function restart()
+    set_pc(load_address)
+end
+
 function is_flag_set(f)
     return string.find(get_flags(), f, 0, true) ~= nil
 end
