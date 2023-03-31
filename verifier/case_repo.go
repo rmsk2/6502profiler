@@ -85,6 +85,31 @@ func (s *simpleCaseRepo) Get(caseName string) (*TestCase, error) {
 	return NewTestCaseFromFile(caseFileName)
 }
 
+func (s *simpleCaseRepo) Stat(caseName string) (tCase *TestCase, asmUnique bool, luaUnique bool, err error) {
+	caseFileName := path.Join(s.testDir, caseName)
+	tCase, err = NewTestCaseFromFile(caseFileName)
+	if err != nil {
+		return nil, false, false, err
+	}
+
+	asmCounter := map[string]int{}
+	scriptCounter := map[string]int{}
+
+	statIter := func(testCaseName string, caseData *TestCase) error {
+		asmCounter[caseData.TestDriverSource] += 1
+		scriptCounter[caseData.TestScript] += 1
+
+		return nil
+	}
+
+	_, err = s.IterateTestCases(statIter)
+	if err != nil {
+		return nil, false, false, err
+	}
+
+	return tCase, asmCounter[tCase.TestDriverSource] == 1, scriptCounter[tCase.TestScript] == 1, nil
+}
+
 func (s *simpleCaseRepo) IterateTestCases(iterProcessor IterProcFunc) (uint, error) {
 	r := regexp.MustCompile(fmt.Sprintf(`^(.+)\%s$`, TestCaseExtension))
 
