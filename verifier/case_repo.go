@@ -85,9 +85,8 @@ func (s *simpleCaseRepo) Get(caseName string) (*TestCase, error) {
 	return NewTestCaseFromFile(caseFileName)
 }
 
-func (s *simpleCaseRepo) Stat(caseName string) (tCase *TestCase, asmUnique bool, luaUnique bool, err error) {
-	caseFileName := path.Join(s.testDir, caseName)
-	tCase, err = NewTestCaseFromFile(caseFileName)
+func Stat(s *simpleCaseRepo, caseName string) (tCase *TestCase, asmUnique bool, luaUnique bool, err error) {
+	tCase, err = s.Get(caseName)
 	if err != nil {
 		return nil, false, false, err
 	}
