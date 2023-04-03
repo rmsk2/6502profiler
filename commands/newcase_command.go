@@ -58,7 +58,7 @@ func NewCaseCommand(arguments []string) error {
 		testCase = verifier.NewTestCaseWithDriver(*testDescription, *testCaseName, *testDriverName)
 	}
 
-	err = repo.New(*testCaseName, testCase, *testDriverName == "")
+	err = repo.Add(*testCaseName, testCase, *testDriverName == "")
 	if err != nil {
 		return fmt.Errorf("error creating new test case: %v", err)
 	}

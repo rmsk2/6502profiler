@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 )
 
 type IterProcFunc func(testCaseName string, tCase *TestCase) error
@@ -13,7 +14,8 @@ type IterProcFunc func(testCaseName string, tCase *TestCase) error
 type CaseRepo interface {
 	IterateTestCases(iterProcessor IterProcFunc) (uint, error)
 	Get(caseName string) (*TestCase, error)
-	New(caseName string, t *TestCase, createDriver bool) error
+	Add(caseName string, t *TestCase, createDriver bool) error
+	Del(caseName string) error
 	GetScriptPath() string
 }
 
@@ -31,7 +33,43 @@ func (s *simpleCaseRepo) GetScriptPath() string {
 	return s.testDir
 }
 
-func (s *simpleCaseRepo) New(caseName string, t *TestCase, createDriver bool) error {
+func (s *simpleCaseRepo) Del(caseName string) error {
+	if !strings.HasSuffix(caseName, TestCaseExtension) {
+		caseName = caseName + TestCaseExtension
+	}
+
+	t, asmUnique, luaUnique, err := statCase(s, caseName)
+	if err != nil {
+		return fmt.Errorf("unable to delete case '%s': %v", caseName, err)
+	}
+
+	scriptPath := path.Join(s.testDir, t.TestScript)
+	testDriverPath := path.Join(s.testDir, t.TestDriverSource)
+	jsonPath := path.Join(s.testDir, caseName)
+
+	err = os.Remove(jsonPath)
+	if err != nil {
+		return fmt.Errorf("unable to delete case '%s': %v", caseName, err)
+	}
+
+	if asmUnique {
+		err = os.Remove(testDriverPath)
+		if err != nil {
+			return fmt.Errorf("unable to delete case '%s': %v", caseName, err)
+		}
+	}
+
+	if luaUnique {
+		err = os.Remove(scriptPath)
+		if err != nil {
+			return fmt.Errorf("unable to delete case '%s': %v", caseName, err)
+		}
+	}
+
+	return nil
+}
+
+func (s *simpleCaseRepo) Add(caseName string, t *TestCase, createDriver bool) error {
 	scriptPath := path.Join(s.testDir, t.TestScript)
 	testDriverPath := path.Join(s.testDir, t.TestDriverSource)
 	jsonPath := path.Join(s.testDir, caseName+TestCaseExtension)
@@ -82,10 +120,11 @@ func (s *simpleCaseRepo) New(caseName string, t *TestCase, createDriver bool) er
 
 func (s *simpleCaseRepo) Get(caseName string) (*TestCase, error) {
 	caseFileName := path.Join(s.testDir, caseName)
+
 	return NewTestCaseFromFile(caseFileName)
 }
 
-func Stat(s *simpleCaseRepo, caseName string) (tCase *TestCase, asmUnique bool, luaUnique bool, err error) {
+func statCase(s CaseRepo, caseName string) (tCase *TestCase, asmUnique bool, luaUnique bool, err error) {
 	tCase, err = s.Get(caseName)
 	if err != nil {
 		return nil, false, false, err
