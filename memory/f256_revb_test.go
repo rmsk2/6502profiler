@@ -110,7 +110,7 @@ func TestEditActiveMLUT(t *testing.T) {
 	mem := NewF56JrMemory(true)
 	mem.SetMlut(1, []byte{16, 17, 18, 19, 20, 21, 22, 23})
 	// MLUT 1 is active and is editable
-	mem.Store(0, 145)
+	mem.Store(0, 0b10010001)
 
 	mem.Store(0x2000+723, 17)
 
