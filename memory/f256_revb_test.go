@@ -105,3 +105,26 @@ func TestIoAccess(t *testing.T) {
 		t.Fatal("Disabling IO memory did not work")
 	}
 }
+
+func TestEditActiveMLUT(t *testing.T) {
+	mem := NewF56JrMemory(true)
+	mem.SetMlut(1, []byte{16, 17, 18, 19, 20, 21, 22, 23})
+	// MLUT 1 is active and is editable
+	mem.Store(0, 145)
+
+	mem.Store(0x2000+723, 17)
+
+	mem.Store(9, 25)
+	mem.Store(0x2000+723, 44)
+
+	mem.Store(9, 17)
+
+	if mem.Load(0x2000+723) != 17 {
+		t.Fatal("Should have read 17")
+	}
+
+	mem.Store(9, 25)
+	if mem.Load(0x2000+723) != 44 {
+		t.Fatal("Should have read 44")
+	}
+}
