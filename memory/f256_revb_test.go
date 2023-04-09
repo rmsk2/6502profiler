@@ -118,7 +118,6 @@ func TestEditActiveMLUT(t *testing.T) {
 	mem.Store(0x2000+723, 44)
 
 	mem.Store(9, 17)
-
 	if mem.Load(0x2000+723) != 17 {
 		t.Fatal("Should have read 17")
 	}
