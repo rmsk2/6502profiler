@@ -22,6 +22,7 @@ commands are implemented.
 
 ```
 The following commands are available: 
+     delcase: Delete the files of an existing test case
      info: Return info about program
      list: List all test cases and their descriptions
      newcase: Create a new test case skeleton
