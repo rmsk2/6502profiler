@@ -49,7 +49,7 @@ func NewUMultiplierFromConfig(conf string) (MemWrapper, bool) {
 	return NewUMultiplier(uint16(inAddr), uint16(outAddr), uint16(offset)), true
 }
 
-func NewUMultiplier(inAddr, outAddr uint16, o uint16) *F256UnsignedMultiplierWrapper {
+func NewUMultiplier(inAddr uint16, outAddr uint16, o uint16) *F256UnsignedMultiplierWrapper {
 	return &F256UnsignedMultiplierWrapper{
 		inAddrStart:  inAddr,
 		outAddrStart: outAddr,

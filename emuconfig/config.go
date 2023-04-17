@@ -237,6 +237,7 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 		for i, j := range c.IoAddrConfig {
 			res, ok = c.tryParseWrapperLine(j)
 			if ok {
+				res.SetBaseMem(mem)
 				address := baseAddress | uint16(i)
 				wrapper.AddWrapper(address, res)
 			} else {
