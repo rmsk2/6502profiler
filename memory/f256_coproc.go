@@ -31,18 +31,18 @@ func NewUMultiplierFromConfig(conf string) (MemWrapper, bool) {
 		return nil, false
 	}
 
-	outAddr, _ := strconv.ParseUint(matches[1], 10, 16)
+	outAddr, _ := strconv.ParseUint(matches[2], 10, 16)
 	if outAddr >= 65536 {
 		return nil, false
 	}
 
-	inAddr, _ := strconv.ParseUint(matches[2], 10, 16)
+	inAddr, _ := strconv.ParseUint(matches[1], 10, 16)
 	if inAddr >= 65536 {
 		return nil, false
 	}
 
 	offset, _ := strconv.ParseUint(matches[3], 10, 16)
-	if inAddr >= 4 {
+	if offset >= 4 {
 		return nil, false
 	}
 

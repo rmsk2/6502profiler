@@ -1,0 +1,5 @@
+{
+    "Name": "Test multiplication",
+    "TestDriverSource": "mul1.a",
+    "TestScript": "mul1.lua"
+}

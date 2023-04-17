@@ -1,0 +1,11 @@
+* = $0800
+
+    lda #$23
+    sta $DE00
+    lda #$45
+    sta $DE01
+    lda #$67
+    sta $DE02
+    lda #$89
+    sta $DE03
+    brk

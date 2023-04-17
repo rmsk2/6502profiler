@@ -1,0 +1,17 @@
+{
+    "Model": "6502",
+    "MemSpec": "Linear64K",
+    "IoMask": 222,
+    "IoAddrConfig": {
+        "0": "F256UMul:56832#56836#0",
+        "1": "F256UMul:56832#56836#1",
+        "2": "F256UMul:56832#56836#2",
+        "3": "F256UMul:56832#56836#3"
+    },
+    "PreLoad": {
+    },
+    "AcmeBinary": "acme",
+    "AcmeSrcDir": "./testprg",
+    "AcmeBinDir": "./testprg/tests/bin",
+    "AcmeTestDir": "./testprg/testmlt"
+}
