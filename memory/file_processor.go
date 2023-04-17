@@ -51,3 +51,7 @@ func (p *FileProcessor) Close() {
 		panic(fmt.Sprintf("error closing data file: %v", err))
 	}
 }
+
+func (p *FileProcessor) SetBaseMem(m Memory) {
+
+}

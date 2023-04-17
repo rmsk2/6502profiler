@@ -46,3 +46,7 @@ func (s *StdOutProcessor) Write(b uint8) {
 
 func (s *StdOutProcessor) Close() {
 }
+
+func (s *StdOutProcessor) SetBaseMem(m Memory) {
+
+}

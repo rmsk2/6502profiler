@@ -3,6 +3,7 @@ package memory
 type DataWriteFunc func(data uint8)
 
 type MemWrapper interface {
+	SetBaseMem(m Memory)
 	Write(data uint8)
 	Close()
 }

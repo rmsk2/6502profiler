@@ -44,3 +44,7 @@ func (p *PrinterProcessor) Write(b uint8) {
 
 func (p *PrinterProcessor) Close() {
 }
+
+func (p *PrinterProcessor) SetBaseMem(m Memory) {
+
+}

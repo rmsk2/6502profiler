@@ -92,3 +92,7 @@ func (p *PicProcessor) Close() {
 		panic(fmt.Sprintf("Unable to encode picture: %v", err))
 	}
 }
+
+func (p *PicProcessor) SetBaseMem(m Memory) {
+
+}
