@@ -10,12 +10,18 @@ import (
 	"os"
 )
 
+const UMul = 1
+const SMul = 2
+const UDiv = 4
+const SDiv = 8
+
 type Config struct {
 	Model            string
 	MemSpec          string
 	IoMask           uint8
 	IoAddrConfig     map[uint8]string
 	PreLoad          map[uint16]string
+	F256MCoprocFlags uint8
 	Ca65StartAddress uint16
 	AsmType          string
 	AcmeBinary       string
@@ -31,7 +37,6 @@ var confParsers []ConfParser = []ConfParser{
 	memory.NewPicProcFromConfig,
 	memory.NewStdOutProcessorFromConfig,
 	memory.NewPrinterProcessorFromConfig,
-	memory.NewUMultiplierFromConfig,
 }
 
 const L16 = "Linear16K"
@@ -193,6 +198,68 @@ func (c *Config) GetAssembler() assembler.Assembler {
 	}
 }
 
+func (c *Config) AddIoWrapper(mem memory.Memory) (memory.Memory, error) {
+	var res memory.MemWrapper = nil
+	ok := false
+	baseAddress := uint16(c.IoMask) << 8
+	var wrapper *memory.WrappingMemory = nil
+
+	wrapper = memory.NewMemWrapper(mem, baseAddress)
+
+	for i, j := range c.IoAddrConfig {
+		res, ok = c.tryParseWrapperLine(j)
+		if ok {
+			res.SetBaseMem(mem)
+			address := baseAddress | uint16(i)
+			wrapper.AddWrapper(address, res)
+		} else {
+			return nil, fmt.Errorf("unable to process memory wrapper config: '%s'", j)
+		}
+	}
+
+	mem = wrapper
+
+	return mem, nil
+}
+
+func (c *Config) AddF256Func(mem memory.Memory) memory.Memory {
+	var wrapper = memory.NewMemWrapper(mem, 0xDE00)
+	wrapperUsed := false
+	var i uint16
+
+	if (c.F256MCoprocFlags & UMul) != 0 {
+		for i = 0; i < 4; i++ {
+			mul := memory.NewUMultiplier(0xDE00, 0xDE04, i)
+			mul.SetBaseMem(mem)
+			wrapper.AddWrapper(0xDE00+i, mul)
+		}
+
+		wrapperUsed = true
+	}
+
+	if wrapperUsed {
+		mem = wrapper
+	}
+
+	return mem
+}
+
+func (c *Config) PreloadRoms(cpu *cpu.CPU6502) error {
+	for i, j := range c.PreLoad {
+		data, err := os.ReadFile(j)
+		if err != nil {
+			return fmt.Errorf("unable to preload file: %v", err)
+		}
+
+		err = cpu.CopyToMem(data, i)
+		if err != nil {
+			return fmt.Errorf("unable to copy preloaded file '%s' to $%04X: %v", j, i, err)
+		}
+	}
+
+	return nil
+}
+
 func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 	var model cpu.CpuModel = cpu.Model6502
 
@@ -202,7 +269,6 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 
 	cpu := cpu.New6502(model)
 	var mem memory.Memory
-	var wrapper *memory.WrappingMemory = nil
 
 	switch c.MemSpec {
 	case L16:
@@ -227,39 +293,22 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 		mem = memory.NewLinearMemory(65536)
 	}
 
+	var err error
+
+	mem = c.AddF256Func(mem)
+
 	if len(c.IoAddrConfig) != 0 {
-		var res memory.MemWrapper = nil
-		ok := false
-		baseAddress := uint16(c.IoMask) << 8
-
-		wrapper = memory.NewMemWrapper(mem, baseAddress)
-
-		for i, j := range c.IoAddrConfig {
-			res, ok = c.tryParseWrapperLine(j)
-			if ok {
-				res.SetBaseMem(mem)
-				address := baseAddress | uint16(i)
-				wrapper.AddWrapper(address, res)
-			} else {
-				return nil, fmt.Errorf("unable to process memory wrapper config: '%s'", j)
-			}
+		mem, err = c.AddIoWrapper(mem)
+		if err != nil {
+			return nil, err
 		}
-
-		mem = wrapper
 	}
 
 	cpu.Init(mem)
 
-	for i, j := range c.PreLoad {
-		data, err := os.ReadFile(j)
-		if err != nil {
-			return nil, fmt.Errorf("unable to preload file: %v", err)
-		}
-
-		err = cpu.CopyToMem(data, i)
-		if err != nil {
-			return nil, fmt.Errorf("unable to copy preloaded file '%s' to $%04X: %v", j, i, err)
-		}
+	err = c.PreloadRoms(cpu)
+	if err != nil {
+		return nil, err
 	}
 
 	return cpu, nil
