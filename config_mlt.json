@@ -6,7 +6,7 @@
     },
     "PreLoad": {
     },
-    "F256MCoprocFlags": 1,
+    "F256MCoprocFlags": 5,
     "F256MCoprocBase": 56832,
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",

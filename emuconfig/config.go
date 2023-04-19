@@ -231,7 +231,13 @@ func (c *Config) AddF256Func(mem memory.Memory) memory.Memory {
 	wrapperUsed := false
 
 	if (c.F256MCoprocFlags & UMul) != 0 {
-		coproc.RegisterUmul(*wrapper)
+		coproc.RegisterUmul(wrapper)
+
+		wrapperUsed = true
+	}
+
+	if (c.F256MCoprocFlags & UDiv) != 0 {
+		coproc.RegisterUdiv(wrapper)
 
 		wrapperUsed = true
 	}
