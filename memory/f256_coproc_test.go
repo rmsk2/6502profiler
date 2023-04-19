@@ -5,22 +5,9 @@ import "testing"
 func TestMul161(t *testing.T) {
 	mem := NewLinearMemory(65536)
 	memWrap := NewMemWrapper(mem, 0xDE00)
+	coproc := NewUnsignedCoproc(mem, 0xDE00)
 
-	mul1 := NewUMultiplier(0xDE00, 0xDE04, 0)
-	mul1.SetBaseMem(mem)
-	memWrap.AddWrapper(0xDE00, mul1)
-
-	mul2 := NewUMultiplier(0xDE00, 0xDE04, 1)
-	mul2.SetBaseMem(mem)
-	memWrap.AddWrapper(0xDE01, mul2)
-
-	mul3 := NewUMultiplier(0xDE00, 0xDE04, 2)
-	mul3.SetBaseMem(mem)
-	memWrap.AddWrapper(0xDE02, mul3)
-
-	mul4 := NewUMultiplier(0xDE00, 0xDE04, 3)
-	mul4.SetBaseMem(mem)
-	memWrap.AddWrapper(0xDE03, mul4)
+	coproc.RegisterUmul(*memWrap)
 
 	memWrap.Store(0xDE00, 0x23)
 	memWrap.Store(0xDE01, 0x45)

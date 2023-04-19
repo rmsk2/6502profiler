@@ -22,6 +22,7 @@ type Config struct {
 	IoAddrConfig     map[uint8]string
 	PreLoad          map[uint16]string
 	F256MCoprocFlags uint8
+	F256MCoprocBase  uint16
 	Ca65StartAddress uint16
 	AsmType          string
 	AcmeBinary       string
@@ -121,6 +122,8 @@ func DefaultConfig() *Config {
 		IoMask:           0,
 		IoAddrConfig:     map[uint8]string{},
 		PreLoad:          map[uint16]string{},
+		F256MCoprocFlags: 0,
+		F256MCoprocBase:  0xDE00,
 		Ca65StartAddress: 0x0800,
 		AsmType:          AsmAcme,
 		AcmeBinary:       "acme",
@@ -223,16 +226,12 @@ func (c *Config) AddIoWrapper(mem memory.Memory) (memory.Memory, error) {
 }
 
 func (c *Config) AddF256Func(mem memory.Memory) memory.Memory {
-	var wrapper = memory.NewMemWrapper(mem, 0xDE00)
+	var wrapper = memory.NewMemWrapper(mem, c.F256MCoprocBase)
+	coproc := memory.NewUnsignedCoproc(mem, c.F256MCoprocBase)
 	wrapperUsed := false
-	var i uint16
 
 	if (c.F256MCoprocFlags & UMul) != 0 {
-		for i = 0; i < 4; i++ {
-			mul := memory.NewUMultiplier(0xDE00, 0xDE04, i)
-			mul.SetBaseMem(mem)
-			wrapper.AddWrapper(0xDE00+i, mul)
-		}
+		coproc.RegisterUmul(*wrapper)
 
 		wrapperUsed = true
 	}

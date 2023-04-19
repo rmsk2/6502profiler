@@ -1,38 +1,36 @@
 package memory
 
-type F256UnsignedMultiplierWrapper struct {
-	inAddrStart  uint16
-	outAddrStart uint16
-	offset       uint16
-	mem          Memory
+type F256UnsignedCoproc struct {
+	baseAdress uint16
+	mem        Memory
 }
 
-func NewUMultiplier(inAddr uint16, outAddr uint16, o uint16) *F256UnsignedMultiplierWrapper {
-	return &F256UnsignedMultiplierWrapper{
-		inAddrStart:  inAddr,
-		outAddrStart: outAddr,
-		offset:       o,
+func NewUnsignedCoproc(baseMem Memory, base uint16) *F256UnsignedCoproc {
+	return &F256UnsignedCoproc{
+		baseAdress: base,
+		mem:        baseMem,
 	}
 }
 
-func (f *F256UnsignedMultiplierWrapper) Close() {
+func (f *F256UnsignedCoproc) RegisterUmul(wrapper WrappingMemory) {
+	var i uint16
 
+	for i = 0; i < 4; i++ {
+		var targetAddress uint16 = f.baseAdress + i
+		wrapper.AddSpecialWriteAddress(targetAddress, func(data uint8) { f.WriteUMul(targetAddress, data) })
+	}
 }
 
-func (f *F256UnsignedMultiplierWrapper) Write(data uint8) {
-	f.mem.Store(f.inAddrStart+f.offset, data)
-	oper1 := uint(f.mem.Load(f.inAddrStart+1))*256 + uint(f.mem.Load(f.inAddrStart))
-	oper2 := uint(f.mem.Load(f.inAddrStart+3))*256 + uint(f.mem.Load(f.inAddrStart+2))
+func (f *F256UnsignedCoproc) WriteUMul(address uint16, data uint8) {
+	f.mem.Store(address, data)
+	oper1 := uint(f.mem.Load(f.baseAdress+1))*256 + uint(f.mem.Load(f.baseAdress))
+	oper2 := uint(f.mem.Load(f.baseAdress+3))*256 + uint(f.mem.Load(f.baseAdress+2))
 
 	res := oper1 * oper2
 	var i uint16
 
 	for i = 0; i < 4; i++ {
-		f.mem.Store(f.outAddrStart+i, uint8(res&0xFF))
+		f.mem.Store(f.baseAdress+4+i, uint8(res&0xFF))
 		res >>= 8
 	}
-}
-
-func (f *F256UnsignedMultiplierWrapper) SetBaseMem(m Memory) {
-	f.mem = m
 }
