@@ -341,6 +341,8 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
         "40960": "/home/martin/data/vice_roms/C64/basic",
         "57344": "/home/martin/data/vice_roms/C64/kernal"
     },
+    "F256MCoprocFlags": 0,
+    "F256MCoprocBase": 56832,
     "AsmType": "acme",    
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
@@ -388,6 +390,16 @@ allowed.
 When using `ca65` the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
 contain the names of the tools themselves. If for instance `ca65` and `cl65` are located in `/usr/bin` you can set `AcmeBinary`
 to `/usr/bin`. If the tools are in your `PATH` then you can simply use `""`. 
+
+The entries `F256MCoprocFlags` and `F256MCoprocBase` can be used to control the emulation of a math coprocessor for 16 bit by 
+16 bit unsigned multiplication and division in the style of the one used in the F256 Jr. If `F256MCoprocFlags` is 0 or not
+present then this feature is turned off. If it is 1 then the mutliplier is active and if it is 4 then the divisor is active. If 
+you want to activate both use the value 5. The multiplier expects its input values at the addresses `F256MCoprocBase` and 
+`F256MCoprocBase`+2 (as usual lo byte first) and provides a result at the address `F256MCoprocBase`+4. The divisor expects its 
+input values at the addresses `F256MCoprocBase`+8 and `F256MCoprocBase`+10 and provides the division result at 
+`F256MCoprocBase`+20 as well as the remainder at `F256MCoprocBase`+22. Not all aspects of the F256 coprocessor are emulated, 
+i.e. the different read and write addresses for some values are not implemented. If you only write the input values and 
+only read the output values, then this does not matter. Also signed multiplication and division are not emulated at the moment.
 
 # Performance
 
