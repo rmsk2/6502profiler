@@ -20,16 +20,37 @@ func NewTass64(path string, srcDir string, binDir string, testDir string) *Simpl
 }
 
 func parseOneLineTass(line string) (uint16, string, error) {
-	r := regexp.MustCompile(`^\s*([[:word:]]+)\s+= [$]([[:xdigit:]]{1,4})(\s.*)?$`)
+	var res uint64
+	var err error
+	hexOrNot := regexp.MustCompile(`^\s*[[:word:]]+\s*= [$].*$`)
+	matches := hexOrNot.FindStringSubmatch(line)
 
-	matches := r.FindStringSubmatch(line)
+	if matches != nil {
+		// A dollar sign appears to the right of the equal sign => we look for a hex number
+		rHex := regexp.MustCompile(`^\s*([[:word:]]+)\s*= [$]([[:xdigit:]]{1,4})(\s.*)?$`)
 
-	if matches == nil {
-		return 0, "", fmt.Errorf("can not parse label file line '%s'", line)
+		matches = rHex.FindStringSubmatch(line)
+		if matches == nil {
+			return 0, "", fmt.Errorf("can not parse label file line '%s'", line)
+		}
+
+		// Can not fail as the regex ensures that only valid hex numbers are parsed
+		res, _ = strconv.ParseUint(matches[2], 16, 16)
+	} else {
+		// No dollar sign appears to the right of the equal sign => we look for a decimal number
+		rDec := regexp.MustCompile(`^\s*([[:word:]]+)\s*= ([[:digit:]]{1,5})(\s.*)?$`)
+
+		matches = rDec.FindStringSubmatch(line)
+		if matches == nil {
+			return 0, "", fmt.Errorf("can not parse label file line '%s'", line)
+		}
+
+		// Can fail as the regex can not ensure that any five digit number fits into a 16 bit int
+		res, err = strconv.ParseUint(matches[2], 10, 16)
+		if err != nil {
+			return 0, "", fmt.Errorf("can not parse label file line '%s'", line)
+		}
 	}
-
-	// Can not fail as the regex ensures that only valid hex numbers are parsed
-	res, _ := strconv.ParseUint(matches[2], 16, 16)
 
 	return uint16(res), matches[1], nil
 }
