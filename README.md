@@ -433,8 +433,9 @@ see any use for this instruction on the purely logical level on which `6502profi
 
 # Building `6502profiler`
 
-The software is written in Go and therefore it can be built by the usual `go build` command. Tests are provided for all
-6502 instructions and can be executed through `go test ./...`.
+The software is written in Go and therefore it can be built by the usual `go build` command. You will need at least Go 1.18 
+for the build to work as the implementaion of the `info` command relies on a feature that was added in that version. Tests 
+are provided for all 6502 instructions and can be executed through `go test ./...`.
 
 # Upcoming
 
