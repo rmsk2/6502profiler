@@ -135,6 +135,37 @@ func DefaultConfig() *Config {
 	return res
 }
 
+func (c *Config) SetupTests(setupPrgName string) (CpuProvider, error) {
+	asm := c.GetAssembler()
+
+	binaryName, err := asm.Assemble(setupPrgName)
+	if err != nil {
+		errMsg := asm.GetErrorMessage()
+		if errMsg != "" {
+			fmt.Println(errMsg)
+		}
+
+		return nil, fmt.Errorf("unable to setup tests: %v", err)
+	}
+
+	cpu, err := c.NewCpu()
+	if err != nil {
+		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+	}
+
+	_, _, err = cpu.LoadAndRun(binaryName)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+	}
+
+	res, err := NewSnapshotProvider(cpu)
+	if err != nil {
+		return nil, fmt.Errorf("unable to perform global test setup: %v", err)
+	}
+
+	return res, nil
+}
+
 func (c *Config) tryParseWrapperLine(line string) (memory.MemWrapper, bool) {
 	var res memory.MemWrapper = nil
 	ok := false
@@ -317,4 +348,23 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 	}
 
 	return cpu, nil
+}
+
+type SnapshotCpuProvider struct {
+	cpu *cpu.CPU6502
+}
+
+func NewSnapshotProvider(cpu *cpu.CPU6502) (*SnapshotCpuProvider, error) {
+	cpu.Reset()
+	cpu.Mem.TakeSnaphot()
+
+	return &SnapshotCpuProvider{
+		cpu: cpu,
+	}, nil
+}
+
+func (c *SnapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
+	c.cpu.Mem.RestoreSnapshot()
+	c.cpu.Reset()
+	return c.cpu, nil
 }
