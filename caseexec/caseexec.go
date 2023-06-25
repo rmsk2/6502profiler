@@ -4,6 +4,8 @@ import (
 	"6502profiler/emuconfig"
 	"6502profiler/verifier"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 )
 
@@ -12,6 +14,7 @@ type CaseExec struct {
 	asmProv     emuconfig.AsmProvider
 	repo        verifier.CaseRepo
 	verboseFlag bool
+	Outf        io.Writer
 }
 
 func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier.CaseRepo, v bool) *CaseExec {
@@ -20,6 +23,7 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 		asmProv:     a,
 		repo:        repo,
 		verboseFlag: v,
+		Outf:        os.Stdout,
 	}
 }
 
@@ -49,35 +53,66 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 	var subcaseProc verifier.SubcaseProcessor = nil
 
 	if t.verboseFlag {
-		fmt.Println("--------------------------------------------")
-		fmt.Printf("Executing test case '%s'\n", testCase.Name)
-		fmt.Printf("Test case file: %s\n", testCaseName)
-		fmt.Printf("Test script: %s\n", testCase.TestScript)
-		fmt.Printf("Test driver: %s\n", testCase.TestDriverSource)
+		fmt.Fprintln(t.Outf, "--------------------------------------------")
+		fmt.Fprintf(t.Outf, "Executing test case '%s'\n", testCase.Name)
+		fmt.Fprintf(t.Outf, "Test case file: %s\n", testCaseName)
+		fmt.Fprintf(t.Outf, "Test script: %s\n", testCase.TestScript)
+		fmt.Fprintf(t.Outf, "Test driver: %s\n", testCase.TestDriverSource)
 
 		subcaseProc = func(i uint, numIter uint) {
-			fmt.Printf("Executing subcase %d of %d (%d clock cycles already used)\n", i+1, numIter, cpu.NumCycles())
+			fmt.Fprintf(t.Outf, "Executing subcase %d of %d (%d clock cycles already used)\n", i+1, numIter, cpu.NumCycles())
 		}
 	} else {
-		fmt.Printf("Executing test case '%s' ... ", testCase.Name)
+		fmt.Fprintf(t.Outf, "Executing test case '%s' ... ", testCase.Name)
 	}
 
 	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc)
 	if err != nil {
 		errMsg := assembler.GetErrorMessage()
 		if errMsg != "" {
-			fmt.Println(errMsg)
+			fmt.Fprintln(t.Outf, errMsg)
 		}
 		return fmt.Errorf("test case '%s' failed: %v", testCase.Name, err)
 	}
 
 	if t.verboseFlag {
-		fmt.Printf("Clock cycles used: %d\n", cpu.NumCycles())
-		fmt.Println("Test result: OK")
+		fmt.Fprintf(t.Outf, "Clock cycles used: %d\n", cpu.NumCycles())
+		fmt.Fprintln(t.Outf, "Test result: OK")
 	} else {
-		fmt.Printf("(%d clock cycles) OK\n", cpu.NumCycles())
+		fmt.Fprintf(t.Outf, "(%d clock cycles) OK\n", cpu.NumCycles())
 	}
 
 	return nil
 
+}
+
+func SetupTests(c *emuconfig.Config, setupPrgName string, outf io.Writer) (emuconfig.CpuProvider, error) {
+	asm := c.GetAssembler()
+
+	binaryName, err := asm.Assemble(setupPrgName)
+	if err != nil {
+		errMsg := asm.GetErrorMessage()
+		if errMsg != "" {
+			fmt.Fprintln(outf, errMsg)
+		}
+
+		return nil, fmt.Errorf("unable to setup tests: %v", err)
+	}
+
+	cpu, err := c.NewCpu()
+	if err != nil {
+		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+	}
+
+	_, _, err = cpu.LoadAndRun(binaryName)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+	}
+
+	res, err := emuconfig.NewSnapshotProvider(cpu)
+	if err != nil {
+		return nil, fmt.Errorf("unable to perform global test setup: %v", err)
+	}
+
+	return res, nil
 }

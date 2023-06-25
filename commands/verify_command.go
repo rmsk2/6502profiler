@@ -40,7 +40,7 @@ func VerifyAllCommand(arguments []string) error {
 	var cpuProv emuconfig.CpuProvider = config
 
 	if *preExecName != "" {
-		cpuProv, err = config.SetupTests(*preExecName)
+		cpuProv, err = caseexec.SetupTests(config, *preExecName, os.Stdout)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
@@ -92,7 +92,7 @@ func VerifyCommand(arguments []string) error {
 	var cpuProv emuconfig.CpuProvider = config
 
 	if *preExecName != "" {
-		cpuProv, err = config.SetupTests(*preExecName)
+		cpuProv, err = caseexec.SetupTests(config, *preExecName, os.Stdout)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
