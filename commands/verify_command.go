@@ -40,7 +40,7 @@ func VerifyAllCommand(arguments []string) error {
 	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
 
 	if *preExecName != "" {
-		err = caseExec.ExecuteSetupProgram(*preExecName, os.Stdout)
+		err = caseExec.ExecuteSetupProgram(*preExecName)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
@@ -92,7 +92,7 @@ func VerifyCommand(arguments []string) error {
 	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
 
 	if *preExecName != "" {
-		err = caseExec.ExecuteSetupProgram(*preExecName, os.Stdout)
+		err = caseExec.ExecuteSetupProgram(*preExecName)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
