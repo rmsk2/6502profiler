@@ -318,22 +318,3 @@ func (c *Config) NewCpu() (*cpu.CPU6502, error) {
 
 	return cpu, nil
 }
-
-type SnapshotCpuProvider struct {
-	cpu *cpu.CPU6502
-}
-
-func NewSnapshotProvider(cpu *cpu.CPU6502) (*SnapshotCpuProvider, error) {
-	cpu.Reset()
-	cpu.Mem.TakeSnaphot()
-
-	return &SnapshotCpuProvider{
-		cpu: cpu,
-	}, nil
-}
-
-func (c *SnapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
-	c.cpu.Mem.RestoreSnapshot()
-	c.cpu.Reset()
-	return c.cpu, nil
-}

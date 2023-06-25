@@ -70,8 +70,8 @@ func (p *WrappingMemory) Close() {
 	p.mem.Close()
 }
 
-func (p *WrappingMemory) TakeSnaphot() {
-	p.mem.TakeSnaphot()
+func (p *WrappingMemory) TakeSnapshot() {
+	p.mem.TakeSnapshot()
 }
 
 func (p *WrappingMemory) RestoreSnapshot() {

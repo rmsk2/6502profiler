@@ -22,7 +22,7 @@ func NewLinearMemory(size uint32) *LinearMemory {
 	return res
 }
 
-func (l *LinearMemory) TakeSnaphot() {
+func (l *LinearMemory) TakeSnapshot() {
 	copy(l.memorySnapshot, l.memory)
 }
 

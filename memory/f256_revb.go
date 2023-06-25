@@ -151,7 +151,7 @@ func (f *F256RevBMemory) ClearStatistics() {
 	f.accessMmuIoCtrl = 0
 }
 
-func (f *F256RevBMemory) TakeSnaphot() {
+func (f *F256RevBMemory) TakeSnapshot() {
 	copy(f.systemMemorySnap, f.systemMemory)
 	copy(f.ioMemorySnap, f.ioMemory)
 	copy(f.mLutSnap, f.mLut)

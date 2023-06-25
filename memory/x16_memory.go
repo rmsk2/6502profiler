@@ -81,7 +81,7 @@ func (x *X16Memory) calcIndex(address uint16) (*uint8, *uint64) {
 	}
 }
 
-func (x *X16Memory) TakeSnaphot() {
+func (x *X16Memory) TakeSnapshot() {
 	copy(x.baseMemSnapshot, x.baseMem)
 	copy(x.bankedRAM8KSnaphot, x.bankedRAM8K)
 	copy(x.bankedROM16KSnapshot, x.bankedROM16K)

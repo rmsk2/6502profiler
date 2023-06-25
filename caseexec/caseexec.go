@@ -1,6 +1,7 @@
 package caseexec
 
 import (
+	"6502profiler/cpu"
 	"6502profiler/emuconfig"
 	"6502profiler/verifier"
 	"fmt"
@@ -86,8 +87,8 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 
 }
 
-func SetupTests(c *emuconfig.Config, setupPrgName string, outf io.Writer) (emuconfig.CpuProvider, error) {
-	asm := c.GetAssembler()
+func (t *CaseExec) ExecuteSetupProgram(setupPrgName string, outf io.Writer) error {
+	asm := t.asmProv.GetAssembler()
 
 	binaryName, err := asm.Assemble(setupPrgName)
 	if err != nil {
@@ -96,23 +97,44 @@ func SetupTests(c *emuconfig.Config, setupPrgName string, outf io.Writer) (emuco
 			fmt.Fprintln(outf, errMsg)
 		}
 
-		return nil, fmt.Errorf("unable to setup tests: %v", err)
+		return fmt.Errorf("unable to setup tests: %v", err)
 	}
 
-	cpu, err := c.NewCpu()
+	cpu, err := t.cpuProv.NewCpu()
 	if err != nil {
-		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+		return fmt.Errorf("unable to create cpu for test setup: %v", err)
 	}
 
 	_, _, err = cpu.LoadAndRun(binaryName)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create cpu for test setup: %v", err)
+		return fmt.Errorf("unable to create cpu for test setup: %v", err)
 	}
 
-	res, err := emuconfig.NewSnapshotProvider(cpu)
+	res, err := newSnapshotProvider(cpu)
 	if err != nil {
-		return nil, fmt.Errorf("unable to perform global test setup: %v", err)
+		return fmt.Errorf("unable to perform global test setup: %v", err)
 	}
 
-	return res, nil
+	t.cpuProv = res
+
+	return nil
+}
+
+type snapshotCpuProvider struct {
+	cpu *cpu.CPU6502
+}
+
+func newSnapshotProvider(cpu *cpu.CPU6502) (emuconfig.CpuProvider, error) {
+	cpu.Reset()
+	cpu.Mem.TakeSnapshot()
+
+	return &snapshotCpuProvider{
+		cpu: cpu,
+	}, nil
+}
+
+func (c *snapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
+	c.cpu.Mem.RestoreSnapshot()
+	c.cpu.Reset()
+	return c.cpu, nil
 }

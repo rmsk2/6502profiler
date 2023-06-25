@@ -92,7 +92,7 @@ func (n *NeoGeoRam) calcIndex(address uint16) (*uint8, *uint64) {
 	}
 }
 
-func (n *NeoGeoRam) TakeSnaphot() {
+func (n *NeoGeoRam) TakeSnapshot() {
 	copy(n.baseMemSnapshot, n.baseMem)
 	copy(n.neoGeoSnapshot, n.neoGeo)
 }

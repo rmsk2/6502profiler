@@ -37,16 +37,16 @@ func VerifyAllCommand(arguments []string) error {
 		return err
 	}
 
-	var cpuProv emuconfig.CpuProvider = config
+	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
 
 	if *preExecName != "" {
-		cpuProv, err = caseexec.SetupTests(config, *preExecName, os.Stdout)
+		err = caseExec.ExecuteSetupProgram(*preExecName, os.Stdout)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
 	}
 
-	testCount, err := repo.IterateTestCases(caseexec.NewCaseExec(cpuProv, config, repo, *verboseFlag).ExecuteCase)
+	testCount, err := repo.IterateTestCases(caseExec.ExecuteCase)
 	if err != nil {
 		return fmt.Errorf("unable to iterate test cases: %v", err)
 	}
@@ -89,16 +89,16 @@ func VerifyCommand(arguments []string) error {
 		return err
 	}
 
-	var cpuProv emuconfig.CpuProvider = config
+	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
 
 	if *preExecName != "" {
-		cpuProv, err = caseexec.SetupTests(config, *preExecName, os.Stdout)
+		err = caseExec.ExecuteSetupProgram(*preExecName, os.Stdout)
 		if err != nil {
 			return fmt.Errorf("unable to perform test setup: %v", err)
 		}
 	}
 
-	res := caseexec.NewCaseExec(cpuProv, config, repo, *verboseFlag).LoadAndExecuteCase(*testCasePath)
+	res := caseExec.LoadAndExecuteCase(*testCasePath)
 	if *verboseFlag {
 		fmt.Println("--------------------------------------------")
 	}
