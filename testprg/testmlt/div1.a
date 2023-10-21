@@ -1,11 +1,11 @@
 * = $0800
 
     lda #$23
-    sta $DE08
+    sta $DE04
     lda #$45
-    sta $DE09
+    sta $DE05
     lda #$67
-    sta $DE0A
+    sta $DE06
     lda #$89
-    sta $DE0B
+    sta $DE07
     brk
