@@ -413,8 +413,9 @@ present then this feature is turned off. If it is 1 then the mutliplier is activ
 If you want to activate both use the value 5. The multiplier expects its input values at the addresses `F256MCoprocBase` and  
 `F256MCoprocBase`+2 (as usual lo byte first) and provides a result at the address `F256MCoprocBase`+16. The divisor expects 
 its input values at the addresses `F256MCoprocBase`+4 and `F256MCoprocBase`+6 and provides the division result at 
-`F256MCoprocBase`+20 as well as the remainder at `F256MCoprocBase`+22. The 32 bit adder of the F256 coprocessor is currently
-not emulated.
+`F256MCoprocBase`+20 as well as the remainder at `F256MCoprocBase`+22. The real hardware uses 0xDE00 as `F256MCoprocBase`.
+The 32 bit adder of the F256 coprocessor is currently not emulated. In `6502profiler` it is possible to write to the addresses
+0xDE10-0xDE1B where this is not possible in real hardware.
 
 # Performance
 
