@@ -25,7 +25,7 @@ func (f *F256UnsignedCoproc) RegisterUdiv(wrapper *WrappingMemory) {
 	var i uint16
 
 	for i = 0; i < 4; i++ {
-		var targetAddress uint16 = f.baseAdress + 8 + i
+		var targetAddress uint16 = f.baseAdress + 4 + i
 		wrapper.AddSpecialWriteAddress(targetAddress, func(data uint8) { f.WriteUDiv(targetAddress, data) })
 	}
 }
@@ -39,15 +39,15 @@ func (f *F256UnsignedCoproc) WriteUMul(address uint16, data uint8) {
 	var i uint16
 
 	for i = 0; i < 4; i++ {
-		f.mem.Store(f.baseAdress+4+i, uint8(res&0xFF))
+		f.mem.Store(f.baseAdress+0x10+i, uint8(res&0xFF))
 		res >>= 8
 	}
 }
 
 func (f *F256UnsignedCoproc) WriteUDiv(address uint16, data uint8) {
 	f.mem.Store(address, data)
-	oper1 := uint(f.mem.Load(f.baseAdress+9))*256 + uint(f.mem.Load(f.baseAdress+8))
-	oper2 := uint(f.mem.Load(f.baseAdress+11))*256 + uint(f.mem.Load(f.baseAdress+10))
+	oper1 := uint(f.mem.Load(f.baseAdress+5))*256 + uint(f.mem.Load(f.baseAdress+4))
+	oper2 := uint(f.mem.Load(f.baseAdress+7))*256 + uint(f.mem.Load(f.baseAdress+6))
 
 	resDiv := oper2 / oper1
 	resMod := oper2 % oper1

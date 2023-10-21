@@ -14,19 +14,19 @@ func TestMul161(t *testing.T) {
 	memWrap.Store(0xDE02, 0x67)
 	memWrap.Store(0xDE03, 0x89)
 
-	if memWrap.Load(0xDE04) != 0x15 {
+	if memWrap.Load(0xDE10) != 0x15 {
 		t.Fatal("Byte 0 is wrong")
 	}
 
-	if memWrap.Load(0xDE05) != 0x8c {
+	if memWrap.Load(0xDE11) != 0x8c {
 		t.Fatal("Byte 1 is wrong")
 	}
 
-	if memWrap.Load(0xDE06) != 0x1b {
+	if memWrap.Load(0xDE12) != 0x1b {
 		t.Fatal("Byte 2 is wrong")
 	}
 
-	if memWrap.Load(0xDE07) != 0x25 {
+	if memWrap.Load(0xDE13) != 0x25 {
 		t.Fatal("Byte 3 is wrong")
 	}
 }
@@ -38,10 +38,10 @@ func TestDiv161(t *testing.T) {
 
 	coproc.RegisterUdiv(memWrap)
 
-	memWrap.Store(0xDE08, 0x23)
-	memWrap.Store(0xDE09, 0x45)
-	memWrap.Store(0xDE0A, 0x67)
-	memWrap.Store(0xDE0B, 0x89)
+	memWrap.Store(0xDE04, 0x23)
+	memWrap.Store(0xDE05, 0x45)
+	memWrap.Store(0xDE06, 0x67)
+	memWrap.Store(0xDE07, 0x89)
 
 	if memWrap.Load(0xDE14) != 0x01 {
 		t.Fatal("Byte 0 is wrong")
