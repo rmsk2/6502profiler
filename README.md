@@ -105,7 +105,7 @@ The `-dump` command line option can be used to print a hex dump of a portion of 
 finished. The start address and length of the memory to dump can be selected by the parameter of the option using the format `address:length`.
 Both numbers have to be specified in decimal.
 
-## The run command
+## The `run` command
 
 This command can be used to simply run an existing binary in the emulator implemented by `6502profiler`. It is expected that the first two bytes
 of the binary contain the load address in the usual form (lo byte first). The following command line options can be used:
