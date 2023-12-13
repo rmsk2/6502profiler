@@ -81,6 +81,63 @@ func DumpMemory(param string, cpu *cpu.CPU6502) error {
 	return nil
 }
 
+func RunCommand(arguments []string) error {
+	var config *emuconfig.Config = emuconfig.DefaultConfig()
+	var processor *cpu.CPU6502
+	var err error = nil
+
+	runFlags := flag.NewFlagSet("6502profiler run", flag.ContinueOnError)
+	binaryFileName := runFlags.String("prg", "", "Path to the program to run")
+	configName := runFlags.String("c", "", "Config file name")
+	dumpFlag := runFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
+
+	if err = runFlags.Parse(arguments); err != nil {
+		os.Exit(util.ExitErrorSyntax)
+	}
+
+	if *configName != "" {
+		config, err = emuconfig.NewConfigFromFile(*configName)
+		if err != nil {
+			return fmt.Errorf("error loading config: %v", err)
+		}
+	}
+
+	processor, err = config.NewCpu()
+	if err != nil {
+		return fmt.Errorf("error processing config: %v", err)
+	}
+	defer func() { processor.Mem.Close() }()
+
+	if *binaryFileName == "" {
+		return fmt.Errorf("no program specified")
+	}
+
+	if _, _, err := parseDumpParams(*dumpFlag); err != nil {
+		return err
+	}
+
+	loadAddress, _, err := processor.Load(*binaryFileName)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
+
+	err = processor.Run(loadAddress)
+	if err != nil {
+		return fmt.Errorf("a problem occurred: %v", err)
+	}
+
+	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
+
+	err = DumpMemory(*dumpFlag, processor)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ProfileCommand(arguments []string) error {
 	var p float64
 	var labels map[uint16][]string
