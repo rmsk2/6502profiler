@@ -27,6 +27,7 @@ The following commands are available:
      list: List all test cases and their descriptions
      newcase: Create a new test case skeleton
      profile: Run program, record and evaulute performance data
+     run: Run program
      verify: Run a test on an assembler program
      verifyall: Run all tests
 ```
@@ -442,7 +443,7 @@ a minute. The corresponding assembler source code can be found in `testprg/fixed
 
 # Limitations
 
-Currently all 6502/6510/65C02 addressing modes and all but three instruction are emulated. The first is `RTI` as I do not
+Currently all 6502/6510/65C02 addressing modes and all but three instructions are emulated. The first is `RTI` as I do not
 see any use for this instruction on the purely logical level on which `6502profiler` operates. Furthermore the 65C02 instructions
 `STP` and `WAI` are also not implemented for the same reason.
 
