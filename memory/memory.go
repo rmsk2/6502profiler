@@ -68,5 +68,5 @@ func Dump(m Memory, start uint16, end uint16) {
 		lineDone()
 	}
 
-	fmt.Printf("$%04x\n", end)
+	fmt.Printf("$%04x\n", end+1)
 }
