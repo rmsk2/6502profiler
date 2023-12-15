@@ -1,0 +1,14 @@
+{
+    "Model": "6502",
+    "MemSpec": "Linear16K",
+    "IoMask": 45,
+    "IoAddrConfig": {
+        "221": "printer:petscii" 
+    },
+    "PreLoad": {
+    },
+    "AcmeBinary": "acme",
+    "AcmeSrcDir": "./testprg",
+    "AcmeBinDir": "./testprg/tests/bin",
+    "AcmeTestDir": "./testprg/tests"
+}
