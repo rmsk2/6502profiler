@@ -9,6 +9,8 @@ import (
 	"path"
 	"strings"
 
+	"6502profiler/luabridge"
+
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -84,7 +86,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 	L := lua.NewState()
 	defer L.Close()
 
-	ctx := NewLuaCtx(cpu, scriptPath, L)
+	ctx := luabridge.NewLuaCtx(cpu, scriptPath, L)
 
 	err = ctx.RegisterGlobals(L, loadAdress, progLen)
 	if err != nil {
@@ -98,13 +100,13 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 		return fmt.Errorf("unable to load test script: %v", err)
 	}
 
-	numIters, err := ctx.callNumIterations()
+	numIters, err := ctx.CallNumIterations()
 	if err != nil {
 		numIters = 1
 	}
 
 	for i = 0; (i < numIters) && testRes; i++ {
-		err = ctx.callArrange()
+		err = ctx.CallArrange()
 		if err != nil {
 			return fmt.Errorf("unable to arrange test case '%s': %v", t.Name, err)
 		}
@@ -118,7 +120,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 			return fmt.Errorf("unable to execute test case '%s': %v", t.Name, err)
 		}
 
-		testRes, testMsg, err = ctx.callAssert()
+		testRes, testMsg, err = ctx.CallAssert()
 		if err != nil {
 			return fmt.Errorf("unable to assert test case '%s': %v", t.Name, err)
 		}

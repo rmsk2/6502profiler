@@ -1,4 +1,4 @@
-package verifier
+package luabridge
 
 import (
 	"6502profiler/cpu"
@@ -254,7 +254,7 @@ func (c *LuaCtx) SetMemory(L *lua.LState) int {
 
 	err = c.cpu.CopyToMem(data, uint16(addr))
 	if err != nil {
-		panic("Uuable to write memory")
+		panic("Unable to write memory")
 	}
 
 	return 0
@@ -269,7 +269,7 @@ func (c *LuaCtx) WriteSingleByte(L *lua.LState) int {
 	return 0
 }
 
-func (c *LuaCtx) callArrange() error {
+func (c *LuaCtx) CallArrange() error {
 	arrangeLua := lua.P{
 		Fn:      c.L.GetGlobal("arrange"),
 		NRet:    0,
@@ -284,7 +284,7 @@ func (c *LuaCtx) callArrange() error {
 	return nil
 }
 
-func (c *LuaCtx) callAssert() (bool, string, error) {
+func (c *LuaCtx) CallAssert() (bool, string, error) {
 	assertLua := lua.P{
 		Fn:      c.L.GetGlobal("assert"),
 		NRet:    2,
@@ -307,7 +307,7 @@ func (c *LuaCtx) callAssert() (bool, string, error) {
 	return testRes, msg, nil
 }
 
-func (c *LuaCtx) callNumIterations() (uint, error) {
+func (c *LuaCtx) CallNumIterations() (uint, error) {
 	numIterLua := lua.P{
 		Fn:      c.L.GetGlobal("num_iterations"),
 		NRet:    1,
