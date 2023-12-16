@@ -307,6 +307,21 @@ func (c *LuaCtx) CallAssert() (bool, string, error) {
 	return testRes, msg, nil
 }
 
+func (c *LuaCtx) CallTrap(code uint8) error {
+	trapLua := lua.P{
+		Fn:      c.L.GetGlobal("trap"),
+		NRet:    0,
+		Protect: true,
+	}
+
+	err := c.L.CallByParam(trapLua, lua.LNumber(code))
+	if err != nil {
+		return fmt.Errorf("unable to call trap function in test script: %v", err)
+	}
+
+	return nil
+}
+
 func (c *LuaCtx) CallNumIterations() (uint, error) {
 	numIterLua := lua.P{
 		Fn:      c.L.GetGlobal("num_iterations"),
