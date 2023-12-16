@@ -3,6 +3,7 @@ package commands
 import (
 	"6502profiler/cpu"
 	"6502profiler/emuconfig"
+	"6502profiler/luabridge"
 	"6502profiler/memory"
 	"6502profiler/profiler"
 	"6502profiler/util"
@@ -11,6 +12,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+
+	lua "github.com/yuin/gopher-lua"
 )
 
 const strategyMedian = "median"
@@ -90,6 +93,9 @@ func RunCommand(arguments []string) error {
 	binaryFileName := runFlags.String("prg", "", "Path to the program to run")
 	configName := runFlags.String("c", "", "Config file name")
 	dumpFlag := runFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
+	trapFlag := runFlags.Bool("trap", false, "Support a trap address")
+	trapAddress := runFlags.Uint("trapaddr", 0xFFFF, "Address to use for triggering a trap")
+	trapScript := runFlags.String("lua", "", "Lua script to call when trap is triggered")
 
 	if err = runFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -116,12 +122,33 @@ func RunCommand(arguments []string) error {
 		return err
 	}
 
-	loadAddress, _, err := processor.Load(*binaryFileName)
+	loadAddress, progLen, err := processor.Load(*binaryFileName)
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
 
+	L := lua.NewState()
+	defer L.Close()
+
 	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
+
+	if *trapFlag {
+		if *trapScript == "" {
+			return fmt.Errorf("no Lua script specified")
+		}
+
+		trapAddr := (uint16)(*trapAddress)
+		fmt.Printf("Using trap address $%x\n", trapAddr)
+
+		wrapperMem := memory.NewMemWrapper(processor.Mem, 0xFF00&trapAddr)
+		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen)
+		if err != nil {
+			return fmt.Errorf("%v", err)
+		}
+
+		wrapperMem.AddWrapper(trapAddr, trapProc)
+		processor.Mem = wrapperMem
+	}
 
 	err = processor.Run(loadAddress)
 	if err != nil {

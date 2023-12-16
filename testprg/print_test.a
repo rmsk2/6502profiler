@@ -1,6 +1,10 @@
 !to "print_test",cbm
 * = $0800
-
+    jmp skipData
+!byte 42
+skipData
+    lda #43
+    sta $3000
     ldy #0
     lda #<TEXT
     sta $80
