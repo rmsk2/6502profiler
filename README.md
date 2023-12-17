@@ -129,7 +129,106 @@ Usage of 6502profiler run:
 The `-trapaddr` and `-lua` options can be used to enable an emulated 6502 program to execute Lua code. The idea is that a write operation
 to a so called trap address (specified by the option `-trapaddr`) is caught by the emulator, which then gives control to the Lua script
 (given by `-lua`). To be precise the emulator calls the `trap()` function in the referenced Lua script. This function is called with the byte 
-written to the trap address as its only parameter. The parameter is called the trap code.
+written to the trap address as its only parameter. The parameter is called the trap code. The following code may serve as an example. Consider
+the following assembler program (see `testprg/trap_test.a`):
+
+```asm
+!to "trap_test",cbm
+* = $0800
+
+TRAP_ADDRESS = $FF00
+TRAP_CODE = 42
+
+    lda #<TEXT
+    sta $80
+    lda #>TEXT
+    sta $81
+    ; get string to print from Lua
+    jsr getData
+    ldy #0
+.loopPrint
+    lda ($80), y
+    beq .finished
+    sta $2DDD
+    iny
+    jmp .loopPrint
+.finished
+    brk
+
+; This routine triggers a "trap" which gives control to 
+; a Lua script. This script copies the string to print to 
+; the target address which is determined by the two bytes 
+; on top of the stack.
+getData
+    ; push target address on stack
+    lda $80
+    pha
+    lda $81
+    pha
+    ; write to trap address
+    lda #TRAP_CODE
+    ; this write triggers the trap
+    sta TRAP_ADDRESS
+    ; trap routine in Lua has poped target address from 
+    ; stack
+    rts
+
+TEXT
+!byte 0
+```
+
+In the subroutine `getData` the value `TRAP_CODE` is written to the `TRAP_ADDESS` $FF00 which triggers the execution of the `trap()` function 
+in the following Lua script (`testprg/trap.lua`)
+
+```lua
+function pop()
+    sp = get_sp()
+    if sp == 0xFF then
+        sp = 0x00
+    else
+        sp = sp + 1
+    end
+
+    set_sp(sp)
+    return read_byte(0x100 + sp)
+end
+
+function trap(code)
+    print("----- Running Lua code")
+    print("Trap code: " .. code)
+    address_hi = pop() 
+    address_lo = pop()
+    address = address_hi * 256 + address_lo
+    print("Copying data to address " .. address)
+    data_to_print = "48454c4c4f2046524f4d204c55410d0a00"
+    set_memory(address, data_to_print)
+    print("----- Done with Lua code")
+end
+```
+
+In order to run this example use `acme` to create a binary from `trap_test.a` and store it in the `testprg` directory. After that issue the following 
+command in the `6502profiler` project directory
+
+```
+./6502profiler run -c config_printer.json -prg testprg/trap_test -trapaddr 0xFF00 -lua testprg/trap.lua 
+```
+
+This results in the following output
+
+```
+Program loaded to address $0800
+Using trap address $ff00
+----- Running Lua code
+Trap code: 42
+Copying data to address 2085
+----- Done with Lua code
+HELLO FROM LUA
+Program ran for 289 clock cycles
+```
+
+When the `-trapaddr` option is not present or its value is $0000 then the trap facility is disabled. When a value different from $0000 is specified
+as a trap address a Lua script has to be specified via the `-lua` option. This feature is intended to allow mocking away functionality needed by an
+assembly program.
 
 ## The `verify` and `verifyall` commands
 
