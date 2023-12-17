@@ -8,7 +8,7 @@ import (
 func InfoCommand(arguments []string) error {
 	commitHash, commitTime := getInfo()
 	fmt.Println("6502 Profiler")
-	fmt.Println("Version 1.0.10")
+	fmt.Println("Version 1.0.11")
 	fmt.Printf("Commit hash: %s\n", commitHash)
 	fmt.Printf("Commit time: %s\n", commitTime)
 	fmt.Println("Written by Martin Grap (rmsk2@gmx.de) in 2023")
