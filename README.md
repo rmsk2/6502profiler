@@ -14,7 +14,11 @@ possibility to implement tests where arranging the test data and evaluating the 
 
 When used for performance analysis `6502profiler` executes an existing binary inside the emulator. While running the program the number of clock 
 cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it 
-also keeps track of how many times each byte in memory is accessed (i.e. read and/or written). 
+also keeps track of how many times each byte in memory is accessed (i.e. read and/or written).
+
+The usefulness of `6502profiler` as an emulator is increased by a feature which allows code running in the emulator to call functions in an
+associated Lua script, which has full access to the emulator's state. This can be used to simulate additional system components or software 
+modules which have not been implemented yet. See [below](#the-run-command) for more info about this feature.
 
 ## How to use `6502profiler`
 
@@ -209,7 +213,7 @@ end
 In order to run this example use `acme` to create a binary from `trap_test.a` and store it in the `testprg` directory. After that issue the following 
 command in the `6502profiler` project directory
 
-```
+```sh
 ./6502profiler run -c config_printer.json -prg testprg/trap_test -trapaddr 0xFF00 -lua testprg/trap.lua 
 ```
 
@@ -227,8 +231,9 @@ Program ran for 289 clock cycles
 ```
 
 When the `-trapaddr` option is not present or its value is $0000 then the trap facility is disabled. When a value different from $0000 is specified
-as a trap address a Lua script has to be specified via the `-lua` option. This feature is intended to allow mocking away functionality needed by an
-assembly program.
+as a trap address a Lua script has to be specified via the `-lua` option. This feature is intended to allow mocking away functionality or system
+components needed by an assembly program. The Lua script can use all the functions and variables that are described [below](#structure-of-test-scripts) 
+to control the state of the emulator.
 
 ## The `verify` and `verifyall` commands
 
