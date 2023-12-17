@@ -149,6 +149,9 @@ func RunCommand(arguments []string) error {
 
 		wrapperMem.AddSpecialWriteAddress(trapAddr, trapProc.Write)
 		processor.Mem = wrapperMem
+		defer func() {
+			_ = trapProc.Ctx.CallCleanup()
+		}()
 	}
 
 	err = processor.Run(loadAddress)

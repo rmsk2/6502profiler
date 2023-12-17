@@ -322,6 +322,21 @@ func (c *LuaCtx) CallTrap(code uint8) error {
 	return nil
 }
 
+func (c *LuaCtx) CallCleanup() error {
+	cleanupLua := lua.P{
+		Fn:      c.L.GetGlobal("cleanup"),
+		NRet:    0,
+		Protect: true,
+	}
+
+	err := c.L.CallByParam(cleanupLua)
+	if err != nil {
+		return fmt.Errorf("unable to call cleanup function in test script: %v", err)
+	}
+
+	return nil
+}
+
 func (c *LuaCtx) CallNumIterations() (uint, error) {
 	numIterLua := lua.P{
 		Fn:      c.L.GetGlobal("num_iterations"),

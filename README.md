@@ -208,6 +208,10 @@ function trap(code)
     set_memory(address, data_to_print)
     print("----- Done with Lua code")
 end
+
+function cleanup()
+    print("Cleaning up Lua part")
+end
 ```
 
 In order to run this example use `acme` to create a binary from `trap_test.a` and store it in the `testprg` directory. After that issue the following 
@@ -228,12 +232,14 @@ Copying data to address 2085
 ----- Done with Lua code
 HELLO FROM LUA
 Program ran for 289 clock cycles
+Cleaning up Lua part
 ```
 
 When the `-trapaddr` option is not present or its value is $0000 then the trap facility is disabled. When a value different from $0000 is specified
 as a trap address a Lua script has to be specified via the `-lua` option. This feature is intended to allow mocking away functionality or system
 components needed by an assembly program. The Lua script can use all the functions and variables that are described [below](#structure-of-test-scripts) 
-to control the state of the emulator.
+to control the state of the emulator. Optionally the Lua script can implement a `cleanup()` function which is called by `6502profiler` after the
+assembly program has stopped. A program stops if it executes a `BRK` instruction.
 
 ## The `verify` and `verifyall` commands
 

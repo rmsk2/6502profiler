@@ -21,3 +21,7 @@ function trap(code)
     set_memory(address, data_to_print)
     print("----- Done with Lua code")
 end
+
+function cleanup()
+    print("Cleaning up Lua part")
+end
