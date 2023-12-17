@@ -3,6 +3,7 @@ package caseexec
 import (
 	"6502profiler/cpu"
 	"6502profiler/emuconfig"
+	"6502profiler/memory"
 	"6502profiler/verifier"
 	"fmt"
 	"io"
@@ -11,16 +12,17 @@ import (
 )
 
 type CaseExec struct {
-	cpuProv         emuconfig.CpuProvider
-	asmProv         emuconfig.AsmProvider
-	repo            verifier.CaseRepo
-	verboseFlag     bool
-	Outf            io.Writer
-	ReportAsmError  AsmErrorReporter
-	ReportSummary   SummaryReporter
-	SubCaseReporter verifier.SubcaseProcessor
-	ReportTestInfo  TestInfoReporter
-	CurrentCpu      *cpu.CPU6502
+	cpuProv            emuconfig.CpuProvider
+	asmProv            emuconfig.AsmProvider
+	repo               verifier.CaseRepo
+	verboseFlag        bool
+	Outf               io.Writer
+	ReportAsmError     AsmErrorReporter
+	ReportSummary      SummaryReporter
+	SubCaseReporter    verifier.SubcaseProcessor
+	ReportTestInfo     TestInfoReporter
+	CurrentCpu         *cpu.CPU6502
+	placeholderWrapper *memory.PlaceholderWrapper
 }
 
 type AsmErrorReporter func(errMsg string)
@@ -29,11 +31,12 @@ type TestInfoReporter func(string, *verifier.TestCase)
 
 func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier.CaseRepo, v bool) *CaseExec {
 	res := CaseExec{
-		cpuProv:     c,
-		asmProv:     a,
-		repo:        repo,
-		verboseFlag: v,
-		Outf:        os.Stdout,
+		cpuProv:            c,
+		asmProv:            a,
+		repo:               repo,
+		verboseFlag:        v,
+		Outf:               os.Stdout,
+		placeholderWrapper: nil,
 	}
 
 	res.ReportAsmError = res.printAsmError
@@ -42,6 +45,10 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 	res.ReportTestInfo = res.printTestInfo
 
 	return &res
+}
+
+func (t *CaseExec) SetTraphandler(p *memory.PlaceholderWrapper) {
+	t.placeholderWrapper = p
 }
 
 func (t *CaseExec) LoadAndExecuteCase(testCaseName string) error {
@@ -77,7 +84,7 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 
 	t.ReportTestInfo(testCaseName, testCase)
 
-	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc)
+	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc, t.placeholderWrapper)
 	if err != nil {
 		errMsg := assembler.GetErrorMessage()
 		if errMsg != "" {
@@ -89,7 +96,6 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 	t.ReportSummary()
 
 	return nil
-
 }
 
 func (t *CaseExec) printTestInfo(testCaseName string, testCase *verifier.TestCase) {
@@ -171,4 +177,20 @@ func (c *snapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	c.cpu.Mem.RestoreSnapshot()
 	c.cpu.Reset()
 	return c.cpu, nil
+}
+
+type wrapperCpuProvider struct {
+	originalProv emuconfig.CpuProvider
+	caseExec     *CaseExec
+}
+
+func NewWrapperCpuProvider(o emuconfig.CpuProvider, c *CaseExec) *wrapperCpuProvider {
+	return &wrapperCpuProvider{
+		originalProv: o,
+		caseExec:     c,
+	}
+}
+
+func (w *wrapperCpuProvider) NewCpu() (*cpu.CPU6502, error) {
+	return nil, nil
 }

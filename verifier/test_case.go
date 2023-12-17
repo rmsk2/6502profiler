@@ -3,6 +3,7 @@ package verifier
 import (
 	"6502profiler/assembler"
 	"6502profiler/cpu"
+	"6502profiler/memory"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -66,7 +67,7 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	return res, nil
 }
 
-func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor) error {
+func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor, p *memory.PlaceholderWrapper) error {
 	var testRes bool = true
 	var testMsg string
 	var i uint
@@ -98,6 +99,15 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 	err = L.DoFile(scriptToRun)
 	if err != nil {
 		return fmt.Errorf("unable to load test script: %v", err)
+	}
+
+	if p != nil {
+		p.SetWriteFunc(func(d uint8) {
+			err := ctx.CallTrap(d)
+			if err != nil {
+				panic(fmt.Sprintf("unable to call trap function: %v", err))
+			}
+		})
 	}
 
 	numIters, err := ctx.CallNumIterations()

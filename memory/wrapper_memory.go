@@ -77,3 +77,37 @@ func (p *WrappingMemory) TakeSnapshot() {
 func (p *WrappingMemory) RestoreSnapshot() {
 	p.mem.RestoreSnapshot()
 }
+
+type PlaceholderWrapper struct {
+	Wrapper        *WrappingMemory
+	f              DataWriteFunc
+	baseMemory     Memory
+	specialAddress uint16
+}
+
+func NewPlaceholderWrapper(m Memory, addr uint16) *PlaceholderWrapper {
+	w := NewMemWrapper(m, addr&0xFF00)
+
+	res := &PlaceholderWrapper{
+		Wrapper:        w,
+		f:              nil,
+		baseMemory:     m,
+		specialAddress: addr,
+	}
+
+	res.Wrapper.AddSpecialWriteAddress(res.specialAddress, res.Write)
+
+	return res
+}
+
+func (p *PlaceholderWrapper) SetWriteFunc(fn DataWriteFunc) {
+	p.f = fn
+}
+
+func (p *PlaceholderWrapper) Write(data uint8) {
+	if p.f != nil {
+		p.f(data)
+	} else {
+		p.baseMemory.Store(p.specialAddress, data)
+	}
+}
