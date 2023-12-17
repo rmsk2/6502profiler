@@ -2,7 +2,6 @@ package luabridge
 
 import (
 	"6502profiler/cpu"
-	"6502profiler/memory"
 	"fmt"
 
 	lua "github.com/yuin/gopher-lua"
@@ -35,12 +34,4 @@ func (t *TrapProcessor) Write(trapCode uint8) {
 	if err != nil {
 		panic(fmt.Sprintf("unable to call trap function in Lua code: %v", err))
 	}
-}
-
-func (t *TrapProcessor) SetBaseMem(m memory.Memory) {
-
-}
-
-func (t *TrapProcessor) Close() {
-
 }

@@ -1,0 +1,42 @@
+!to "trap_test",cbm
+* = $0800
+
+TRAP_ADDRESS = $FF00
+TRAP_CODE = 42
+
+    lda #<TEXT
+    sta $80
+    lda #>TEXT
+    sta $81
+    ; get string to print from Lua
+    jsr getData
+    ldy #0
+.loopPrint
+    lda ($80), y
+    beq .finished
+    sta $2DDD
+    iny
+    jmp .loopPrint
+.finished
+    brk
+
+; This routine triggers a "trap" which gives control to 
+; a Lua script. This script copies the string to print to 
+; the target address which is determined by the two bytes 
+; on top of the stack.
+getData
+    ; push target address on stack
+    lda $80
+    pha
+    lda $81
+    pha
+    ; write to trap address
+    lda #TRAP_CODE
+    ; this write triggers the trap
+    sta TRAP_ADDRESS
+    ; trap routine in Lua has poped target address from 
+    ; stack
+    rts
+
+TEXT
+!byte 0

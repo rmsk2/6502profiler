@@ -9,7 +9,8 @@ machines which use these classic microprocessors. To state this again: No graphi
 `6502profiler` works at a purely logical level.
 
 The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
-possibility to implement tests where arranging the test data and evaluating the results is offloaded to a Lua script.
+possibility to implement tests where arranging the test data and evaluating the results is offloaded to a Lua script. `6502profiler` uses 
+[gopher-lua](https://github.com/yuin/gopher-lua) to embed Lua in Go.
 
 When used for performance analysis `6502profiler` executes an existing binary inside the emulator. While running the program the number of clock 
 cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it 
@@ -117,9 +118,18 @@ Usage of 6502profiler run:
     	Config file name
   -dump string
     	Dump memory after program has stopped. Format 'startaddr:len'
+  -lua string
+    	Lua script to call when trap is triggered
   -prg string
     	Path to the program to run
+  -trapaddr uint
+    	Address to use for triggering a trap
 ```
+
+The `-trapaddr` and `-lua` options can be used to enable an emulated 6502 program to execute Lua code. The idea is that a write operation
+to a so called trap address (specified by the option `-trapaddr`) is caught by the emulator, which then gives control to the Lua script
+(given by `-lua`). To be precise the emulator calls the `trap()` function in the referenced Lua script. This function is called with the byte 
+written to the trap address as its only parameter. The parameter is called the trap code.
 
 ## The `verify` and `verifyall` commands
 
