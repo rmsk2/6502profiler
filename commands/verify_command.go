@@ -16,6 +16,7 @@ func VerifyAllCommand(arguments []string) error {
 	configName := verifierFlags.String("c", "", "Config file name")
 	preExecName := verifierFlags.String("prexec", "", "Program to run before first test")
 	verboseFlag := verifierFlags.Bool("verbose", false, "Give more information")
+	trapFlag := verifierFlags.Uint("trapaddr", 0, "Set trap address")
 
 	if err = verifierFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -38,6 +39,10 @@ func VerifyAllCommand(arguments []string) error {
 	}
 
 	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
+
+	if *trapFlag != 0 {
+		caseExec.SetTrapAddress((uint16)(*trapFlag))
+	}
 
 	if *preExecName != "" {
 		err = caseExec.ExecuteSetupProgram(*preExecName)
@@ -68,6 +73,7 @@ func VerifyCommand(arguments []string) error {
 	testCasePath := verifierFlags.String("t", "", "Test case file")
 	preExecName := verifierFlags.String("prexec", "", "Program to run before test")
 	verboseFlag := verifierFlags.Bool("verbose", false, "Give more information")
+	trapFlag := verifierFlags.Uint("trapaddr", 0, "Set trap address")
 
 	if err = verifierFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -90,6 +96,10 @@ func VerifyCommand(arguments []string) error {
 	}
 
 	caseExec := caseexec.NewCaseExec(config, config, repo, *verboseFlag)
+
+	if *trapFlag != 0 {
+		caseExec.SetTrapAddress((uint16)(*trapFlag))
+	}
 
 	if *preExecName != "" {
 		err = caseExec.ExecuteSetupProgram(*preExecName)

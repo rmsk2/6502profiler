@@ -13,6 +13,7 @@ import (
 
 type CaseExec struct {
 	cpuProv            emuconfig.CpuProvider
+	originalProv       emuconfig.CpuProvider
 	asmProv            emuconfig.AsmProvider
 	repo               verifier.CaseRepo
 	verboseFlag        bool
@@ -22,6 +23,7 @@ type CaseExec struct {
 	SubCaseReporter    verifier.SubcaseProcessor
 	ReportTestInfo     TestInfoReporter
 	CurrentCpu         *cpu.CPU6502
+	trapAddress        uint16
 	placeholderWrapper *memory.PlaceholderWrapper
 }
 
@@ -31,14 +33,17 @@ type TestInfoReporter func(string, *verifier.TestCase)
 
 func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier.CaseRepo, v bool) *CaseExec {
 	res := CaseExec{
-		cpuProv:            c,
+		cpuProv:            nil,
+		originalProv:       c,
 		asmProv:            a,
 		repo:               repo,
 		verboseFlag:        v,
 		Outf:               os.Stdout,
 		placeholderWrapper: nil,
+		trapAddress:        0,
 	}
 
+	res.cpuProv = NewWrapperCpuProvider(c, &res)
 	res.ReportAsmError = res.printAsmError
 	res.ReportSummary = res.printSummary
 	res.SubCaseReporter = res.printSubcaseInfo
@@ -47,8 +52,8 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 	return &res
 }
 
-func (t *CaseExec) SetTraphandler(p *memory.PlaceholderWrapper) {
-	t.placeholderWrapper = p
+func (t *CaseExec) SetTrapAddress(a uint16) {
+	t.trapAddress = a
 }
 
 func (t *CaseExec) LoadAndExecuteCase(testCaseName string) error {
@@ -67,6 +72,9 @@ func (t *CaseExec) LoadAndExecuteCase(testCaseName string) error {
 }
 
 func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase) error {
+	t.placeholderWrapper = nil
+
+	// This sets t.placeholderWrapper if a trap address is desired
 	cpu, err := t.cpuProv.NewCpu()
 	if err != nil {
 		return fmt.Errorf("unable to create cpu for test case: %v", err)
@@ -140,7 +148,7 @@ func (t *CaseExec) ExecuteSetupProgram(setupPrgName string) error {
 		return fmt.Errorf("unable to setup tests: %v", err)
 	}
 
-	cpu, err := t.cpuProv.NewCpu()
+	cpu, err := t.originalProv.NewCpu()
 	if err != nil {
 		return fmt.Errorf("unable to create cpu for test setup: %v", err)
 	}
@@ -150,7 +158,7 @@ func (t *CaseExec) ExecuteSetupProgram(setupPrgName string) error {
 		return fmt.Errorf("unable to create cpu for test setup: %v", err)
 	}
 
-	res, err := newSnapshotProvider(cpu)
+	res, err := newSnapshotProvider(cpu, t)
 	if err != nil {
 		return fmt.Errorf("unable to perform global test setup: %v", err)
 	}
@@ -162,20 +170,32 @@ func (t *CaseExec) ExecuteSetupProgram(setupPrgName string) error {
 
 type snapshotCpuProvider struct {
 	cpu *cpu.CPU6502
+	ce  *CaseExec
+	p   *memory.PlaceholderWrapper
 }
 
-func newSnapshotProvider(cpu *cpu.CPU6502) (emuconfig.CpuProvider, error) {
+func newSnapshotProvider(cpu *cpu.CPU6502, c *CaseExec) (emuconfig.CpuProvider, error) {
 	cpu.Reset()
 	cpu.Mem.TakeSnapshot()
+	var placeholder *memory.PlaceholderWrapper = nil
+
+	if c.trapAddress != 0 {
+		placeholder := memory.NewPlaceholderWrapper(cpu.Mem, c.trapAddress)
+		cpu.Mem = placeholder.Wrapper
+	}
 
 	return &snapshotCpuProvider{
 		cpu: cpu,
+		ce:  c,
+		p:   placeholder,
 	}, nil
 }
 
 func (c *snapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	c.cpu.Mem.RestoreSnapshot()
 	c.cpu.Reset()
+	c.ce.placeholderWrapper = c.p
+
 	return c.cpu, nil
 }
 
@@ -192,5 +212,15 @@ func NewWrapperCpuProvider(o emuconfig.CpuProvider, c *CaseExec) *wrapperCpuProv
 }
 
 func (w *wrapperCpuProvider) NewCpu() (*cpu.CPU6502, error) {
-	return nil, nil
+	cpu, err := w.originalProv.NewCpu()
+	if err != nil {
+		return nil, err
+	}
+
+	if w.caseExec.trapAddress != 0 {
+		w.caseExec.placeholderWrapper = memory.NewPlaceholderWrapper(cpu.Mem, w.caseExec.trapAddress)
+		cpu.Mem = w.caseExec.placeholderWrapper.Wrapper
+	}
+
+	return cpu, nil
 }
