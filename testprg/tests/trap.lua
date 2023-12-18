@@ -14,3 +14,7 @@ function assert()
     accu = get_accu()
     return (x_reg == trap_nr) and (accu == 0x42) and (y_reg == trap_nr+1), "Registers contain unexpected values"
 end
+
+function cleanup()
+
+end
