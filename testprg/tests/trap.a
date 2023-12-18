@@ -1,4 +1,3 @@
-!to "test.prg", cbm
 * = $0800
 
 TRAP_ADDRESS = $FF00
