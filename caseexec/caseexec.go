@@ -182,7 +182,7 @@ func newSnapshotProvider(cpu *cpu.CPU6502, c *CaseExec) (emuconfig.CpuProvider, 
 	var placeholder *memory.PlaceholderWrapper = nil
 
 	if c.trapAddress != emuconfig.IllegalTrapAddress {
-		placeholder := memory.NewPlaceholderWrapper(cpu.Mem, c.trapAddress)
+		placeholder = memory.NewPlaceholderWrapper(cpu.Mem, c.trapAddress)
 		cpu.Mem = placeholder.Wrapper
 	}
 
