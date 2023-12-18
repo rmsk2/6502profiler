@@ -78,6 +78,8 @@ func (p *WrappingMemory) RestoreSnapshot() {
 	p.mem.RestoreSnapshot()
 }
 
+// ------------------------------------------------------------------------------
+
 type PlaceholderWrapper struct {
 	Wrapper        *WrappingMemory
 	f              DataWriteFunc

@@ -93,7 +93,7 @@ func RunCommand(arguments []string) error {
 	binaryFileName := runFlags.String("prg", "", "Path to the program to run")
 	configName := runFlags.String("c", "", "Config file name")
 	dumpFlag := runFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
-	trapAddress := runFlags.Uint("trapaddr", 0x0000, "Address to use for triggering a trap")
+	trapAddress := runFlags.Uint("trapaddr", emuconfig.NoTrapAddress, "Address to use for triggering a trap")
 	trapScript := runFlags.String("lua", "", "Lua script to call when trap is triggered")
 
 	if err = runFlags.Parse(arguments); err != nil {
@@ -130,7 +130,7 @@ func RunCommand(arguments []string) error {
 
 	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
 
-	if *trapAddress != 0 {
+	if *trapAddress != emuconfig.NoTrapAddress {
 		if *trapScript == "" {
 			return fmt.Errorf("no Lua script specified")
 		}

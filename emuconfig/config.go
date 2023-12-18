@@ -57,6 +57,7 @@ const AsmAcme = "acme"
 const Asm64Tass = "64tass"
 const AsmCa65 = "ca65"
 
+const NoTrapAddress = 0
 const Ca65DefaultLoadAddr = 0x0800
 
 func NewConfigFromFile(fileName string) (*Config, error) {

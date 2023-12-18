@@ -108,6 +108,9 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 				panic(fmt.Sprintf("unable to call trap function: %v", err))
 			}
 		})
+		defer func() {
+			_ = ctx.CallCleanup()
+		}()
 	}
 
 	numIters, err := ctx.CallNumIterations()

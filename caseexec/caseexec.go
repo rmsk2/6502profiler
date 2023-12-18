@@ -40,7 +40,7 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 		verboseFlag:        v,
 		Outf:               os.Stdout,
 		placeholderWrapper: nil,
-		trapAddress:        0,
+		trapAddress:        emuconfig.NoTrapAddress,
 	}
 
 	res.cpuProv = NewWrapperCpuProvider(c, &res)
@@ -168,6 +168,8 @@ func (t *CaseExec) ExecuteSetupProgram(setupPrgName string) error {
 	return nil
 }
 
+// ------------------------------------------------------------------------------
+
 type snapshotCpuProvider struct {
 	cpu *cpu.CPU6502
 	ce  *CaseExec
@@ -179,7 +181,7 @@ func newSnapshotProvider(cpu *cpu.CPU6502, c *CaseExec) (emuconfig.CpuProvider, 
 	cpu.Mem.TakeSnapshot()
 	var placeholder *memory.PlaceholderWrapper = nil
 
-	if c.trapAddress != 0 {
+	if c.trapAddress != emuconfig.NoTrapAddress {
 		placeholder := memory.NewPlaceholderWrapper(cpu.Mem, c.trapAddress)
 		cpu.Mem = placeholder.Wrapper
 	}
@@ -196,8 +198,15 @@ func (c *snapshotCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 	c.cpu.Reset()
 	c.ce.placeholderWrapper = c.p
 
+	// Clear out WriteFunc which may have been set previously
+	if c.ce.placeholderWrapper != nil {
+		c.ce.placeholderWrapper.SetWriteFunc(nil)
+	}
+
 	return c.cpu, nil
 }
+
+// ------------------------------------------------------------------------------
 
 type wrapperCpuProvider struct {
 	originalProv emuconfig.CpuProvider
@@ -217,9 +226,10 @@ func (w *wrapperCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 		return nil, err
 	}
 
-	if w.caseExec.trapAddress != 0 {
+	if w.caseExec.trapAddress != emuconfig.NoTrapAddress {
 		w.caseExec.placeholderWrapper = memory.NewPlaceholderWrapper(cpu.Mem, w.caseExec.trapAddress)
 		cpu.Mem = w.caseExec.placeholderWrapper.Wrapper
+		// w.caseExec.placeholderWrapper.f is nil here
 	}
 
 	return cpu, nil
