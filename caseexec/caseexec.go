@@ -43,7 +43,7 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 		trapAddress:        emuconfig.NoTrapAddress,
 	}
 
-	res.cpuProv = NewWrapperCpuProvider(c, &res)
+	res.cpuProv = newWrapperCpuProvider(c, &res)
 	res.ReportAsmError = res.printAsmError
 	res.ReportSummary = res.printSummary
 	res.SubCaseReporter = res.printSubcaseInfo
@@ -213,7 +213,7 @@ type wrapperCpuProvider struct {
 	caseExec     *CaseExec
 }
 
-func NewWrapperCpuProvider(o emuconfig.CpuProvider, c *CaseExec) *wrapperCpuProvider {
+func newWrapperCpuProvider(o emuconfig.CpuProvider, c *CaseExec) *wrapperCpuProvider {
 	return &wrapperCpuProvider{
 		originalProv: o,
 		caseExec:     c,

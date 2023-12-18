@@ -1,0 +1,27 @@
+!to "test.prg", cbm
+* = $0800
+
+TRAP_ADDRESS = $FF00
+
+jmp .begin
+
+TRAP_CODE
+!byte 0
+
+!macro TRAP {
+    ldx TRAP_CODE
+    stx TRAP_ADDRESS
+}
+
+.begin
+    ldy #0
+    lda #5
+    jsr .overwrite
+    ; trigger trap
+    +TRAP
+    ; the trap handler sets the y register to 42
+    iny
+    brk
+.overwrite
+    lda #0x42
+    rts
