@@ -19,7 +19,7 @@ TRAP_CODE
     jsr .overwrite
     ; trigger trap
     +TRAP
-    ; the trap handler sets the y register to 42
+    ; the trap handler sets the y register to the trap code
     iny
     brk
 .overwrite
