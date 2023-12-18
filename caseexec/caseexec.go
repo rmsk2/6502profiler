@@ -40,7 +40,7 @@ func NewCaseExec(c emuconfig.CpuProvider, a emuconfig.AsmProvider, repo verifier
 		verboseFlag:        v,
 		Outf:               os.Stdout,
 		placeholderWrapper: nil,
-		trapAddress:        emuconfig.NoTrapAddress,
+		trapAddress:        emuconfig.IllegalTrapAddress,
 	}
 
 	res.cpuProv = newWrapperCpuProvider(c, &res)
@@ -181,7 +181,7 @@ func newSnapshotProvider(cpu *cpu.CPU6502, c *CaseExec) (emuconfig.CpuProvider, 
 	cpu.Mem.TakeSnapshot()
 	var placeholder *memory.PlaceholderWrapper = nil
 
-	if c.trapAddress != emuconfig.NoTrapAddress {
+	if c.trapAddress != emuconfig.IllegalTrapAddress {
 		placeholder := memory.NewPlaceholderWrapper(cpu.Mem, c.trapAddress)
 		cpu.Mem = placeholder.Wrapper
 	}
@@ -226,7 +226,7 @@ func (w *wrapperCpuProvider) NewCpu() (*cpu.CPU6502, error) {
 		return nil, err
 	}
 
-	if w.caseExec.trapAddress != emuconfig.NoTrapAddress {
+	if w.caseExec.trapAddress != emuconfig.IllegalTrapAddress {
 		w.caseExec.placeholderWrapper = memory.NewPlaceholderWrapper(cpu.Mem, w.caseExec.trapAddress)
 		cpu.Mem = w.caseExec.placeholderWrapper.Wrapper
 		// w.caseExec.placeholderWrapper.f is nil here
