@@ -255,6 +255,8 @@ Usage of 6502profiler verify:
     	Program to run before test
   -t string
     	Test case file
+  -trapaddr uint
+    	Set trap address
   -verbose
     	Give more information
 ```
@@ -390,6 +392,10 @@ value of  `num_iterations` indicates. The number of clock cycles which is report
 of clock cycles used for all the iterations. When using this feature the Lua test script has to explicitly reset the program 
 counter (using `set_pc()`) in the `arrange` function. A usage example can be found in the file `testprg/tests/itertest.lua`.
 
+The trap facility described above can also be used with the `verify` command. The Lua test script then additionally has to define
+at least the `trap()` function and optionally the `cleanup()` function. You have to specify the `-trapaddr` option to use this
+feature.
+
 ## The `verifyall` comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
@@ -401,6 +407,8 @@ Usage of 6502profiler verifyall:
     	Config file name
   -prexec string
     	Program to run before first test
+  -trapaddr uint
+    	Set trap address
   -verbose
     	Give more information
 ```
@@ -420,7 +428,7 @@ Executing test case '32 Bit is zero 4' ... (34 clock cycles) OK
 
 The `-prexec` command line option can be used to specify the source code of an assembly program that is compiled and run before the 
 first test in order to perform a global test setup. The program name is interpreted relative to the `AcmeTestDir` defined in the config 
-file.
+file. The `verifyall` command also allows to use the trap facility when the `-trapaddr` option is specified.
 
 ## The `newcase` command
 
