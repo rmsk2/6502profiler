@@ -1,0 +1,11 @@
+* = $0800
+
+TABLE_ADDR = $3000
+
+    ldy #0
+.loopCopy
+    tya
+    sta TABLE_ADDR,Y
+    iny
+    bne .loopCopy
+    brk

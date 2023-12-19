@@ -1,0 +1,17 @@
+
+INPUT_BUFFER 
+!skip 50
+
+; ---------------------------------
+; This subroutine reads data via charIn until a carriage return is read.
+; The data is stored in INPUT_BUFFER.
+; ---------------------------------
+readLoop
+    ldy #0
+.loopRead
+    jsr charIn
+    sta INPUT_BUFFER, y
+    iny
+    cmp #13
+    bne .loopRead
+    rts

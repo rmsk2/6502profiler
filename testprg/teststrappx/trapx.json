@@ -1,0 +1,5 @@
+{
+    "Name": "Second trap test with preexecuted program",
+    "TestDriverSource": "trapx.a",
+    "TestScript": "trapx.lua"
+}

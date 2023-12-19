@@ -1,0 +1,20 @@
+* = $0800
+
+TRAP_ADDRESS = $FF00
+
+jmp begin
+
+RES_BUFFER
+!byte <INPUT_BUFFER, >INPUT_BUFFER
+
+!source "read_loop.a"
+
+begin
+    jsr readLoop
+    brk
+
+
+charIn
+    sta TRAP_ADDRESS
+    ; Lua script puts next byte into accu
+    rts
