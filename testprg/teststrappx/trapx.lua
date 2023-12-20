@@ -9,6 +9,13 @@ function trap(trap_code)
     read_ptr = read_ptr + 1
 end
 
+function de_ref(ptr_addr)
+    local hi_addr = read_byte(ptr_addr + 1)
+    local lo_addr = read_byte(ptr_addr)
+    
+    return hi_addr * 256 + lo_addr
+end
+
 function assert()
     local preexec_value = read_byte(3*4096+42)
     local test_data = preexec_value == 42
@@ -16,10 +23,7 @@ function assert()
         return false, "Prexec value not found: " .. preexec_value
     end
 
-    local hi_addr = read_byte(load_address + 4)
-    local lo_addr = read_byte(load_address + 3)
-    local input_buffer_addr = hi_addr * 256 + lo_addr
-    local data_read = get_memory(input_buffer_addr, #data)
+    local data_read = get_memory(de_ref(load_address + 3), #data)
 
     return data_read == "48454c4c4f2046524f4d204c55410d", "Read incorrect data: " .. data_read
 end
