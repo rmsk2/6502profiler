@@ -346,12 +346,15 @@ The `arrange` function copies the test vector into the emulator's memory before 
 and if the negative flag is set at the end of the test driver. If these conditions are not met corresponding error messages are returned. Have a
 look in the `testprg/tests`directory in this repo for additional examples.
 
+The trap facility described above can also be used with the `verify` command. The Lua test script then additionally has to define at least the 
+`trap` function and optionally the `cleanup` function. You have to specify the `-trapaddr` option to use this feature.
+
 ## Structure of test scripts
 
-Test scripts have to implement an `assert` and an `arrange` function. `arrange` is expected to take no arguments and return no value. `assert` 
-also takes no arguments but has to return two values. The first one is a boolean and is set to true if the test was successfull. The second 
-return value is a string and should contain some helpful message in case the test has failed. The following functions can be used in Lua to 
-query and manipulate the emulator's memory and processor state:
+Test scripts have to implement an `assert` and an `arrange` function and optionally a `trap`, a `cleanup` or `num_iterations` function. 
+`arrange` is expected to take no arguments and return no value. `assert` also takes no arguments but has to return two values. The first one 
+is a boolean and is set to true if the test was successfull. The second return value is a string and should contain some helpful message in 
+case the test has failed. The following functions can be used in Lua to query and manipulate the emulator's memory and processor state:
 
 |Function Name| Description |
 |-|-|
@@ -386,15 +389,17 @@ represented as hex strings. On top of that the following three variables are inj
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.
 
-Test scripts can optionally implement a `num_iterations()` function which takes no argument and returns an integer. The golang
+Test scripts can optionally implement a `num_iterations` function which takes no argument and returns an integer. The golang
 host program will call `arrange`, execute the assembly routines under test and then call `assert` as many times as the result 
 value of  `num_iterations` indicates. The number of clock cycles which is reported by `6502profiler` is the total number
 of clock cycles used for all the iterations. When using this feature the Lua test script has to explicitly reset the program 
-counter (using `set_pc()`) in the `arrange` function. A usage example can be found in the file `testprg/tests/itertest.lua`.
+counter (for instance using `set_pc(load_address)`) in the `arrange` function. A usage example can be found in the file 
+`testprg/tests/itertest.lua`.
 
-The trap facility described above can also be used with the `verify` command. The Lua test script then additionally has to define
-at least the `trap()` function and optionally the `cleanup()` function. You have to specify the `-trapaddr` option to use this
-feature.
+If you want to use the trap facility described above then you must specify the `-trapaddr` CLI option and you have to implement at 
+least a function called `trap` which takes a byte (the so called trap code) as its only parameter and does not return a value. 
+Optionally a `cleanup` function can be implemented which takes no parameters and returns no value. This function is called when 
+the Lua interpreter is spun down by the golang main program at the end of each test.
 
 ## The `verifyall` comand
 
