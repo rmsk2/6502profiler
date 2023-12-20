@@ -153,6 +153,8 @@ TRAP_CODE = 42
 .loopPrint
     lda ($80), y
     beq .finished
+    ; Here $2DDD is a special write address which upon each write 
+    ; prints the character to the screen
     sta $2DDD
     iny
     jmp .loopPrint
