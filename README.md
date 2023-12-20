@@ -186,7 +186,7 @@ in the following Lua script (`testprg/trap.lua`)
 
 ```lua
 function pop()
-    sp = get_sp()
+    local sp = get_sp()
     if sp == 0xFF then
         sp = 0x00
     else
@@ -200,11 +200,11 @@ end
 function trap(code)
     print("----- Running Lua code")
     print("Trap code: " .. code)
-    address_hi = pop() 
-    address_lo = pop()
-    address = address_hi * 256 + address_lo
+    local address_hi = pop() 
+    local address_lo = pop()
+    local address = address_hi * 256 + address_lo
     print("Copying data to address " .. address)
-    data_to_print = "48454c4c4f2046524f4d204c55410d0a00"
+    local data_to_print = "48454c4c4f2046524f4d204c55410d0a00"
     set_memory(address, data_to_print)
     print("----- Done with Lua code")
 end
