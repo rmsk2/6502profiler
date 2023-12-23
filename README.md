@@ -2,7 +2,7 @@
 
 ## Overview
 
-This software is in essence an emulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
+This software is in essence a simulator for the MOS 6502, 6510 and the 65C02 microprocessors. In contrast to the plethora of 
 emulators that already exist for these microprocessors it does not aim to emulate an existing retro computer with all its features like graphics 
 and sound. It is rather intended to be a development tool for optimizing and verifying the implementation of algorithms on old or new
 machines which use these classic microprocessors. To state this again: No graphics or sound capabilities of any kind are emulated and 
@@ -18,7 +18,8 @@ also keeps track of how many times each byte in memory is accessed (i.e. read an
 
 The usefulness of `6502profiler` as an emulator is increased by a feature which allows code running in the emulator to call functions in an
 associated Lua script, which has full access to the emulator's state. This can be used to simulate additional system components or software 
-modules which have not been implemented yet. See [below](#the-run-command) for more info about this feature.
+modules which have not been implemented yet. See [below](#the-run-command) for more info about this feature or look at 
+[this](https://github.com/rmsk2/luapoc) example which uses `6502profiler` to implement the "hangman" word guessing game.
 
 ## How to use `6502profiler`
 
