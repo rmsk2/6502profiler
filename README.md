@@ -547,7 +547,7 @@ use. At the moment the only legal value is `petscii`.
 If you want to load binaries into the simulator's RAM before any program is run you can list these binaries in the `PreLoad`
 property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is
 the name of the file which contains the binary to load. This can for instance be used to load ROM images. It has to be noted
-though that these images are of limited use because `6502profiler` does not simulator any I/O, timing or interrupt behaviour.
+though that these images are of limited use because `6502profiler` does not emulate any I/O, timing or interrupt behaviour.
 
 The `AcmeBinary`entry defines the path to the binary of the assembler to use. If the program is in your `PATH` then the name
 of the binary suffices. `AcmeSrcDir` has to describe the path to the directory where the assembler source files (which do 
