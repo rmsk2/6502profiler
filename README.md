@@ -18,7 +18,7 @@ also keeps track of how many times each byte in memory is accessed (i.e. read an
 
 The usefulness of `6502profiler` as a simulator is increased by a feature which allows code running in the simulator to call functions in an
 associated Lua script, which has full access to the simulator's state. This can be used to simulate additional system components or software 
-modules which have not been implemented yet. See [below](#the-run-command) for more info about this feature or look at 
+modules which have not been implemented in assembly yet. See [below](#the-run-command) for more info about this feature or look at 
 [this](https://github.com/rmsk2/luapoc) example which uses `6502profiler` to implement the "hangman" word guessing game.
 
 ## How to use `6502profiler`
