@@ -84,6 +84,48 @@ func DumpMemory(param string, cpu *cpu.CPU6502) error {
 	return nil
 }
 
+func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddress *uint, trapScript *string) (uint16, uint16, error) {
+	loadAddress, progLen, err := processor.Load(*binaryFileName)
+	if err != nil {
+		return 0, 0, fmt.Errorf("%v", err)
+	}
+
+	var L *lua.LState
+
+	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
+
+	if *trapAddress != emuconfig.IllegalTrapAddress {
+		if *trapScript == "" {
+			return 0, 0, fmt.Errorf("no Lua script specified")
+		}
+
+		L = lua.NewState()
+		defer L.Close()
+
+		trapAddr := (uint16)(*trapAddress)
+		fmt.Printf("Using trap address $%x\n", trapAddr)
+
+		wrapperMem := memory.NewMemWrapper(processor.Mem, 0xFF00&trapAddr)
+		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen)
+		if err != nil {
+			return 0, 0, fmt.Errorf("%v", err)
+		}
+
+		wrapperMem.AddSpecialWriteAddress(trapAddr, trapProc.Write)
+		processor.Mem = wrapperMem
+		defer func() {
+			_ = trapProc.Ctx.CallCleanup()
+		}()
+	}
+
+	err = processor.Run(loadAddress)
+	if err != nil {
+		return 0, 0, fmt.Errorf("a problem occurred: %v", err)
+	}
+
+	return loadAddress, progLen, nil
+}
+
 func RunCommand(arguments []string) error {
 	var config *emuconfig.Config = emuconfig.DefaultConfig()
 	var processor *cpu.CPU6502
@@ -121,42 +163,9 @@ func RunCommand(arguments []string) error {
 		return err
 	}
 
-	loadAddress, progLen, err := processor.Load(*binaryFileName)
+	_, _, err = LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript)
 	if err != nil {
-		return fmt.Errorf("%v", err)
-	}
-
-	var L *lua.LState
-
-	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
-
-	if *trapAddress != emuconfig.IllegalTrapAddress {
-		if *trapScript == "" {
-			return fmt.Errorf("no Lua script specified")
-		}
-
-		L = lua.NewState()
-		defer L.Close()
-
-		trapAddr := (uint16)(*trapAddress)
-		fmt.Printf("Using trap address $%x\n", trapAddr)
-
-		wrapperMem := memory.NewMemWrapper(processor.Mem, 0xFF00&trapAddr)
-		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen)
-		if err != nil {
-			return fmt.Errorf("%v", err)
-		}
-
-		wrapperMem.AddSpecialWriteAddress(trapAddr, trapProc.Write)
-		processor.Mem = wrapperMem
-		defer func() {
-			_ = trapProc.Ctx.CallCleanup()
-		}()
-	}
-
-	err = processor.Run(loadAddress)
-	if err != nil {
-		return fmt.Errorf("a problem occurred: %v", err)
+		return err
 	}
 
 	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
@@ -184,6 +193,8 @@ func ProfileCommand(arguments []string) error {
 	strategy := profileFlags.String("strategy", strategyMedian, "Strategy to determine cutoff value")
 	configName := profileFlags.String("c", "", "Config file name")
 	dumpFlag := profileFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
+	trapAddress := profileFlags.Uint("trapaddr", emuconfig.IllegalTrapAddress, "Address to use for triggering a trap")
+	trapScript := profileFlags.String("lua", "", "Lua script to call when trap is triggered")
 
 	if err = profileFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -231,9 +242,9 @@ func ProfileCommand(arguments []string) error {
 		p = float64(*percentageCutOff) / 100.0
 	}
 
-	loadAddress, progLen, err := processor.LoadAndRun(*binaryFileName)
+	loadAddress, progLen, err := LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript)
 	if err != nil {
-		return fmt.Errorf("a problem occurred: %v", err)
+		return err
 	}
 
 	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
