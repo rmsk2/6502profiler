@@ -167,10 +167,6 @@ func (f *F256RevBMemory) RestoreSnapshot() {
 	f.mmuIoCtrl = f.mmuIoCtrlSnap
 }
 
-func (f *F256RevBMemory) Close() {
-
-}
-
 func (f *F256RevBMemory) SetMlut(lutNum uint8, mlutData []byte) {
 	lutNum = lutNum & 0b00000011
 	copy(f.mLut[lutNum*lutSize:(lutNum+1)*lutSize], mlutData)

@@ -34,8 +34,6 @@ type Config struct {
 type ConfParser func(cnf string) (memory.MemWrapper, bool)
 
 var confParsers []ConfParser = []ConfParser{
-	memory.NewFileProcFromConfig,
-	memory.NewPicProcFromConfig,
 	memory.NewStdOutProcessorFromConfig,
 	memory.NewPrinterProcessorFromConfig,
 }

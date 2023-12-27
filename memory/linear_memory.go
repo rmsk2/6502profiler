@@ -49,5 +49,3 @@ func (l *LinearMemory) Store(address uint16, b uint8) {
 func (l *LinearMemory) GetStatistics(address uint16) uint64 {
 	return l.accessCount[address]
 }
-
-func (l *LinearMemory) Close() {}

@@ -66,10 +66,6 @@ func calcSectorMask(sectorBits uint) uint8 {
 	return (res << uint8(sectorBits)) - 1
 }
 
-func (n *NeoGeoRam) Close() {
-
-}
-
 func (n *NeoGeoRam) calcIndexRaw(address uint16) uint {
 	byteOffset := uint(address & 0xFF)
 

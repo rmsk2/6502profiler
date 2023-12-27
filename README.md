@@ -544,12 +544,10 @@ corresponding lo byte of one special address. In the example above the first res
 stored in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. If no such 
 special addresses are needed then `IoAddrConfig` should be empty.
 
-Currently three types of special IO addresses are defined. One stores the data written to the corresponding address in a file. 
-Such an address is defined by an entry that starts with `file:` and the remaining string specifies the file name. The second 
-type of special IO address outputs the data hex encoded to stdout. Such entries start with `sdtdout:`and the remaining part of
-the entry specifies the number of bytes to be printed on one line as a decimal number. Entries of the third kind begin with
-`printer:` and cause the data bytes to be printed to stdout as characters. The value after the colon specifies the encoding to 
-use. At the moment the only legal value is `petscii`. 
+Currently two types of special IO addresses are defined.  The first type of special IO address outputs the data hex encoded 
+to stdout. Such entries start with `sdtdout:`and the remaining part of the entry specifies the number of bytes to be printed 
+on one line as a decimal number. Entries of the second kind begin with `printer:` and cause the data bytes to be printed to 
+stdout as characters. The value after the colon specifies the encoding to use. At the moment the only legal value is `petscii`. 
 
 If you want to load binaries into the simulator's RAM before any program is run you can list these binaries in the `PreLoad`
 property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is

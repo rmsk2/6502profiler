@@ -5,7 +5,6 @@ type DataWriteFunc func(data uint8)
 type MemWrapper interface {
 	SetBaseMem(m Memory)
 	Write(data uint8)
-	Close()
 }
 
 type WrappingMemory struct {
@@ -60,14 +59,6 @@ func (p *WrappingMemory) GetStatistics(address uint16) uint64 {
 
 func (p *WrappingMemory) ClearStatistics() {
 	p.mem.ClearStatistics()
-}
-
-func (p *WrappingMemory) Close() {
-	for _, j := range p.wrappers {
-		j.Close()
-	}
-
-	p.mem.Close()
 }
 
 func (p *WrappingMemory) TakeSnapshot() {

@@ -79,7 +79,6 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 	if err != nil {
 		return fmt.Errorf("unable to create cpu for test case: %v", err)
 	}
-	defer func() { cpu.Mem.Close() }()
 
 	t.CurrentCpu = cpu
 

@@ -29,10 +29,6 @@ func VerifyAllCommand(arguments []string) error {
 		}
 	}
 
-	if len(config.IoAddrConfig) != 0 {
-		return fmt.Errorf("special IO addresses are incompatible with verifyall")
-	}
-
 	repo, err := config.GetCaseRepo()
 	if err != nil {
 		return err

@@ -110,7 +110,3 @@ func (x *X16Memory) GetStatistics(address uint16) uint64 {
 	return *stat
 
 }
-
-func (x *X16Memory) Close() {
-
-}

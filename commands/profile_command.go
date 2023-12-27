@@ -158,7 +158,6 @@ func RunCommand(arguments []string) error {
 	if err != nil {
 		return fmt.Errorf("error processing config: %v", err)
 	}
-	defer func() { processor.Mem.Close() }()
 
 	if *binaryFileName == "" {
 		return fmt.Errorf("no program specified")
@@ -218,7 +217,6 @@ func ProfileCommand(arguments []string) error {
 	if err != nil {
 		return fmt.Errorf("error processing config: %v", err)
 	}
-	defer func() { processor.Mem.Close() }()
 
 	statisticRequested := (*outputFileName != "")
 

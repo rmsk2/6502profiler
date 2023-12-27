@@ -13,7 +13,6 @@ type Memory interface {
 	ClearStatistics()
 	TakeSnapshot()
 	RestoreSnapshot()
-	Close()
 }
 
 func Dump(m Memory, start uint16, end uint16) {
