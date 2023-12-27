@@ -105,7 +105,9 @@ func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddres
 		trapAddr := (uint16)(*trapAddress)
 		fmt.Printf("Using trap address $%x\n", trapAddr)
 
-		wrapperMem := memory.NewMemWrapper(processor.Mem, 0xFF00&trapAddr)
+		baseMem := processor.Mem
+
+		wrapperMem := memory.NewMemWrapper(baseMem, 0xFF00&trapAddr)
 		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen)
 		if err != nil {
 			return 0, 0, fmt.Errorf("%v", err)
@@ -115,6 +117,9 @@ func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddres
 		processor.Mem = wrapperMem
 		defer func() {
 			_ = trapProc.Ctx.CallCleanup()
+			// Remove memory wrapper, because the trap adddress will not work after the Lua
+			// state has been Closed.
+			processor.Mem = baseMem
 		}()
 	}
 
