@@ -508,9 +508,8 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
     "MemSpec": "Linear64K",
     "IoMask": 45,
     "IoAddrConfig": {
-        "221": "file:output.bin",
-        "222": "stdout:16",
-        "223": "printer:petscii"   
+        "221": "stdout:16",
+        "222": "printer:petscii"   
     },
     "PreLoad": {
         "40960": "/home/martin/data/vice_roms/C64/basic",
