@@ -67,7 +67,7 @@ func NewTestCaseFromFile(fileName string) (*TestCase, error) {
 	return res, nil
 }
 
-func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor, p *memory.PlaceholderWrapper) error {
+func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath string, subcaseProc SubcaseProcessor, p *memory.PlaceholderWrapper, id string) error {
 	var testRes bool = true
 	var testMsg string
 	var i uint
@@ -88,6 +88,7 @@ func (t *TestCase) Execute(cpu *cpu.CPU6502, asm assembler.Assembler, scriptPath
 	defer L.Close()
 
 	ctx := luabridge.NewLuaCtx(cpu, scriptPath, L)
+	ctx.SetIdent(id)
 
 	err = ctx.RegisterGlobals(L, loadAdress, progLen)
 	if err != nil {

@@ -108,7 +108,7 @@ func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddres
 		baseMem := processor.Mem
 
 		wrapperMem := memory.NewMemWrapper(baseMem, 0xFF00&trapAddr)
-		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen)
+		trapProc, err := luabridge.NewTrapProcessor(L, *trapScript, processor, loadAddress, progLen, *binaryFileName+".ident")
 		if err != nil {
 			return 0, 0, fmt.Errorf("%v", err)
 		}

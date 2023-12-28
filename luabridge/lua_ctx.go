@@ -13,6 +13,7 @@ type LuaCtx struct {
 	cpu     *cpu.CPU6502
 	L       *lua.LState
 	testDir string
+	ident   string
 }
 
 func NewLuaCtx(cpu *cpu.CPU6502, testDir string, l *lua.LState) *LuaCtx {
@@ -30,7 +31,12 @@ func NewLuaCtx(cpu *cpu.CPU6502, testDir string, l *lua.LState) *LuaCtx {
 		cpu:     cpu,
 		L:       l,
 		testDir: testDir,
+		ident:   "",
 	}
+}
+
+func (c *LuaCtx) SetIdent(s string) {
+	c.ident = s
 }
 
 func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint16) error {
@@ -55,6 +61,7 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("load_address", lua.LNumber(loadAddress))
 	L.SetGlobal("prog_len", lua.LNumber(progLen))
 	L.SetGlobal("test_dir", lua.LString(c.testDir))
+	L.SetGlobal("ident", lua.LString(c.ident))
 
 	return nil
 }

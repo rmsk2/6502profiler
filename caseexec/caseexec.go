@@ -91,7 +91,7 @@ func (t *CaseExec) ExecuteCase(testCaseName string, testCase *verifier.TestCase)
 
 	t.ReportTestInfo(testCaseName, testCase)
 
-	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc, t.placeholderWrapper)
+	err = testCase.Execute(cpu, assembler, t.repo.GetScriptPath(), subcaseProc, t.placeholderWrapper, testCaseName+".ident")
 	if err != nil {
 		errMsg := assembler.GetErrorMessage()
 		if errMsg != "" {

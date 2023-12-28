@@ -394,7 +394,8 @@ represented as hex strings. On top of that the following three variables are inj
 |-|-|
 | `load_address` | Address to which the test driver has been loaded and from which it is run | 
 | `prog_len` | Length in bytes of the loaded test driver | 
-| `test_dir` | Path to the test dir which can be used with `require` to load additional scripts | 
+| `test_dir` | Path to the test dir which can be used with `require` to load additional scripts |
+| `ident` | An identifier which is intended to give the running script a sort of identitiy for instance for logging or similar purposes | 
 
 Assigning a value to these variables remains local to the Lua test script and does not influence what is happening in the golang
 host application.

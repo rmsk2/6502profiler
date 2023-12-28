@@ -25,3 +25,5 @@ end
 function cleanup()
     print("Cleaning up Lua part")
 end
+
+print("Script identifies as: " .. ident)

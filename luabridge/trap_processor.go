@@ -11,10 +11,12 @@ type TrapProcessor struct {
 	Ctx *LuaCtx
 }
 
-func NewTrapProcessor(l *lua.LState, scriptToRun string, cpu *cpu.CPU6502, loadAddress uint16, progLen uint16) (*TrapProcessor, error) {
+func NewTrapProcessor(l *lua.LState, scriptToRun string, cpu *cpu.CPU6502, loadAddress uint16, progLen uint16, id string) (*TrapProcessor, error) {
 	res := &TrapProcessor{
 		Ctx: NewLuaCtx(cpu, "", l),
 	}
+
+	res.Ctx.SetIdent(id)
 
 	err := res.Ctx.RegisterGlobals(l, loadAddress, progLen)
 	if err != nil {
