@@ -271,11 +271,11 @@ Usage of 6502profiler verify:
     	Give more information
 ```
 
-The name of the test case file is interpreted relative to the directory specified by the `AcmeTestDir` configuration entry (see below). 
-The `.json` suffix of the filename can be omitted. In order to run all test cases in that directory see the `verifyall` command as 
-described below. The `-prexec` command line option can be used to specify the source code of an assembly program that is compiled and 
-run before the test in order to perform a global test setup. This file name is interpreted relative to the `AcmeTestDir` defined in 
-the config file. 
+The name of the test case file (specified by the `-t` option) is interpreted relative to the directory specified by the `AcmeTestDir` 
+configuration entry (see below). The `.json` suffix of the filename can be omitted. In order to run all test cases in that directory 
+see the `verifyall` command as described below. The `-prexec` command line option can be used to specify the source code of an assembly
+program that is compiled and run before the test in order to perform a global test setup. This file name is interpreted relative to the
+ `AcmeTestDir` defined in the config file. 
 
 The general idea is to have a collection of source files which contain the assembly subroutines to test in one directory (the source 
 directory as given in `AcmeSrcDir`) and additional separate assembly test driver programs in a test directory (named by `AcmeTestDir`) 
