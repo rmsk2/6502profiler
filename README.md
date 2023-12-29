@@ -354,7 +354,8 @@ end
 The `arrange` function copies the test vector into the simulator's memory before the test driver is run. After the test driver has finished the
 `assert` function is called to evaluate the results. In this example it is tested whether the test vector has been copied to the correct address
 and if the negative flag is set at the end of the test driver. If these conditions are not met corresponding error messages are returned. Have a
-look in the `testprg/tests`directory in this repo for additional examples.
+look in the `testprg/tests`directory in this repo for additional examples. To run only the test described above you can use 
+`./6502profiler verify -c config.json -t test1`.
 
 The trap facility described above can also be used with the `verify` command. The Lua test script then additionally has to define at least the 
 `trap` function and optionally the `cleanup` function. You have to specify the `-trapaddr` option to use this feature.
@@ -429,7 +430,7 @@ Usage of 6502profiler verifyall:
     	Give more information
 ```
 
-Here an example what kind of output `6502profiler verifyall -c config.json` generates
+Here an example what kind of output `./6502profiler verifyall -c config.json` generates
 
 ```
 Executing test case '32 bit multiplication 1' ... (3180 clock cycles) OK
