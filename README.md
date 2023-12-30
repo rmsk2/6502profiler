@@ -408,10 +408,21 @@ of clock cycles used for all the iterations. When using this feature the Lua tes
 counter (for instance using `set_pc(load_address)`) in the `arrange` function. A usage example can be found in the file 
 `testprg/tests/itertest.lua`.
 
-If you want to use the trap facility described above then you must specify the `-trapaddr` CLI option and you have to implement at 
-least a function called `trap` which takes a byte (the so called trap code) as its only parameter and does not return a value. 
+If you also want to use the trap facility in tests then you must specify the `-trapaddr` CLI option and you have to implement 
+at least a function called `trap` which takes a byte (the so called trap code) as its only parameter and does not return a value. 
 Optionally a `cleanup` function can be implemented which takes no parameters and returns no value. This function is called when 
-the Lua interpreter is spun down by the golang main program at the end of each test.
+the Lua interpreter is spun down by the golang main program at the end of each test. 
+
+Here a summary of the functions which are called from the golang side of `6502profiler` in one context or another and have to 
+be implemented in the corresponding Lua script:
+
+|Function Name| Description |
+|-|-|
+|`arrange()`| Returns nothing. This function is called to setup things before a test is run. It is optional if the Lua script is not part of a test. Depending on the value of `num_iterations()` this function can be called several times for each test|
+|`assert()` | Returns a boolean and a string. The function is called after a test was run to assert whether the test was successfull. If the returned bool is `true` the test is deemed to have been successfull. The string should contain an error message if the test was not successfull. Implementing this function is optional if the Lua script is not part of a test. Depending on the value of `num_iterations()` this function can be called several times for each test|
+|`num_iterations()`| Returns an integer. This function is optional and is called once for each test script. Its return value determines how often `arrange` and `assert` are called for a test |
+|`trap(trapcode)`| Returns nothing and takes a byte value. This function is called each time a trap was triggered. It is optional if the trap mechanism is not used.  |
+|`cleanup()`| Returns nothing. This function is optional and is only relevant when the trap mechanism is in use. It is called once after the simulated machine language program has finished. It is primarily intended to allow clean resource management (for instance closing files) |
 
 ## The `verifyall` comand
 
