@@ -9,8 +9,9 @@ machines which use these classic microprocessors. To state this again: No graphi
 `6502profiler` works at a purely logical level.
 
 The two main use cases for `6502profiler` are unit testing for and performance analysis of 6502 assembly programs. `6502profiler` offers the 
-possibility to implement tests where arranging the test data and evaluating the results is offloaded to a Lua script. `6502profiler` uses 
-[gopher-lua](https://github.com/yuin/gopher-lua) to embed Lua in Go.
+possibility to implement tests where arranging the test data and evaluating the results is offloaded to Lua scripts. Have a look at my 
+[6502 arithmetic lib](https://github.com/rmsk2/6502-Arithmetic) to see this functionality in action.`6502profiler` uses 
+[gopher-lua](https://github.com/yuin/gopher-lua) to embed Lua in Go. 
 
 When used for performance analysis `6502profiler` executes an existing binary inside the simulator. While running the program the number of clock 
 cycles that are used up during execution are counted. Additionally `6502profiler` can be used to identify "hot spots" in the program because it 
