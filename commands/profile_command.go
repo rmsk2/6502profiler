@@ -84,7 +84,7 @@ func DumpMemory(param string, cpu *cpu.CPU6502) error {
 	return nil
 }
 
-func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddress *uint, trapScript *string) (uint16, uint16, error) {
+func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddress *uint, trapScript *string, silent bool) (uint16, uint16, error) {
 	loadAddress, progLen, err := processor.Load(*binaryFileName)
 	if err != nil {
 		return 0, 0, fmt.Errorf("%v", err)
@@ -92,7 +92,9 @@ func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddres
 
 	var L *lua.LState
 
-	fmt.Printf("Program loaded to address $%04x\n", loadAddress)
+	if !silent {
+		fmt.Printf("Program loaded to address $%04x\n", loadAddress)
+	}
 
 	if *trapAddress != emuconfig.IllegalTrapAddress {
 		if *trapScript == "" {
@@ -142,6 +144,7 @@ func RunCommand(arguments []string) error {
 	dumpFlag := runFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
 	trapAddress := runFlags.Uint("trapaddr", emuconfig.IllegalTrapAddress, "Address to use for triggering a trap")
 	trapScript := runFlags.String("lua", "", "Lua script to call when trap is triggered")
+	silent := runFlags.Bool("silent", false, "Do not print additional info")
 
 	if err = runFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -167,12 +170,14 @@ func RunCommand(arguments []string) error {
 		return err
 	}
 
-	_, _, err = LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript)
+	_, _, err = LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript, *silent)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
+	if !*silent {
+		fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
+	}
 
 	err = DumpMemory(*dumpFlag, processor)
 	if err != nil {
@@ -199,6 +204,7 @@ func ProfileCommand(arguments []string) error {
 	dumpFlag := profileFlags.String("dump", "", "Dump memory after program has stopped. Format 'startaddr:len'")
 	trapAddress := profileFlags.Uint("trapaddr", emuconfig.IllegalTrapAddress, "Address to use for triggering a trap")
 	trapScript := profileFlags.String("lua", "", "Lua script to call when trap is triggered")
+	silent := profileFlags.Bool("silent", false, "Do not print additional info")
 
 	if err = profileFlags.Parse(arguments); err != nil {
 		os.Exit(util.ExitErrorSyntax)
@@ -245,12 +251,14 @@ func ProfileCommand(arguments []string) error {
 		p = float64(*percentageCutOff) / 100.0
 	}
 
-	loadAddress, progLen, err := LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript)
+	loadAddress, progLen, err := LoadAndRunBinary(processor, binaryFileName, trapAddress, trapScript, *silent)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
+	if !*silent {
+		fmt.Printf("Program ran for %d clock cycles\n", processor.NumCycles())
+	}
 
 	if statisticRequested {
 		var ctOff = determineCutOffCalc(strategy, p)

@@ -2,6 +2,7 @@ package memory
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -44,9 +45,37 @@ func (s *StdOutProcessor) Write(b uint8) {
 	s.charCount++
 }
 
-func (s *StdOutProcessor) Close() {
+func (s *StdOutProcessor) SetBaseMem(m Memory) {
+
 }
 
-func (s *StdOutProcessor) SetBaseMem(m Memory) {
+// -------------------------------
+
+type StdOutBinaryProcessor struct {
+}
+
+// NewStdOutBinaryProcessorFromConfig parses a config string of the form "stdout:bin" and
+// creates the corresponding StdOutBinaryProcessor struct.
+func NewStdOutBinaryProcessorFromConfig(configEntry string) (MemWrapper, bool) {
+	if configEntry != "stdout:bin" {
+		return nil, false
+	}
+
+	return NewStdOutBinaryProcessor(), true
+}
+
+func NewStdOutBinaryProcessor() *StdOutBinaryProcessor {
+	return &StdOutBinaryProcessor{}
+}
+
+func (s *StdOutBinaryProcessor) Write(b uint8) {
+	outB := []byte{b}
+	_, err := os.Stdout.Write(outB)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (s *StdOutBinaryProcessor) SetBaseMem(m Memory) {
 
 }

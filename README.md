@@ -65,6 +65,8 @@ Usage of 6502profiler profile:
     	Percentage used to determine cut off value (default 10)
   -prg string
     	Path to the program to run
+  -silent
+    	Do not print additional info
   -strategy string
     	Strategy to determine cutoff value (default "median")
   -trapaddr uint
@@ -135,6 +137,8 @@ Usage of 6502profiler run:
     	Lua script to call when trap is triggered
   -prg string
     	Path to the program to run
+  -silent
+    	Do not print additional info
   -trapaddr uint
     	Address to use for triggering a trap
 ```
@@ -558,10 +562,12 @@ corresponding lo byte of one special address. In the example above the first res
 stored in that address via `sta`, `stx`, `sty` or instructions that modify data in place as for instance `inc`. If no such 
 special addresses are needed then `IoAddrConfig` should be empty.
 
-Currently two types of special IO addresses are defined.  The first type of special IO address outputs the data hex encoded 
-to stdout. Such entries start with `sdtdout:`and the remaining part of the entry specifies the number of bytes to be printed 
+Currently three types of special IO addresses are defined.  The first type of special IO address outputs the data hex encoded 
+to stdout. Such entries start with `sdtdout:` and the remaining part of the entry specifies the number of bytes to be printed 
 on one line as a decimal number. Entries of the second kind begin with `printer:` and cause the data bytes to be printed to 
-stdout as characters. The value after the colon specifies the encoding to use. At the moment the only legal value is `petscii`. 
+stdout as characters. The value after the colon specifies the encoding to use. At the moment the only legal value is `petscii`.
+The third type of entry is identified by the string `sdtdout:bin` and causes the data written to the special output
+addres to be sent to stdout without further processing. 
 
 If you want to load binaries into the simulator's RAM before any program is run you can list these binaries in the `PreLoad`
 property. Each entry is a key value pair where the key is the address to which the binary should be loaded and the value is

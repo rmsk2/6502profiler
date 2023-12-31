@@ -36,6 +36,7 @@ type ConfParser func(cnf string) (memory.MemWrapper, bool)
 var confParsers []ConfParser = []ConfParser{
 	memory.NewStdOutProcessorFromConfig,
 	memory.NewPrinterProcessorFromConfig,
+	memory.NewStdOutBinaryProcessorFromConfig,
 }
 
 const L16 = "Linear16K"
