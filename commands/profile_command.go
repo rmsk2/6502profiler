@@ -105,7 +105,10 @@ func LoadAndRunBinary(processor *cpu.CPU6502, binaryFileName *string, trapAddres
 		defer L.Close()
 
 		trapAddr := (uint16)(*trapAddress)
-		fmt.Printf("Using trap address $%x\n", trapAddr)
+
+		if !silent {
+			fmt.Printf("Using trap address $%x\n", trapAddr)
+		}
 
 		baseMem := processor.Mem
 
