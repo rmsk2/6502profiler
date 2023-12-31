@@ -42,9 +42,6 @@ func (p *PrinterProcessor) Write(b uint8) {
 	fmt.Printf("%c", p.conv(b))
 }
 
-func (p *PrinterProcessor) Close() {
-}
-
 func (p *PrinterProcessor) SetBaseMem(m Memory) {
 
 }
