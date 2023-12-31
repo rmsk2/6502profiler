@@ -531,6 +531,7 @@ The config is stored in a JSON file and can be referenced through the `-c` optio
     },
     "F256MCoprocFlags": 0,
     "F256MCoprocBase": 56832,
+    "Ca65StartAddress": 2048,
     "AsmType": "acme",    
     "AcmeBinary": "acme",
     "AcmeSrcDir": "./testprg",
@@ -576,7 +577,9 @@ allowed.
 
 When using `ca65` the value of `AcmeBinary` only has to specify the path to the tools `ca65` and `cl65` but it must not
 contain the names of the tools themselves. If for instance `ca65` and `cl65` are located in `/usr/bin` you can set `AcmeBinary`
-to `/usr/bin`. If the tools are in your `PATH` then you can simply use `""`. 
+to `/usr/bin`. If the tools are in your `PATH` then you can simply use `""`. Setting the start address of a program in `ca65` 
+requires a command line option. The value of the config entry `Ca65StartAddress` can be used to set this option and thereby
+change the target address of the assembled binary. If the `Ca65StartAddress` entry is mssing then $0800 is used as a default. 
 
 The entries `F256MCoprocFlags` and `F256MCoprocBase` can be used to control the emulation of a math coprocessor for 16 bit by 
 16 bit unsigned multiplication and division in the style of the one used in the F256 K. If `F256MCoprocFlags` is 0 or not 
