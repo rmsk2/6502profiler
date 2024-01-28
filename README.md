@@ -618,4 +618,5 @@ are provided for all 6502 instructions and can be executed through `go test ./..
 
 # Upcoming
 
+- Add possibility to let the Lua side access banked memory in a linear fashion
 - Maybe add a possibility to deactivate a test case temporarily
