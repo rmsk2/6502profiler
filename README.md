@@ -455,22 +455,22 @@ The memory layout is best described using the following table.
 
 ### Foenix F256K and F256 Jr.
 
-Again a table makes it easier to describe the memory layout with and without added expansion RAM. The first table includes expansion RAM:
+Again a table makes it easier to describe the memory layout with and without added expansion RAM. The first table describes the layout for a machine with expansion RAM:
 
 | Memory type | Begin | End |
 |-|-|-|
 | Banked RAM | 0x000000 | 0x07FFFF |
 | Banked ROM | 0x080000 | 0x0FFFFF |
 |Expansion RAM | 0x100000 | 0x13FFFF |
-| 32 KB IO Memory | 0x140000 | 0x148000 | 
+| 32 KB IO Memory | 0x140000 | 0x147FFF | 
 
-And here without expansion RAM.
+The same table for a machine without expansion RAM.
 
 | Memory type | Begin | End |
 |-|-|-|
 | Banked RAM | 0x000000 | 0x07FFFF |
 | Banked ROM | 0x080000 | 0x0FFFFF |
-| 32 KB IO Memory | 0x100000 | 0x108000 | 
+| 32 KB IO Memory | 0x100000 | 0x107FFF | 
 
 
 ## The `verifyall` comand
