@@ -431,6 +431,48 @@ be implemented in the corresponding Lua script:
 |`trap(trapcode)`| Returns nothing and takes a byte value. This function is called each time a trap was triggered. It is optional if the trap mechanism is not used.  |
 |`cleanup()`| Returns nothing. This function is optional and is only relevant when the trap mechanism is in use. It is called once after the simulated machine language program has finished. It is primarily intended to allow clean resource management (for instance closing files) |
 
+## Linear memory layout of simulated machines
+
+The Lua functions `read_byte_long` and `write_byte_long` allow Lua test scripts to access all of the memory of a simulated machine in a linear fashion which makes it much easier to
+verify software on machines which make heavy use of banked memory, i.e. the NeoGeo cartridge, the Commander X16 and the Foenix F256K and F256 Jr. This section describes the linear memory
+layout implemented in `6502profiler` for these machines.
+
+### NeoGeo cartridge memory model
+
+In this model the 64K base memory can be access through the addresses 0 t0 0xFFFF. The addresses 0x10000 and above access the memory of the cartridge in a linear fashion.
+
+### Commander X16
+
+The memory layout is best described using the following table.
+
+| Memory type | Begin | End |
+|-|-|-|
+|Base RAM | 0x0000 | 0x9FFF |
+|Banked RAM | 0xA000   | 0x089FFF (512K machine) |
+|Banked ROM | 0x8A000  | 0x109FFF (512K machine) |
+|Banked RAM | 0xA000   | 0x209FFF (2048K machine) |
+|Banked ROM | 0x20A000 | 0x289FFF (2048K machine) |
+
+### Foenix F256K and F256 Jr.
+
+Again a table makes it easier to describe the memory layout with and without added expansion RAM. The first table includes expansion RAM:
+
+| Memory type | Begin | End |
+|-|-|-|
+| Banked RAM | 0x000000 | 0x07FFFF |
+| Banked ROM | 0x080000 | 0x0FFFFF |
+|Expansion RAM | 0x100000 | 0x13FFFF |
+| 32 KB IO Memory | 0x140000 | 0x148000 | 
+
+And here without expansion RAM.
+
+| Memory type | Begin | End |
+|-|-|-|
+| Banked RAM | 0x000000 | 0x07FFFF |
+| Banked ROM | 0x080000 | 0x0FFFFF |
+| 32 KB IO Memory | 0x100000 | 0x108000 | 
+
+
 ## The `verifyall` comand
 
 The `verifyall` command can be used to execute all test cases that are found in the `AcmeTestDir` as defined in the referenced
@@ -520,6 +562,8 @@ Usage of 6502profiler list:
 
 # Simulator configuration
 
+## Config file
+
 The config is stored in a JSON file and can be referenced through the `-c` option. The config file is structured as follows
 
 ```json
@@ -598,6 +642,7 @@ its input values at the addresses `F256MCoprocBase`+4 and `F256MCoprocBase`+6 an
 `F256MCoprocBase`+20 as well as the remainder at `F256MCoprocBase`+22. The real hardware uses 0xDE00 as `F256MCoprocBase`.
 The 32 bit adder of the F256 coprocessor is currently not emulated. In `6502profiler` it is possible to write to the addresses
 0xDE10-0xDE1B where this is not possible in real hardware.
+
 
 # Performance
 
