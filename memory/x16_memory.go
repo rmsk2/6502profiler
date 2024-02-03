@@ -68,6 +68,19 @@ func (x *X16Memory) ClearStatistics() {
 	}
 }
 
+func (x *X16Memory) calcLongIndex(address uint32) (*uint8, *uint64) {
+	switch {
+	case address < 0xA000:
+		return &x.baseMem[address], &x.statBase[address]
+	case (address >= 0xA000) && (address < (uint32)(len(x.bankedRAM8K)+0xA000)):
+		index := address - 0xA000
+		return &x.bankedRAM8K[index], &x.statBankedRam[index]
+	default:
+		index := address - (uint32)(len(x.bankedRAM8K)+0xA000)
+		return &x.bankedROM16K[index], &x.statBankedRom[index]
+	}
+}
+
 func (x *X16Memory) calcIndex(address uint16) (*uint8, *uint64) {
 	switch {
 	case address < 0xA000:
@@ -94,19 +107,29 @@ func (x *X16Memory) RestoreSnapshot() {
 }
 
 func (x *X16Memory) Load(address uint16) uint8 {
-	mem, stat := x.calcIndex(address)
-	(*stat)++
-	return *mem
+	return loadGen(address, x.calcIndex)
 }
 
 func (x *X16Memory) Store(address uint16, b uint8) {
-	mem, stat := x.calcIndex(address)
-	(*stat)++
-	*mem = b
+	storeGen(address, b, x.calcIndex)
 }
 
 func (x *X16Memory) GetStatistics(address uint16) uint64 {
-	_, stat := x.calcIndex(address)
-	return *stat
+	return statGen(address, x.calcIndex)
+}
 
+func (x *X16Memory) LoadLarge(address uint32) uint8 {
+	return loadGen(address, x.calcLongIndex)
+}
+
+func (x *X16Memory) StoreLarge(address uint32, b uint8) {
+	storeGen(address, b, x.calcLongIndex)
+}
+
+func (x *X16Memory) GetStatisticsLarge(address uint32) uint64 {
+	return statGen(address, x.calcLongIndex)
+}
+
+func (x *X16Memory) ToLargeMemory() LargeMemory {
+	return x
 }

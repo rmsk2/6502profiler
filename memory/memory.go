@@ -6,10 +6,21 @@ import (
 	"strings"
 )
 
+type AddrType interface {
+	uint16 | uint32
+}
+
+type LargeMemory interface {
+	LoadLarge(address uint32) uint8
+	StoreLarge(address uint32, b uint8)
+	GetStatisticsLarge(address uint32) uint64
+}
+
 type Memory interface {
 	Load(address uint16) uint8
 	Store(address uint16, b uint8)
 	GetStatistics(address uint16) uint64
+	ToLargeMemory() LargeMemory
 	ClearStatistics()
 	TakeSnapshot()
 	RestoreSnapshot()
@@ -68,4 +79,21 @@ func Dump(m Memory, start uint16, end uint16) {
 	}
 
 	fmt.Printf("$%04x\n", end+1)
+}
+
+func loadGen[T AddrType](address T, indexer func(T) (*uint8, *uint64)) uint8 {
+	mem, stat := indexer(address)
+	(*stat)++
+	return *mem
+}
+
+func statGen[T AddrType](address T, indexer func(T) (*uint8, *uint64)) uint64 {
+	_, stat := indexer(address)
+	return *stat
+}
+
+func storeGen[T AddrType](address T, b uint8, indexer func(T) (*uint8, *uint64)) {
+	mem, stat := indexer(address)
+	(*stat)++
+	*mem = b
 }

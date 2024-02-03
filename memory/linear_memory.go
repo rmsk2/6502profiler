@@ -49,3 +49,19 @@ func (l *LinearMemory) Store(address uint16, b uint8) {
 func (l *LinearMemory) GetStatistics(address uint16) uint64 {
 	return l.accessCount[address]
 }
+
+func (l *LinearMemory) LoadLarge(address uint32) uint8 {
+	return l.Load((uint16)(address & 0xFFFF))
+}
+
+func (l *LinearMemory) StoreLarge(address uint32, b uint8) {
+	l.Store((uint16)(address&0xFFFF), b)
+}
+
+func (l *LinearMemory) GetStatisticsLarge(address uint32) uint64 {
+	return l.GetStatistics((uint16)(address & 0xFFFF))
+}
+
+func (l *LinearMemory) ToLargeMemory() LargeMemory {
+	return l
+}

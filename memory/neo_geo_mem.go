@@ -78,6 +78,16 @@ func (n *NeoGeoRam) calcIndexRaw(address uint16) uint {
 	return geoAddr
 }
 
+func (n *NeoGeoRam) calcLongIndex(address uint32) (*uint8, *uint64) {
+	switch {
+	case (address <= 0xFFFF):
+		return &n.baseMem[address], &n.statBase[address]
+	default:
+		i := address - 0x10000
+		return &n.neoGeo[i], &n.statNeoGeo[i]
+	}
+}
+
 func (n *NeoGeoRam) calcIndex(address uint16) (*uint8, *uint64) {
 	switch {
 	case (address < NeoGeoRamPage) || (address >= NeoGeoRegisterPage):
@@ -109,18 +119,29 @@ func (n *NeoGeoRam) ClearStatistics() {
 }
 
 func (n *NeoGeoRam) Load(address uint16) uint8 {
-	mem, stat := n.calcIndex(address)
-	(*stat)++
-	return *mem
+	return loadGen(address, n.calcIndex)
 }
 
 func (n *NeoGeoRam) Store(address uint16, b uint8) {
-	mem, stat := n.calcIndex(address)
-	(*stat)++
-	*mem = b
+	storeGen(address, b, n.calcIndex)
 }
 
 func (n *NeoGeoRam) GetStatistics(address uint16) uint64 {
-	_, stat := n.calcIndex(address)
-	return *stat
+	return statGen(address, n.calcIndex)
+}
+
+func (n *NeoGeoRam) LoadLarge(address uint32) uint8 {
+	return loadGen(address, n.calcLongIndex)
+}
+
+func (n *NeoGeoRam) StoreLarge(address uint32, b uint8) {
+	storeGen(address, b, n.calcLongIndex)
+}
+
+func (n *NeoGeoRam) GetStatisticsLarge(address uint32) uint64 {
+	return statGen(address, n.calcLongIndex)
+}
+
+func (n *NeoGeoRam) ToLargeMemory() LargeMemory {
+	return n
 }

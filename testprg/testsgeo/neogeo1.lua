@@ -1,4 +1,7 @@
+test_addr = 65536 + 10251
+
 function arrange()
+    write_byte_long(test_addr, 17)
 end
 
 function assert() 
@@ -7,7 +10,20 @@ function assert()
 
     if not res then
         error_msg = "Unexpected value"
+        return res, error_msg
     end
 
-    return res, error_msg
+    if read_byte_long(65536 + 5) ~= 42 then
+        return false, "Wrong value when accessing linear address space"
+    end
+
+    if read_byte_long(65536 + 5 + 256) ~= 43 then
+        return false, "Wrong value when accessing linear address space"
+    end    
+
+    if read_byte_long(test_addr) ~= 17 then
+        return false, "Wrong value when accessing linear address space"
+    end
+
+    return true, ""
 end

@@ -69,6 +69,10 @@ func (p *WrappingMemory) RestoreSnapshot() {
 	p.mem.RestoreSnapshot()
 }
 
+func (p *WrappingMemory) ToLargeMemory() LargeMemory {
+	return p.mem.ToLargeMemory()
+}
+
 // ------------------------------------------------------------------------------
 
 type PlaceholderWrapper struct {

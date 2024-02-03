@@ -40,8 +40,8 @@ func TestDefaultMemory(t *testing.T) {
 	// Set MLUT 1
 	mem.SetMlut(1, []byte{16, 17, 18, 19, 20, 21, 22, 23})
 
-	var memAddress uint = 128*1024 + 4193
-	mem.systemMemory[memAddress] = 0x39
+	var memAddress uint32 = 128*1024 + 4193
+	mem.ToLargeMemory().StoreLarge(memAddress, 0x39)
 
 	if mem.Load(4193) != 0x39 {
 		t.Fatal("Read wrong value via MLUT")
@@ -49,7 +49,7 @@ func TestDefaultMemory(t *testing.T) {
 
 	mem.Store(4193, 0xBD)
 
-	if mem.systemMemory[memAddress] != 0xBD {
+	if mem.ToLargeMemory().LoadLarge(memAddress) != 0xBD {
 		t.Fatal("Read wrong value via direct access")
 	}
 
@@ -57,9 +57,9 @@ func TestDefaultMemory(t *testing.T) {
 	mem.SetMlut(1, []byte{17, 16, 18, 19, 20, 21, 22, 23})
 
 	// memAddress 4193 is now one 8K bank "further up"
-	memAddress = 128*1024 + uint(bankSize) + 4193
+	memAddress = 128*1024 + uint32(bankSize) + 4193
 
-	mem.systemMemory[memAddress] = 0x45
+	mem.ToLargeMemory().StoreLarge(memAddress, 0x45)
 
 	if mem.Load(4193) != 0x45 {
 		t.Fatal("Read wrong value via MLUT on second try")
@@ -67,7 +67,7 @@ func TestDefaultMemory(t *testing.T) {
 
 	mem.Store(4193, 0xEF)
 
-	if mem.systemMemory[memAddress] != 0xEF {
+	if mem.ToLargeMemory().LoadLarge(memAddress) != 0xEF {
 		t.Fatal("Read wrong value via direct access on second try")
 	}
 }
@@ -78,8 +78,10 @@ func TestIoAccess(t *testing.T) {
 	// Bank nr.6 has value 16
 	mem.SetMlut(2, []byte{22, 17, 18, 19, 20, 21, 16, 23})
 
+	largeAddress := (uint32)(len(mem.systemMemory) + 8192 + 8)
+
 	// Write defined value into IO bank 1
-	mem.ioMemory[1*bankSize+8] = 0x23
+	mem.ToLargeMemory().StoreLarge(largeAddress, 0x23)
 	// MLUT 2 is active
 	mem.Store(0, 2)
 	// Memory IO page 1 is active
@@ -91,14 +93,14 @@ func TestIoAccess(t *testing.T) {
 
 	mem.Store(0xC008, 0x54)
 
-	if mem.ioMemory[1*bankSize+8] != 0x54 {
+	if mem.ToLargeMemory().LoadLarge(largeAddress) != 0x54 {
 		t.Fatal("Writing to IO memory area failed")
 	}
 
 	// Disble IO Memory, activate entry nr. 6 of active MLUT
 	mem.Store(1, 0b00000101)
 	// Write to system memory
-	mem.systemMemory[memAddress] = 0xAB
+	mem.ToLargeMemory().StoreLarge(uint32(memAddress), 0xAB)
 
 	// This should now read from system memory and not from IO memory
 	if mem.Load(0xC008) != 0xAB {

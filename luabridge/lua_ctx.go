@@ -44,6 +44,8 @@ func (c *LuaCtx) RegisterGlobals(L *lua.LState, loadAddress uint16, progLen uint
 	L.SetGlobal("set_memory", L.NewFunction(c.SetMemory))
 	L.SetGlobal("write_byte", L.NewFunction(c.WriteSingleByte))
 	L.SetGlobal("read_byte", L.NewFunction(c.ReadSingleByte))
+	L.SetGlobal("write_byte_long", L.NewFunction(c.WriteSingleByteLarge))
+	L.SetGlobal("read_byte_long", L.NewFunction(c.ReadSingleByteLarge))
 	L.SetGlobal("get_flags", L.NewFunction(c.GetFlagsLua))
 	L.SetGlobal("set_flags", L.NewFunction(c.SetFlagsLua))
 	L.SetGlobal("get_cycles", L.NewFunction(c.GetCycles))
@@ -250,6 +252,15 @@ func (c *LuaCtx) ReadSingleByte(L *lua.LState) int {
 	return 1
 }
 
+func (c *LuaCtx) ReadSingleByteLarge(L *lua.LState) int {
+	addr := uint32(L.ToInt(1))
+
+	data := c.cpu.Mem.ToLargeMemory().LoadLarge(addr)
+	L.Push(lua.LNumber(data))
+
+	return 1
+}
+
 func (c *LuaCtx) SetMemory(L *lua.LState) int {
 	addr := L.ToInt(1)
 	dataStr := L.ToString(2)
@@ -272,6 +283,15 @@ func (c *LuaCtx) WriteSingleByte(L *lua.LState) int {
 	addr := uint16(L.ToInt(1))
 
 	c.cpu.Mem.Store(addr, dataByte)
+
+	return 0
+}
+
+func (c *LuaCtx) WriteSingleByteLarge(L *lua.LState) int {
+	dataByte := uint8(L.ToInt(2))
+	addr := uint32(L.ToInt(1))
+
+	c.cpu.Mem.ToLargeMemory().StoreLarge(addr, dataByte)
 
 	return 0
 }

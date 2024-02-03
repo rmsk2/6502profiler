@@ -376,8 +376,10 @@ case the test has failed. The following functions can be used in Lua to query an
 |-|-|
 | `set_memory(address, hex_data)` | Store the data given in `hex_data` at address `address`| 
 | `get_memory(address, length)` | Return `length` bytes from the simulator beginning with the byte at address `address` as a hex string| 
-| `read_byte(address)`| Returns a single byte from memory at the given address|
-| `write_byte(address, value)`| Writes a single byte to memory at the given address|
+| `read_byte(address)`| Returns a single byte from memory at the given 16 bit address|
+| `write_byte(address, value)`| Writes a single byte to memory at the given 16 bit address|
+| `read_byte_long(address)`| Returns a single byte from memory at the given linearized address, which allows to access all of the simulated machine's memory in a flat address space  |
+| `write_byte_long(address, value)`| Writes a single byte to memory at the given linearized address, which allows to access all of the simulated machine's memory in a flat address space|
 | `get_flags()` | Returns an eight character string that contains the letters `NVBDIZC-`. A letter is in the string if the corresponding flag is set|
 | `set_flags(flag_data)` | Sets the value of the flag register. If `flag_data` contains any of the letters described above the corresponding flag is set. Using `""` clears all flags |
 | `get_pc()` | Returns the program counter |

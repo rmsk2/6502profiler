@@ -81,6 +81,18 @@ const activeLutMask uint8 = 0b00000011
 const ioDisableMask uint8 = 0b00000100
 const activeIoBankMask uint8 = 0b00000011
 
+func (f *F256RevBMemory) calcLongIndex(addr uint32) (*uint8, *uint64) {
+	switch {
+	case addr < 16:
+		return f.calcIndex((uint16)(addr))
+	case addr < (uint32)(len(f.systemMemory)):
+		return &f.systemMemory[addr], &f.accessSystem[addr]
+	default:
+		index := addr - (uint32)(len(f.systemMemory))
+		return &f.ioMemory[index], &f.accessIo[index]
+	}
+}
+
 func (f *F256RevBMemory) calcIndex(addr uint16) (*uint8, *uint64) {
 	// lower 13 bits
 	loBits := addr & loBitMask
@@ -118,20 +130,27 @@ func (f *F256RevBMemory) calcIndex(addr uint16) (*uint8, *uint64) {
 }
 
 func (f *F256RevBMemory) Load(address uint16) uint8 {
-	memPtr, statPtr := f.calcIndex(address)
-	(*statPtr)++
-	return *memPtr
+	return loadGen(address, f.calcIndex)
 }
 
 func (f *F256RevBMemory) Store(address uint16, b uint8) {
-	memPtr, statPtr := f.calcIndex(address)
-	(*statPtr)++
-	*memPtr = b
+	storeGen(address, b, f.calcIndex)
 }
 
 func (f *F256RevBMemory) GetStatistics(address uint16) uint64 {
-	_, statPtr := f.calcIndex(address)
-	return *statPtr
+	return statGen(address, f.calcIndex)
+}
+
+func (f *F256RevBMemory) LoadLarge(address uint32) uint8 {
+	return loadGen(address, f.calcLongIndex)
+}
+
+func (f *F256RevBMemory) StoreLarge(address uint32, b uint8) {
+	storeGen(address, b, f.calcLongIndex)
+}
+
+func (f *F256RevBMemory) GetStatisticsLarge(address uint32) uint64 {
+	return statGen(address, f.calcLongIndex)
 }
 
 func (f *F256RevBMemory) ClearStatistics() {
@@ -170,4 +189,8 @@ func (f *F256RevBMemory) RestoreSnapshot() {
 func (f *F256RevBMemory) SetMlut(lutNum uint8, mlutData []byte) {
 	lutNum = lutNum & 0b00000011
 	copy(f.mLut[lutNum*lutSize:(lutNum+1)*lutSize], mlutData)
+}
+
+func (f *F256RevBMemory) ToLargeMemory() LargeMemory {
+	return f
 }
