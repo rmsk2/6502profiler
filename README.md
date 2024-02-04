@@ -439,7 +439,7 @@ layout implemented in `6502profiler` for these machines.
 
 ### NeoGeo cartridge memory model
 
-In this model the 64K base memory can be access through the addresses 0 t0 0xFFFF. The addresses 0x10000 and above access the memory of the cartridge in a linear fashion.
+In this model the 64K base memory can be accessed through the addresses 0 t0 0xFFFF. The addresses 0x10000 and above access the memory of the cartridge in a linear fashion.
 
 ### Commander X16
 
