@@ -49,11 +49,14 @@ func (f *F256UnsignedCoproc) WriteUDiv(address uint16, data uint8) {
 	oper1 := uint(f.mem.Load(f.baseAdress+5))*256 + uint(f.mem.Load(f.baseAdress+4))
 	oper2 := uint(f.mem.Load(f.baseAdress+7))*256 + uint(f.mem.Load(f.baseAdress+6))
 
-	resDiv := oper2 / oper1
-	resMod := oper2 % oper1
+	// The real machine ignores division by zero
+	if oper1 != 0 {
+		resDiv := oper2 / oper1
+		resMod := oper2 % oper1
 
-	f.mem.Store(f.baseAdress+0x14, uint8(resDiv&0xFF))
-	f.mem.Store(f.baseAdress+0x15, uint8((resDiv&0xFF00)>>8))
-	f.mem.Store(f.baseAdress+0x16, uint8(resMod&0xFF))
-	f.mem.Store(f.baseAdress+0x17, uint8((resMod&0xFF00)>>8))
+		f.mem.Store(f.baseAdress+0x14, uint8(resDiv&0xFF))
+		f.mem.Store(f.baseAdress+0x15, uint8((resDiv&0xFF00)>>8))
+		f.mem.Store(f.baseAdress+0x16, uint8(resMod&0xFF))
+		f.mem.Store(f.baseAdress+0x17, uint8((resMod&0xFF00)>>8))
+	}
 }
