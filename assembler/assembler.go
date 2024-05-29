@@ -12,6 +12,7 @@ type Assembler interface {
 	Assemble(fileName string) (string, error)
 	ParseLabelFile(fileName string) (map[uint16][]string, error)
 	GetErrorMessage() string
+	GetDefaultSrc() string
 }
 
 type LineParseFunc func(string) (uint16, string, error)
@@ -54,6 +55,7 @@ type SimpleAsmImpl struct {
 	errorMessage string
 	parseLine    LineParseFunc
 	genCmd       GenCommandFunc
+	defaultProg  string
 }
 
 func (s *SimpleAsmImpl) ParseLabelFile(fileName string) (map[uint16][]string, error) {
@@ -62,6 +64,10 @@ func (s *SimpleAsmImpl) ParseLabelFile(fileName string) (map[uint16][]string, er
 
 func (s *SimpleAsmImpl) GetErrorMessage() string {
 	return s.errorMessage
+}
+
+func (s *SimpleAsmImpl) GetDefaultSrc() string {
+	return s.defaultProg
 }
 
 func (s *SimpleAsmImpl) Assemble(fileName string) (string, error) {

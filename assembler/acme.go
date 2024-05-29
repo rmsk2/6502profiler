@@ -7,6 +7,14 @@ import (
 	"strconv"
 )
 
+const defaultDrvAcme string = `
+* = $0800
+!cpu 65c02
+
+main
+    brk
+`
+
 func NewACME(path string, srcDir string, binDir string, testDir string) *SimpleAsmImpl {
 	return &SimpleAsmImpl{
 		binPath:      path,
@@ -16,6 +24,7 @@ func NewACME(path string, srcDir string, binDir string, testDir string) *SimpleA
 		errorMessage: "",
 		parseLine:    parseOneLineAcme,
 		genCmd:       makeAcmeCmd,
+		defaultProg:  defaultDrvAcme,
 	}
 }
 

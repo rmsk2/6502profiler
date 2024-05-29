@@ -9,6 +9,16 @@ import (
 	"strings"
 )
 
+var emptyLuaScript string = `
+function arrange()
+	-- remember to call set_pc(load_address) if you use test iteration
+end
+
+function assert()
+    return true, ""
+end
+`
+
 type IterProcFunc func(testCaseName string, tCase *TestCase) error
 
 type CaseRepo interface {
@@ -19,14 +29,16 @@ type CaseRepo interface {
 	GetScriptPath() string
 }
 
-func NewCaseRepo(testDir string) (CaseRepo, error) {
+func NewCaseRepo(testDir string, defaultAsmDriver string) (CaseRepo, error) {
 	return &simpleCaseRepo{
-		testDir: testDir,
+		testDir:       testDir,
+		defaultDriver: defaultAsmDriver,
 	}, nil
 }
 
 type simpleCaseRepo struct {
-	testDir string
+	testDir       string
+	defaultDriver string
 }
 
 func (s *simpleCaseRepo) GetScriptPath() string {
@@ -105,6 +117,12 @@ func (s *simpleCaseRepo) Add(caseName string, t *TestCase, createDriver bool) er
 	if err != nil {
 		return fmt.Errorf("unable to create lua script '%s'", scriptPath)
 	}
+
+	_, err = f.WriteString(emptyLuaScript)
+	if err != nil {
+		return fmt.Errorf("unable to initialize lua script '%s'", scriptPath)
+	}
+
 	defer func() { f.Close() }()
 
 	if createDriver {
@@ -113,6 +131,11 @@ func (s *simpleCaseRepo) Add(caseName string, t *TestCase, createDriver bool) er
 			return fmt.Errorf("unable to create test driver '%s'", testDriverPath)
 		}
 		defer func() { f2.Close() }()
+
+		_, err = f2.WriteString(s.defaultDriver)
+		if err != nil {
+			return fmt.Errorf("unable to initialize test driver '%s'", testDriverPath)
+		}
 	}
 
 	return nil

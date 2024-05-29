@@ -34,6 +34,15 @@ func (c *Ca65AsmImpl) GetErrorMessage() string {
 	return c.errorMessage
 }
 
+func (c *Ca65AsmImpl) GetDefaultSrc() string {
+	return `
+.PC02
+
+main:
+    brk
+`
+}
+
 func (c *Ca65AsmImpl) Assemble(fileName string) (string, error) {
 	mlProg := path.Join(c.binDir, fmt.Sprintf("%s.bin", fileName))
 	mlObj := path.Join(c.binDir, fmt.Sprintf("%s.obj", fileName))

@@ -178,7 +178,9 @@ type RepoProvider interface {
 func (c *Config) GetCaseRepo() (verifier.CaseRepo, error) {
 	var repo verifier.CaseRepo
 
-	repo, err := verifier.NewCaseRepo(c.AcmeTestDir)
+	defaultDriverSrc := c.GetAssembler().GetDefaultSrc()
+
+	repo, err := verifier.NewCaseRepo(c.AcmeTestDir, defaultDriverSrc)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,14 @@ import (
 	"strconv"
 )
 
+const defaultDrv64Tass string = `
+* = $0800
+.cpu "w65c02"
+
+main
+    brk
+`
+
 func NewTass64(path string, srcDir string, binDir string, testDir string) *SimpleAsmImpl {
 	return &SimpleAsmImpl{
 		binPath:      path,
@@ -16,6 +24,7 @@ func NewTass64(path string, srcDir string, binDir string, testDir string) *Simpl
 		errorMessage: "",
 		parseLine:    parseOneLineTass,
 		genCmd:       makeTassCmd,
+		defaultProg:  defaultDrv64Tass,
 	}
 }
 
