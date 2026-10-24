@@ -1,5 +1,5 @@
 module 6502profiler
 
-go 1.19
+go 1.23
 
-require github.com/yuin/gopher-lua v1.1.0
+require github.com/yuin/gopher-lua v1.1.2
